@@ -1,0 +1,30 @@
+code,name,description,dimension,decision_level,flow,unit,is_benefit,formula_id,protocol_notes
+E1,Total GHG emissions (Scope 1+2),Scope 1+2 total emissions for reporting period,environmental,strategic,physical,tCO2e,0,ghg_total_s1s2,From MRV activity data + emission factors
+E2,Specific GHG emissions per FU,E1 normalized by output,environmental,tactical,physical,kgCO2e/FU,0,ghg_intensity_fu,Uses E1 and output quantity
+E3,Energy intensity,Total energy per FU,environmental,tactical,physical,kWh/FU,0,energy_intensity_fu,Sum energy carriers converted to kWh
+E7,Share of renewable energy,Renewable energy share of total,environmental,strategic,physical,%,1,renewable_energy_share,Renewable/total energy
+E8,Waste recovery rate,Recovered waste as % of waste generated,environmental,tactical,physical,%,1,waste_recovery_rate,Recovery = recovered/generated
+E9,Water consumption intensity,Freshwater withdrawn per FU,environmental,tactical,physical,m3/FU,0,water_intensity_fu,Water withdrawn normalized by output
+E10,Circularity ratio,Circular material share of total materials,environmental,strategic,physical,%,1,circularity_ratio,M_circular/M_total
+
+EC1,Total cost per FU,Operating cost normalized by output,economic,strategic,financial,EUR/FU,0,cost_per_fu,Operating cost / output
+EC2,Energy cost share,Energy costs as % of operating cost,economic,tactical,financial,%,0,energy_cost_share,(fuel+electricity)/operating cost
+EC6,Overall Equipment Effectiveness (OEE),Availability*Performance*Quality,economic,tactical,physical,%,1,oee,Standard OEE components
+EC9,Return on sustainability investments (ROSI),(benefits - capex)/capex,economic,strategic,financial,%,1,rosi,Prototype ROSI calculation
+EC10,Maintenance cost per operating hour,Maintenance cost normalized by operating hours,economic,tactical,financial,EUR/h,0,maintenance_cost_per_hour,Maintenance cost / operating hours
+EC11,Logistics cost per tkm,Logistics cost normalized by transport work,economic,tactical,financial,EUR/tkm,0,logistics_cost_per_tkm,Logistics cost / tkm
+
+S1,LTIFR,Lost-time injuries per 1e6 hours,social,tactical,physical,LTIs/1e6h,0,ltifr,LTI*1e6/hours worked
+S3,Training hours per employee,Training hours normalized by employees,social,tactical,informational,h/employee,1,training_hours_per_employee,Training hours / avg employees
+S5,Suggestions per employee,Valid suggestions normalized by employees,social,tactical,informational,sugg/employee,1,suggestions_per_employee,Suggestions / employees
+S6,Community incidents and complaints,Incidents + substantiated complaints,social,strategic,informational,count,0,community_incidents_total,Incidents + complaints
+S8,Health checks coverage,Employees with health checks %,social,tactical,informational,%,1,health_checks_coverage,Health checks coverage
+S9,Customer acceptance index,Composite acceptance index (0-100),social,strategic,informational,index(0-100),1,customer_acceptance_index,Weighted composite proxy
+
+T1,Digitalization rate of core processes,Digital-supported core processes %,technological,strategic,informational,%,1,digitalization_rate,Digital processes / total core
+T3,Assets connected to IoT,Connected critical assets %,technological,tactical,informational,%,1,iot_asset_connectivity,Connected assets / total
+T4,MRV measurement coverage,Active valid MRV points %,technological,tactical,informational,%,1,mrv_coverage,Active valid / required points
+T5,DPP coverage,Shipped volume with valid DPP %,technological,strategic,informational,%,1,dpp_coverage,DPP volume / shipped volume
+T6,Data quality index,Composite data quality index (0-100),technological,tactical,informational,index(0-100),1,data_quality_index,Weighted completeness/consistency/accuracy
+T7,OT-IT integration level,Integration maturity score,technological,strategic,informational,index(1-5),1,ot_it_integration,Maturity score or % interfaces
+T8,Decisions supported by analytics,Decisions supported by models %,technological,strategic,informational,%,1,analytics_supported_decisions,Supported decisions / total

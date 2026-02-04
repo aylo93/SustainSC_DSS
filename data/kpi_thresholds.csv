@@ -1,0 +1,7 @@
+kpi_code,operator,threshold,severity,message
+E2,>,1000,High,GHG intensity above target (kgCO2e/FU)
+EC2,>,25,Medium,Energy cost share above 25%
+S1,>,2,High,LTIFR above 2 per 1e6 hours
+T5,<,80,Medium,DPP coverage below 80%
+T6,<,85,Medium,Data quality index below 85/100
+E7,<,30,Medium,Renewable energy share below 30%

@@ -1,0 +1,4 @@
+code,name,description,notes
+BASE,Baseline,Reference scenario,Default baseline
+S1,Low-carbon energy mix,More renewable energy,Higher RES share
+S2,Efficiency + digital,Efficiency improvements,Lower energy intensity

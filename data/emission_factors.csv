@@ -1,0 +1,3 @@
+﻿name,activity_type,unit,value,valid_from,valid_to,source
+Grid electricity factor,electricity_kwh,kgCO2e/kWh,0.22,2020-01-01,,Example
+Diesel (per kWh),diesel_kwh,kgCO2e/kWh,0.27,2020-01-01,,Example
