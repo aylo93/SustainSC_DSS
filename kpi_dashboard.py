@@ -1,5 +1,47 @@
 # kpi_dashboard.py
 import os
+import pandas as pd
+import streamlit as st
+from sqlalchemy import text
+
+from sustainsc.config import engine, SessionLocal
+from sustainsc.models import Base
+from load_example_data import main as load_example_data_main
+from sustainsc.kpi_engine import run_engine
+
+@st.cache_resource
+def bootstrap_db():
+    # 1) crea tablas si no existen
+    Base.metadata.create_all(bind=engine)
+
+    # 2) si no hay KPIs cargados, carga datos ejemplo + corre engine
+    if not table_exists("sc_kpi"):
+        # si ni existe tabla, igual se crea arriba, pero lo dejo por claridad
+        pass
+
+    with engine.connect() as con:
+        try:
+            kpi_count = con.execute(text("SELECT COUNT(*) FROM sc_kpi")).scalar()
+        except Exception:
+            kpi_count = 0
+
+    if not kpi_count or int(kpi_count) == 0:
+        # carga CSVs (scenarios, factors, kpis, measurements)
+        load_example_data_main()
+        # calcula KPI results
+        run_engine()
+
+    return True
+
+
+def table_exists(table_name: str) -> bool:
+    with engine.connect() as con:
+        r = con.execute(text(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=:t"
+        ), {"t": table_name}).fetchone()
+    return r is not None
+
+import os
 import streamlit as st
 
 # Asegura DB en /tmp en Cloud
@@ -119,6 +161,7 @@ st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
 st.title("SustainSCM DSS – KPI Dashboard (Prototype)")
 st.set_page_config(page_title="SustainSC DSS", layout="wide")
 bootstrap_db_once()
+bootstrap_db()
 
 df_all, kpi_meta, sc_meta = load_kpi_data()
 
