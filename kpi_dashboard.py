@@ -1,3 +1,21 @@
+import os
+import subprocess
+import streamlit as st
+
+DB_PATH = "sustainsc.db"
+
+def bootstrap_db():
+    # Si ya existe, no rehacer
+    if os.path.exists(DB_PATH):
+        return
+
+    # Crear esquema + cargar CSV + correr engine
+    subprocess.check_call(["python", "create_db.py"])
+    subprocess.check_call(["python", "load_example_data.py"])
+    subprocess.check_call(["python", "-m", "sustainsc.kpi_engine"])
+
+bootstrap_db()
+
 # kpi_dashboard.py
 # SustainSC DSS - Streamlit KPI Dashboard (26 KPIs + filters + scenario comparison)
 # Requires: streamlit, pandas, sqlalchemy
