@@ -14,7 +14,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-from .config import Base
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
 
 
 class ProductFamily(Base):
