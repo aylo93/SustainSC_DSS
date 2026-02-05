@@ -1,15 +1,13 @@
 # sustainsc/config.py
-
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sustainsc.db"
+# En Streamlit Cloud el FS del repo puede ser read-only.
+# /tmp sí es escribible.
+DEFAULT_DB = "sqlite:////tmp/sustainsc.db"
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
+SQLALCHEMY_DATABASE_URL = os.getenv("SUSTAINSC_DB_URL", DEFAULT_DB)
 
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()

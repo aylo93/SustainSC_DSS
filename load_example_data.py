@@ -398,5 +398,9 @@ def main() -> None:
     finally:
         session.close()
 
+def main():
+    # ... tu lógica de cargar escenarios/factores/kpis/measurements
+    pass
+
 if __name__ == "__main__":
     main()

@@ -1,20 +1,34 @@
+# kpi_dashboard.py
 import os
-import subprocess
 import streamlit as st
 
-DB_PATH = "sustainsc.db"
+# Asegura DB en /tmp en Cloud
+os.environ["SUSTAINSC_DB_URL"] = "sqlite:////tmp/sustainsc.db"
 
-def bootstrap_db():
-    # Si ya existe, no rehacer
-    if os.path.exists(DB_PATH):
+from sustainsc.config import SessionLocal
+from sustainsc.models import Base
+from sustainsc.config import engine
+
+import create_db
+import load_example_data
+from sustainsc import kpi_engine
+
+def bootstrap_db_once():
+    # Evita que Streamlit re-ejecute esto 100 veces al recargar
+    if st.session_state.get("_db_bootstrapped", False):
         return
 
-    # Crear esquema + cargar CSV + correr engine
-    subprocess.check_call(["python", "create_db.py"])
-    subprocess.check_call(["python", "load_example_data.py"])
-    subprocess.check_call(["python", "-m", "sustainsc.kpi_engine"])
+    # 1) Crea tablas
+    Base.metadata.create_all(bind=engine)
 
-bootstrap_db()
+    # 2) Carga datos CSV (si tu script load_example_data ya lo hace)
+    # Ideal: que load_example_data.main() cargue todo: escenarios, factores, kpis, measurements
+    load_example_data.main()
+
+    # 3) Calcula KPIs
+    kpi_engine.run_engine()
+
+    st.session_state["_db_bootstrapped"] = True
 
 # kpi_dashboard.py
 # SustainSC DSS - Streamlit KPI Dashboard (26 KPIs + filters + scenario comparison)
@@ -103,6 +117,8 @@ def latest_per_kpi_scenario(df):
 
 st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
 st.title("SustainSCM DSS – KPI Dashboard (Prototype)")
+st.set_page_config(page_title="SustainSC DSS", layout="wide")
+bootstrap_db_once()
 
 df_all, kpi_meta, sc_meta = load_kpi_data()
 
