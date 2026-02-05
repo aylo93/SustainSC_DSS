@@ -1,14 +1,14 @@
 # load_example_data.py
-# SustainSC DSS - Example data loader (robust CSV loader)
+# SustainSC DSS - Example data loader (Cloud-proof)
 # Loads: scenarios, emission factors, cost factors, KPIs, measurements
-# Handles comma or semicolon delimited CSVs (Excel in some locales uses ';').
+# Robust against comma/semicolon/tab delimiters + UTF-8 BOM.
 
 from __future__ import annotations
 
 import csv
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 
 from sustainsc.config import SessionLocal
 from sustainsc.models import (
@@ -26,32 +26,17 @@ from sustainsc.models import (
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 
-def pick_csv(*filenames: str) -> Path:
-    candidates = []
-    for fn in filenames:
-        p = DATA_DIR / fn
-        if p.exists():
-            candidates.append(p)
+# Preferred filenames (keep these in your repo under /data)
+SCENARIOS_CSV = DATA_DIR / "scenarios.csv"
+EMISSION_FACTORS_CSV = DATA_DIR / "emission_factors.csv"
+COST_FACTORS_CSV = DATA_DIR / "cost_factors.csv"
+KPIS_CSV = DATA_DIR / "kpis.csv"
+MEASUREMENTS_CSV = DATA_DIR / "measurements.csv"
 
-    if not candidates:
-        raise FileNotFoundError(f"Could not find any of these files in {DATA_DIR}: {filenames}")
 
-    # Prefer non-empty files (avoid accidentally selecting an empty CSV)
-    for p in candidates:
-        try:
-            if p.stat().st_size > 10:
-                return p
-        except Exception:
-            pass
-
-    return candidates[0]
-
-# File candidates (include your earlier "ascii" export)
-SCENARIOS_CSV = DATA_DIR / "scenarios.csv"  # optional
-EMISSION_FACTORS_CSV = pick_csv("emission_factors.csv", "data_emission_factors.csv")
-COST_FACTORS_CSV = pick_csv("cost_factors.csv", "data_cost_factors.csv")
-KPIS_CSV = pick_csv("kpis.csv", "data_kpis.csv", "data_kpis_ascii.csv")
-MEASUREMENTS_CSV = pick_csv("measurements.csv", "data_measurements.csv")
+# -----------------------------
+# Helpers
+# -----------------------------
 
 def parse_dt(s: str) -> datetime:
     return datetime.fromisoformat(s.strip())
@@ -65,103 +50,113 @@ def ffloat(x: Optional[str]) -> Optional[float]:
     return float(s)
 
 def norm_row(row: Dict[str, str]) -> Dict[str, str]:
-    out = {}
+    out: Dict[str, str] = {}
     for k, v in row.items():
         kk = (k or "").strip().lower().replace(" ", "_")
-        out[kk] = v
+        out[kk] = (v if v is not None else "")
     return out
 
-def open_dict_reader(path: Path) -> csv.DictReader:
-    """
-    Open CSV robustly (supports delimiter ',' or ';' or tab).
-    Also supports UTF-8 with BOM via utf-8-sig.
-    If Sniffer fails (file very small / ambiguous), use heuristic delimiter choice.
-    """
-    f = path.open("r", newline="", encoding="utf-8-sig")
-
-    sample = f.read(4096)
-    f.seek(0)
-
-    # If file is empty or almost empty, fall back to comma
-    if not sample or not sample.strip():
-        print(f"[WARN] {path.name} seems empty or unreadable; defaulting delimiter to ','")
-        return csv.DictReader(f, delimiter=",", skipinitialspace=True)
-
+def detect_delimiter(sample: str) -> str:
+    # Try Sniffer first, otherwise heuristic
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=[",", ";", "\t"])
-        print(f"[INFO] {path.name} delimiter detected: {repr(dialect.delimiter)}")
-        return csv.DictReader(f, dialect=dialect, skipinitialspace=True)
-
+        return dialect.delimiter
     except csv.Error:
-        # Heuristic: choose the delimiter that appears most in the sample
         counts = {",": sample.count(","), ";": sample.count(";"), "\t": sample.count("\t")}
         delim = max(counts, key=counts.get)
-        if counts[delim] == 0:
-            delim = ","  # final default
+        return delim if counts[delim] > 0 else ","
 
-        print(f"[WARN] Could not sniff delimiter for {path.name}. Using heuristic delimiter: {repr(delim)}")
-        return csv.DictReader(f, delimiter=delim, skipinitialspace=True)
+def read_csv_rows(path: Path) -> List[Dict[str, str]]:
+    if not path.exists():
+        raise FileNotFoundError(f"Missing file: {path}")
+
+    with path.open("r", newline="", encoding="utf-8-sig") as f:
+        sample = f.read(4096)
+        f.seek(0)
+
+        if not sample.strip():
+            raise ValueError(f"CSV seems empty: {path}")
+
+        delim = detect_delimiter(sample)
+        print(f"[INFO] {path.name} delimiter: {repr(delim)}")
+
+        reader = csv.DictReader(f, delimiter=delim, skipinitialspace=True)
+        if not reader.fieldnames:
+            raise ValueError(f"No headers detected in: {path}")
+
+        rows: List[Dict[str, str]] = []
+        for raw in reader:
+            rows.append(norm_row(raw))
+        print(f"[INFO] {path.name} headers: {reader.fieldnames}")
+        return rows
+
 
 # -----------------------------
 # Loaders
 # -----------------------------
 
+def upsert_scenario(session, code: str, name: str, description: str = "", notes: str = "") -> int:
+    code = code.strip()
+    existing = session.query(Scenario).filter_by(code=code).first()
+    if existing:
+        existing.name = name or existing.name
+        existing.description = description or existing.description
+        existing.notes = notes or existing.notes
+        session.flush()
+        return existing.id
+
+    sc = Scenario(code=code, name=name, description=description, notes=notes)
+    session.add(sc)
+    session.flush()
+    return sc.id
+
 def load_scenarios(session) -> Dict[str, int]:
     scenario_map: Dict[str, int] = {}
 
-    def upsert_scenario(code: str, name: str, description: str = "", notes: str = "") -> int:
-        code = code.strip()
-        existing = session.query(Scenario).filter_by(code=code).first()
-        if existing:
-            existing.name = name or existing.name
-            existing.description = description or existing.description
-            existing.notes = notes or existing.notes
-            session.flush()
-            return existing.id
-        sc = Scenario(code=code, name=name, description=description, notes=notes)
-        session.add(sc)
-        session.flush()
-        return sc.id
-
     if SCENARIOS_CSV.exists():
-        reader = open_dict_reader(SCENARIOS_CSV)
-        count = 0
-        for raw in reader:
-            row = norm_row(raw)
+        rows = read_csv_rows(SCENARIOS_CSV)
+        for row in rows:
             code = (row.get("code") or "").strip()
             if not code:
                 continue
             sid = upsert_scenario(
+                session,
                 code=code,
-                name=(row.get("name") or code),
-                description=(row.get("description") or ""),
-                notes=(row.get("notes") or ""),
+                name=(row.get("name") or code).strip(),
+                description=(row.get("description") or "").strip(),
+                notes=(row.get("notes") or "").strip(),
             )
             scenario_map[code] = sid
-            count += 1
         session.commit()
-        print(f"Loaded {count} scenarios.")
+        print(f"Loaded {len(scenario_map)} scenarios from scenarios.csv.")
     else:
-        base = session.query(Scenario).filter_by(code="BASE").first()
-        if not base:
-            base = Scenario(code="BASE", name="Baseline", description="Default baseline scenario", notes="")
-            session.add(base)
-            session.commit()
-        scenario_map["BASE"] = base.id
-        print("Scenarios CSV not found. Ensured BASE scenario exists.")
+        # Cloud-proof fallback: ensure BASE/S1/S2 exist even without scenarios.csv
+        defaults = [
+            ("BASE", "Baseline", "Reference scenario", "Default baseline"),
+            ("S1", "Low-carbon energy mix", "More renewable energy", "Higher RES share"),
+            ("S2", "Efficiency + digital", "Efficiency improvements", "Lower energy intensity"),
+        ]
+        for code, name, desc, notes in defaults:
+            sid = upsert_scenario(session, code, name, desc, notes)
+            scenario_map[code] = sid
+        session.commit()
+        print("scenarios.csv not found. Ensured default scenarios: BASE, S1, S2.")
 
+    # Refresh map from DB (guarantee IDs)
     for sc in session.query(Scenario).all():
         scenario_map[sc.code] = sc.id
 
     return scenario_map
 
 def load_emission_factors(session) -> None:
-    reader = open_dict_reader(EMISSION_FACTORS_CSV)
-    print(f"Emission factors headers: {reader.fieldnames}")
+    if not EMISSION_FACTORS_CSV.exists():
+        print(f"[WARN] Missing {EMISSION_FACTORS_CSV.name}; skipping emission factors.")
+        return
 
+    rows = read_csv_rows(EMISSION_FACTORS_CSV)
     count = 0
-    for raw in reader:
-        row = norm_row(raw)
+
+    for row in rows:
         activity_type = (row.get("activity_type") or row.get("variable_name") or "").strip()
         if not activity_type:
             continue
@@ -201,12 +196,14 @@ def load_emission_factors(session) -> None:
     print(f"Loaded {count} emission factors.")
 
 def load_cost_factors(session) -> None:
-    reader = open_dict_reader(COST_FACTORS_CSV)
-    print(f"Cost factors headers: {reader.fieldnames}")
+    if not COST_FACTORS_CSV.exists():
+        print(f"[WARN] Missing {COST_FACTORS_CSV.name}; skipping cost factors.")
+        return
 
+    rows = read_csv_rows(COST_FACTORS_CSV)
     count = 0
-    for raw in reader:
-        row = norm_row(raw)
+
+    for row in rows:
         activity_type = (row.get("activity_type") or row.get("variable_name") or "").strip()
         if not activity_type:
             continue
@@ -246,12 +243,14 @@ def load_cost_factors(session) -> None:
     print(f"Loaded {count} cost factors.")
 
 def load_kpis(session) -> None:
-    reader = open_dict_reader(KPIS_CSV)
-    print(f"KPIs headers: {reader.fieldnames}")
+    if not KPIS_CSV.exists():
+        print(f"[WARN] Missing {KPIS_CSV.name}; cannot load KPIs.")
+        return
 
+    rows = read_csv_rows(KPIS_CSV)
     count = 0
-    for raw in reader:
-        row = norm_row(raw)
+
+    for row in rows:
         code = (row.get("code") or "").strip()
         if not code:
             continue
@@ -313,13 +312,14 @@ def _resolve_optional_fk_ids(session, row: Dict[str, str]) -> Tuple[Optional[int
     return product_id, facility_id, process_id, transport_leg_id
 
 def load_measurements(session, scenario_map: Dict[str, int]) -> None:
-    reader = open_dict_reader(MEASUREMENTS_CSV)
-    print(f"Measurements headers: {reader.fieldnames}")
+    if not MEASUREMENTS_CSV.exists():
+        print(f"[WARN] Missing {MEASUREMENTS_CSV.name}; cannot load measurements.")
+        return
 
+    rows = read_csv_rows(MEASUREMENTS_CSV)
     count = 0
-    for raw in reader:
-        row = norm_row(raw)
 
+    for row in rows:
         variable_name = (row.get("variable_name") or row.get("activity_type") or "").strip()
         if not variable_name:
             continue
@@ -336,16 +336,11 @@ def load_measurements(session, scenario_map: Dict[str, int]) -> None:
 
         scenario_id = scenario_map.get(scenario_code)
         if scenario_id is None:
-            sc = session.query(Scenario).filter_by(code=scenario_code).first()
-            if not sc:
-                sc = Scenario(code=scenario_code, name=scenario_code, description="", notes="auto-created")
-                session.add(sc)
-                session.flush()
-            scenario_id = sc.id
+            scenario_id = upsert_scenario(session, scenario_code, scenario_code, "", "auto-created")
             scenario_map[scenario_code] = scenario_id
+            session.commit()
 
         product_id, facility_id, process_id, transport_leg_id = _resolve_optional_fk_ids(session, row)
-
         source_system = (row.get("source_system") or "").strip()
         comment = (row.get("comment") or "").strip()
 
@@ -384,6 +379,7 @@ def load_measurements(session, scenario_map: Dict[str, int]) -> None:
     session.commit()
     print(f"Loaded {count} measurements.")
 
+
 def main() -> None:
     if not DATA_DIR.exists():
         raise FileNotFoundError(f"Data folder not found: {DATA_DIR}")
@@ -398,9 +394,6 @@ def main() -> None:
     finally:
         session.close()
 
-def main():
-    # ... tu lógica de cargar escenarios/factores/kpis/measurements
-    pass
 
 if __name__ == "__main__":
     main()
