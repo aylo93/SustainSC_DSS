@@ -1,7 +1,6 @@
 # create_db.py
-
-from sustainsc.config import engine, Base
-import sustainsc.models  # IMPORTANTE: registra todas las clases ORM
+from sustainsc.config import engine
+from sustainsc.models import Base
 
 def main():
     print("Creating database schema...")

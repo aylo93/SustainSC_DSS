@@ -21,21 +21,25 @@ bootstrap_db()
 # Requires: streamlit, pandas, sqlalchemy
 
 import os
-import subprocess
-from pathlib import Path
+import streamlit as st
+
+DB_PATH = "sustainsc.db"
 
 def ensure_db_ready():
-    db_path = Path("sustainsc.db")
-    if db_path.exists():
+    if os.path.exists(DB_PATH):
         return
-    # crea DB
-    subprocess.check_call(["python", "create_db.py"])
-    # carga CSVs
-    subprocess.check_call(["python", "load_example_data.py"])
-    # corre KPIs
-    subprocess.check_call(["python", "-m", "sustainsc.kpi_engine"])
+
+    # Ejecuta todo en el mismo proceso (más robusto en Cloud)
+    import create_db
+    import load_example_data
+    from sustainsc.kpi_engine import run_engine
+
+    create_db.main()
+    load_example_data.main()
+    run_engine()
 
 ensure_db_ready()
+
 
 import streamlit as st
 import pandas as pd
