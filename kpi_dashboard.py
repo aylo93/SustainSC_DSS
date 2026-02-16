@@ -31,7 +31,13 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # Now safe to import project modules
 from sustainsc.config import engine
 from sustainsc.models import Base
-from sustainsc.data_loader import main as load_example_data_main
+try:
+    # Si algún día mueves el loader dentro del paquete sustainsc/
+    from sustainsc.data_loader import main as load_example_data_main
+except ModuleNotFoundError:
+    # Tu caso actual: loader en la raíz del repo
+    from load_example_data import main as load_example_data_main
+
 from sustainsc.kpi_engine import run_engine
 
 # ============================================================================
