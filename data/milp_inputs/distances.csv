@@ -1,0 +1,7 @@
+facility_code,customer_code,distance_km
+Q1,C1,45
+Q1,C2,110
+Q1,C3,160
+Q2,C1,65
+Q2,C2,75
+Q2,C3,140

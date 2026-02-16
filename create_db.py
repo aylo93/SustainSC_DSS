@@ -1,6 +1,6 @@
 # create_db.py
-from sustainsc.config import engine
-from sustainsc.models import Base
+from sustainsc.config import Base, engine
+import sustainsc.models  # registra todas las tablas
 
 def main():
     Base.metadata.create_all(bind=engine)

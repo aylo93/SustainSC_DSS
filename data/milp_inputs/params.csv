@@ -1,0 +1,7 @@
+param,value
+elec_price_eur_per_kwh,0.12
+diesel_price_eur_per_kwh,0.18
+transport_cost_eur_per_tkm,0.06
+diesel_kwh_per_tkm,0.32
+renewable_premium_eur_per_kwh,0.02
+renewable_share_max,0.70

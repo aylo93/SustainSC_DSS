@@ -1,245 +1,185 @@
 # sustainsc/models.py
+from __future__ import annotations
 
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Float,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    Enum,
-    UniqueConstraint,
+    Column, Integer, String, Float, DateTime, Text, Boolean, ForeignKey
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
-
-
-
-class ProductFamily(Base):
-    __tablename__ = "sc_product_family"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String)
-
-    products = relationship("Product", back_populates="family")
-
-
-class Product(Base):
-    __tablename__ = "sc_product"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String)
-
-    family_id = Column(Integer, ForeignKey("sc_product_family.id"))
-    family = relationship("ProductFamily", back_populates="products")
-
-    # For traceability and DPP/ADP integration (generic, any supply chain)
-    dpp_id = Column(String)  # external digital product passport identifier
-
-
-class Facility(Base):
-    __tablename__ = "sc_facility"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    facility_type = Column(String)  # e.g. "supplier", "plant", "warehouse", "customer"
-    country = Column(String)
-    region = Column(String)
-    city = Column(String)
-
-    processes = relationship("Process", back_populates="facility")
-    outgoing_legs = relationship(
-        "TransportLeg",
-        back_populates="origin_facility",
-        foreign_keys="TransportLeg.origin_facility_id",
-    )
-    incoming_legs = relationship(
-        "TransportLeg",
-        back_populates="destination_facility",
-        foreign_keys="TransportLeg.destination_facility_id",
-    )
-
-
-class Process(Base):
-    __tablename__ = "sc_process"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String)
-
-    facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=False)
-    facility = relationship("Facility", back_populates="processes")
-
-    # Generic tags for mapping to SCOR or other taxonomies if needed
-    process_category = Column(String)  # e.g. "make", "source", "deliver"
-
-
-class TransportLeg(Base):
-    __tablename__ = "sc_transport_leg"
-
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    mode = Column(String)  # e.g. "road", "rail", "sea", "air"
-
-    origin_facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=False)
-    destination_facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=False)
-
-    origin_facility = relationship(
-        "Facility",
-        foreign_keys=[origin_facility_id],
-        back_populates="outgoing_legs",
-    )
-    destination_facility = relationship(
-        "Facility",
-        foreign_keys=[destination_facility_id],
-        back_populates="incoming_legs",
-    )
-
-    distance_km = Column(Float)       # nominal distance
-    typical_lead_time_h = Column(Float)
+from .config import Base
 
 
 class Scenario(Base):
     __tablename__ = "sc_scenario"
-
     id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String)
+    code = Column(String(50), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
 
-    # Scenario metadata: could store JSON in a string column or in a separate table
-    # to capture assumptions about network configuration, technologies, policies, etc.
-    notes = Column(String)
+    measurements = relationship("Measurement", back_populates="scenario", cascade="all, delete-orphan")
+    kpi_results = relationship("KPIResult", back_populates="scenario", cascade="all, delete-orphan")
 
 
-class EmissionFactor(Base):
-    __tablename__ = "sc_emission_factor"
-
+# ---------- DPP / Master data ----------
+class Product(Base):
+    __tablename__ = "sc_product"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    activity_type = Column(String, nullable=False)  # e.g. "electricity_kwh", "diesel_litre", "tkm_road"
-    unit = Column(String, nullable=False)           # e.g. "kg CO2e/kWh"
-    value = Column(Float, nullable=False)
+    code = Column(String(80), unique=True, nullable=False)  # e.g., AGG_0_4, AGG_4_8
+    name = Column(String(255), nullable=False)
+    fu_unit = Column(String(50), nullable=True)  # e.g., "t" (toneladas)
 
-    valid_from = Column(DateTime)
-    valid_to = Column(DateTime)
-    source = Column(String)  # e.g. "GHG Protocol", "LCA database", etc.
+    # DPP “handle” (link o identificador)
+    dpp_ref = Column(String(255), nullable=True)
 
-
-class CostFactor(Base):
-    __tablename__ = "sc_cost_factor"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    activity_type = Column(String, nullable=False)  # e.g. "labour_hour", "electricity_kwh"
-    unit = Column(String, nullable=False)           # e.g. "€/kWh"
-    value = Column(Float, nullable=False)
-
-    valid_from = Column(DateTime)
-    valid_to = Column(DateTime)
-    source = Column(String)
+    measurements = relationship("Measurement", back_populates="product")
+    kpi_results = relationship("KPIResult", back_populates="product")
 
 
-class Measurement(Base):
+class ProductPassport(Base):
     """
-    Generic MRV measurement record:
-    - Captures activity data such as production quantity, energy use, transport work, etc.
-    - Can be linked to process and/or transport legs, facilities, products and scenarios.
+    DPP / “pasaporte” (opcional): permite guardar metadata por producto/lote.
     """
-
-    __tablename__ = "sc_measurement"
-
+    __tablename__ = "sc_product_passport"
     id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=False)
 
-    variable_name = Column(String, nullable=False)   # e.g. "electricity_kwh", "diesel_litre", "throughput_tonnes"
-    value = Column(Float, nullable=False)
-    unit = Column(String, nullable=False)            # e.g. "kWh", "litre", "tonne", "tkm"
-
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=True)
-    facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
-    process_id = Column(Integer, ForeignKey("sc_process.id"), nullable=True)
-    transport_leg_id = Column(Integer, ForeignKey("sc_transport_leg.id"), nullable=True)
-    scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
-
-    source_system = Column(String)   # e.g. "ERP", "MES", "manual", "IoT"
-    comment = Column(String)
+    batch_code = Column(String(120), nullable=True)
+    passport_url = Column(String(500), nullable=True)
+    certificate_ref = Column(String(255), nullable=True)
+    notes = Column(Text, nullable=True)
 
     product = relationship("Product")
-    facility = relationship("Facility")
-    process = relationship("Process")
-    transport_leg = relationship("TransportLeg")
-    scenario = relationship("Scenario")
 
 
+class Facility(Base):
+    __tablename__ = "sc_facility"
+    id = Column(Integer, primary_key=True)
+    code = Column(String(80), unique=True, nullable=False)  # e.g., PLANT_A, PLANT_B
+    name = Column(String(255), nullable=False)
+    location = Column(String(255), nullable=True)  # city/region
+    facility_type = Column(String(80), nullable=True)  # quarry/plant/warehouse
+
+    processes = relationship("Process", back_populates="facility")
+    measurements = relationship("Measurement", back_populates="facility")
+    kpi_results = relationship("KPIResult", back_populates="facility")
+
+
+class Process(Base):
+    __tablename__ = "sc_process"
+    id = Column(Integer, primary_key=True)
+    code = Column(String(80), unique=True, nullable=False)  # e.g., CRUSHING, SCREENING
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+
+    facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+
+    facility = relationship("Facility", back_populates="processes")
+    measurements = relationship("Measurement", back_populates="process")
+
+
+class TransportLeg(Base):
+    __tablename__ = "sc_transport_leg"
+    id = Column(Integer, primary_key=True)
+    code = Column(String(80), unique=True, nullable=False)  # e.g., A_TO_MARKET, A_TO_B
+    name = Column(String(255), nullable=True)
+
+    from_facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+    to_facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+
+    mode = Column(String(50), nullable=True)  # truck/rail/ship
+    distance_km = Column(Float, nullable=True)
+
+    measurements = relationship("Measurement", back_populates="transport_leg")
+
+
+# ---------- KPI catalog ----------
 class KPI(Base):
     __tablename__ = "sc_kpi"
-
     id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)  # e.g. "E1", "EC3", "S2", "T4"
-    name = Column(String, nullable=False)
-    description = Column(String)
-
-    dimension = Column(String, nullable=False)  # "environmental", "economic", "social", "technological"
-    decision_level = Column(String, nullable=False)  # "strategic", "tactical", "operational"
-    flow = Column(String, nullable=False)  # "physical", "informational", "financial"
-
-    unit = Column(String, nullable=False)       # "t CO2e", "€/unit", "%", etc.
-    is_benefit = Column(Boolean, default=False) # True if higher is better (for MCDA)
-
-    # For implementation simplicity, store a formula reference (e.g. Python function name or expression).
-    formula_id = Column(String)                 # Link to KPI computation logic
-
-    # Optional: JSON or text specifying data sources and protocol details
-    protocol_notes = Column(String)
+    code = Column(String(50), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    dimension = Column(String(50), nullable=False)
+    decision_level = Column(String(50), nullable=False)
+    flow = Column(String(50), nullable=False)
+    unit = Column(String(50), nullable=True)
+    is_benefit = Column(Boolean, nullable=False, default=False)
+    formula_id = Column(String(100), nullable=False)
+    protocol_notes = Column(Text, nullable=True)
 
     results = relationship("KPIResult", back_populates="kpi")
 
 
+# ---------- MRV measurement ----------
+class Measurement(Base):
+    __tablename__ = "sc_measurement"
+    id = Column(Integer, primary_key=True)
+
+    variable_name = Column(String(100), nullable=False)
+    value = Column(Float, nullable=False)
+    unit = Column(String(50), nullable=True)
+    timestamp = Column(DateTime, nullable=False)
+
+    scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+
+    # Contexto DPP / trazabilidad (opcionales)
+    product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=True)
+    facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+    process_id = Column(Integer, ForeignKey("sc_process.id"), nullable=True)
+    transport_leg_id = Column(Integer, ForeignKey("sc_transport_leg.id"), nullable=True)
+
+    source_system = Column(String(100), nullable=True)
+    comment = Column(Text, nullable=True)
+
+    scenario = relationship("Scenario", back_populates="measurements")
+    product = relationship("Product", back_populates="measurements")
+    facility = relationship("Facility", back_populates="measurements")
+    process = relationship("Process", back_populates="measurements")
+    transport_leg = relationship("TransportLeg", back_populates="measurements")
+
+
+# ---------- KPI results ----------
 class KPIResult(Base):
     __tablename__ = "sc_kpi_result"
-
     id = Column(Integer, primary_key=True)
-    computed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     kpi_id = Column(Integer, ForeignKey("sc_kpi.id"), nullable=False)
     scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
 
-    # Context for which the KPI is computed (generic, any supply chain)
+    # contexto opcional (para drill-down por DPP/planta)
     product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=True)
     facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
 
     period_start = Column(DateTime, nullable=True)
     period_end = Column(DateTime, nullable=True)
-
     value = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     kpi = relationship("KPI", back_populates="results")
-    scenario = relationship("Scenario")
-    product = relationship("Product")
-    facility = relationship("Facility")
+    scenario = relationship("Scenario", back_populates="kpi_results")
+    product = relationship("Product", back_populates="kpi_results")
+    facility = relationship("Facility", back_populates="kpi_results")
 
-    __table_args__ = (
-        UniqueConstraint(
-            "kpi_id",
-            "scenario_id",
-            "product_id",
-            "facility_id",
-            "period_start",
-            "period_end",
-            name="uq_kpi_context",
-        ),
-    )
+
+class EmissionFactor(Base):
+    __tablename__ = "sc_emission_factor"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    activity_type = Column(String(100), nullable=False)
+    unit = Column(String(50), nullable=True)
+    value = Column(Float, nullable=False)
+    valid_from = Column(DateTime, nullable=True)
+    valid_to = Column(DateTime, nullable=True)
+    source = Column(String(255), nullable=True)
+
+
+class CostFactor(Base):
+    __tablename__ = "sc_cost_factor"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    activity_type = Column(String(100), nullable=False)
+    unit = Column(String(50), nullable=True)
+    value = Column(Float, nullable=False)
+    valid_from = Column(DateTime, nullable=True)
+    valid_to = Column(DateTime, nullable=True)
+    source = Column(String(255), nullable=True)
