@@ -61,29 +61,36 @@ def _count_rows(con, table_name: str) -> int:
     except Exception:
         return 0
 
+def _count_milp_scenarios(engine) -> int:
+    with engine.connect() as con:
+        return int(con.execute(text(
+            "SELECT COUNT(*) FROM sc_scenario WHERE code LIKE 'MILP_%'"
+        )).scalar() or 0)
+
 @st.cache_resource
-def bootstrap_db() -> bool:
+def bootstrap_db(force: bool = False):
     """
     Initialize database: create schema + load data + compute KPIs (if needed).
     Cached to run only once per session.
     """
     Base.metadata.create_all(bind=engine)
 
+    # 1) cargar datos base si no hay KPIs
     with engine.connect() as con:
-        kpi_count = _count_rows(con, "sc_kpi")
-        meas_count = _count_rows(con, "sc_measurement")
-        sc_count = _count_rows(con, "sc_scenario")
-        res_count = _count_rows(con, "sc_kpi_result")
+        kpi_count = int(con.execute(text("SELECT COUNT(*) FROM sc_kpi")).scalar() or 0)
 
-    # Load example data if missing
-    if kpi_count == 0 or meas_count == 0 or sc_count == 0:
-        with st.spinner("Loading example data..."):
-            load_example_data_main()
+    if force or kpi_count == 0:
+        load_example_data_main()   # BASE/S1/S2 + measurements base
+        # IMPORTANTE: no hagas return aquí
 
-    # Compute KPI results if missing
-    if res_count == 0:
-        with st.spinner("Computing KPI results..."):
-            run_engine()
+    # 2) crear escenarios MILP si no existen
+    milp_count = _count_milp_scenarios(engine)
+    if force or milp_count == 0:
+        from sustainsc.milp_interface import register_demo_milp_scenarios
+        register_demo_milp_scenarios()
+
+    # 3) recalcular KPIs (para que aparezcan en el dashboard)
+    run_engine()
 
     return True
 
@@ -204,6 +211,13 @@ latest = latest_per_kpi_scenario(df_all)
 # ============================================================================
 
 st.sidebar.header("Filters")
+
+# Agregar botón para reconstruir demo (MILP + KPIs)
+if st.sidebar.button("🔄 Rebuild demo (MILP + KPIs)"):
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    bootstrap_db(force=True)
+    st.rerun()
 
 dimensions = ["All"] + sorted(latest["dimension"].dropna().unique().tolist())
 decision_levels = ["All"] + sorted(latest["decision_level"].dropna().unique().tolist())
