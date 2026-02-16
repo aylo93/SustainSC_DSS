@@ -1,11 +1,10 @@
-# kpi_dashboard.py
-# SustainSC DSS – Streamlit KPI Dashboard (Cloud-proof)
-# Features: filters + time series + contribution + alerts + scenario comparison + All vs BASE summary
-
+# ...existing code...
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 from sqlalchemy import text
@@ -18,24 +17,25 @@ def _default_db_url() -> str:
     """Get appropriate DB URL for environment (local vs Cloud)"""
     if os.getenv("SUSTAINSC_DB_URL"):
         return os.environ["SUSTAINSC_DB_URL"]
-    
+
     # Streamlit Community Cloud
     if Path("/mount/src").exists() or os.getenv("STREAMLIT_SERVER_HEADLESS") == "true":
         return "sqlite:////tmp/sustainsc.db"
-    
+
     # Local development (Windows/Mac/Linux)
-    return "sqlite:///sustainsc.db"
+    db_path = Path(tempfile.gettempdir()) / "sustainsc.db"
+    return f"sqlite:///{db_path.as_posix()}"
 
 os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 
 # Now safe to import project modules
 from sustainsc.config import engine
 from sustainsc.models import Base
-from load_example_data import main as load_example_data_main
+from sustainsc.data_loader import main as load_example_data_main
 from sustainsc.kpi_engine import run_engine
 
 # ============================================================================
-# 1) Bootstrap DB (runs once via Streamlit cache)
+# 1) DB helpers + bootstrap (cached)
 # ============================================================================
 
 def _table_exists(con, table_name: str) -> bool:
@@ -61,25 +61,24 @@ def bootstrap_db() -> bool:
     Initialize database: create schema + load data + compute KPIs (if needed).
     Cached to run only once per session.
     """
-    # 1) Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     with engine.connect() as con:
         kpi_count = _count_rows(con, "sc_kpi")
         meas_count = _count_rows(con, "sc_measurement")
         sc_count = _count_rows(con, "sc_scenario")
         res_count = _count_rows(con, "sc_kpi_result")
-    
-    # 2) Load example data if missing
+
+    # Load example data if missing
     if kpi_count == 0 or meas_count == 0 or sc_count == 0:
         with st.spinner("Loading example data..."):
             load_example_data_main()
-    
-    # 3) Compute KPI results if missing
+
+    # Compute KPI results if missing
     if res_count == 0:
         with st.spinner("Computing KPI results..."):
             run_engine()
-    
+
     return True
 
 # ============================================================================
@@ -103,12 +102,12 @@ def _effect_label(delta, is_benefit):
     """
     if delta is None or pd.isna(delta):
         return "Missing"
-    
+
     is_benefit = int(is_benefit) if not pd.isna(is_benefit) else 0
-    
+
     if float(delta) == 0:
         return "Same"
-    
+
     if is_benefit == 1:
         return "Improved" if float(delta) > 0 else "Worse"
     else:
@@ -130,7 +129,7 @@ def load_kpi_data():
     """
     kpi_cols = _get_table_columns("sc_kpi")
     has_flow = "flow" in kpi_cols
-    
+
     kpi_sql = (
         "SELECT id as kpi_id, code as kpi_code, name as kpi_name, "
         "dimension, decision_level, "
@@ -138,33 +137,32 @@ def load_kpi_data():
         + "unit, is_benefit "
         "FROM sc_kpi ORDER BY code"
     )
-    
+
     res_sql = (
         "SELECT id as result_id, kpi_id, scenario_id, period_end, value "
         "FROM sc_kpi_result ORDER BY period_end"
     )
-    
+
     sc_sql = (
         "SELECT id as scenario_id, code as scenario_code, name as scenario_name "
         "FROM sc_scenario ORDER BY id"
     )
-    
+
     with engine.connect() as con:
         kpi_df = pd.read_sql_query(text(kpi_sql), con)
         res_df = pd.read_sql_query(text(res_sql), con)
         sc_df = pd.read_sql_query(text(sc_sql), con)
-    
+
     # Merge all data
     df = (
         res_df.merge(kpi_df, on="kpi_id", how="left")
               .merge(sc_df, on="scenario_id", how="left")
     )
-    
-    # Fill missing values
+
     df["scenario_code"] = df["scenario_code"].fillna("NONE")
     df["scenario_name"] = df["scenario_name"].fillna("NoScenario")
     df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
-    
+
     return df, kpi_df, sc_df
 
 def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
@@ -189,8 +187,7 @@ df_all, kpi_meta, sc_meta = load_kpi_data()
 
 if df_all.empty:
     st.warning(
-        "⚠️ No KPI results found. "
-        "Run: `python -m sustainsc.scripts.setup_demo` first."
+        "⚠️ No KPI results found. Run: `python -m sustainsc.scripts.setup_demo` first."
     )
     st.stop()
 
@@ -244,11 +241,11 @@ if not kpi_list:
 else:
     sel_kpi = st.selectbox("Select KPI for trend", kpi_list, index=0)
     ts = df_all[
-        (df_all["scenario_code"] == sel_scenario) & 
+        (df_all["scenario_code"] == sel_scenario) &
         (df_all["kpi_code"] == sel_kpi)
     ].copy()
     ts = ts.sort_values("period_end").dropna(subset=["period_end"])
-    
+
     if ts.empty:
         st.info("No time series data for selected KPI.")
     else:
@@ -273,10 +270,10 @@ with engine.connect() as con:
 
 if not meas.empty:
     meas["timestamp"] = pd.to_datetime(meas["timestamp"], errors="coerce")
-    
+
     sc_map = {r["scenario_code"]: r["scenario_id"] for _, r in sc_meta.iterrows()}
     scenario_id = sc_map.get(sel_scenario)
-    
+
     if scenario_id is None:
         st.info("No scenario_id found in database.")
     else:
@@ -288,7 +285,7 @@ if not meas.empty:
             .sum()
             .sort_values("value", ascending=False)
         )
-        
+
         if contrib.empty:
             st.info("No MRV measurements found for energy variables.")
         else:
@@ -342,7 +339,7 @@ else:
 
 st.markdown("## Scenario comparison")
 st.caption("Compare multiple scenarios using latest KPI results.")
-st.caption("📊 BASE is used as reference (useful for thesis analysis: Δ and %Δ)")
+st.caption("📊 BASE is used as reference")
 
 compare_scenarios = st.multiselect(
     "Select scenarios to compare",
@@ -368,13 +365,13 @@ else:
         values="value",
         aggfunc="first",
     ).reset_index()
-    
+
     # Add delta columns vs BASE
     if "BASE" in pivot.columns:
         for sc in compare_scenarios:
             if sc == "BASE" or sc not in pivot.columns:
                 continue
-            
+
             pivot[f"Δ {sc} vs BASE"] = pivot.apply(
                 lambda r: (float(r[sc]) - float(r["BASE"]))
                 if (pd.notna(r.get(sc)) and pd.notna(r.get("BASE")))
@@ -386,47 +383,44 @@ else:
             )
             pivot[f"Effect {sc} vs BASE"] = pivot.apply(
                 lambda r: _effect_label(
-                    r.get(f"Δ {sc} vs BASE"), 
+                    r.get(f"Δ {sc} vs BASE"),
                     r.get("is_benefit")
                 ),
                 axis=1
             )
-    
+
     st.subheader("Scenario comparison table (latest values)")
     st.dataframe(pivot, use_container_width=True)
-    
-    # ====================================================================
+
     # All vs BASE Summary
-    # ====================================================================
-    
     st.markdown("### All vs BASE summary (Improved / Worse / Same / Missing)")
-    
+
     if "BASE" not in pivot.columns:
         st.warning("❌ BASE not available in comparison. Add BASE to scenarios.")
     else:
         base_col = "BASE"
         meta_cols = {"kpi_code", "kpi_name", "unit", "is_benefit"}
         derived_prefixes = ("Δ ", "%Δ ", "Effect ")
-        
+
         scenario_cols = [
             c for c in pivot.columns
             if (c not in meta_cols) and (not str(c).startswith(derived_prefixes))
         ]
         scenario_cols = [c for c in scenario_cols if c in compare_scenarios]
-        
+
         summary_rows = []
         long_rows = []
-        
+
         for sc in scenario_cols:
             if sc == base_col:
                 continue
-            
+
             improved = worse = same = missing = 0
-            
+
             for _, r in pivot.iterrows():
                 base_val = r.get(base_col, None)
                 sc_val = r.get(sc, None)
-                
+
                 if pd.isna(base_val) or pd.isna(sc_val):
                     missing += 1
                     effect = "Missing"
@@ -436,14 +430,14 @@ else:
                     delta = float(sc_val) - float(base_val)
                     pct = _pct_delta(float(base_val), float(sc_val))
                     effect = _effect_label(delta, r.get("is_benefit", 0))
-                    
+
                     if effect == "Improved":
                         improved += 1
                     elif effect == "Worse":
                         worse += 1
                     else:
                         same += 1
-                
+
                 long_rows.append({
                     "scenario": sc,
                     "kpi_code": r["kpi_code"],
@@ -456,10 +450,10 @@ else:
                     "pct_delta": pct,
                     "effect": effect,
                 })
-            
+
             total_valid = improved + worse + same
             improved_pct = (improved / total_valid * 100.0) if total_valid > 0 else None
-            
+
             summary_rows.append({
                 "Scenario": sc,
                 "Improved (count)": improved,
@@ -469,14 +463,13 @@ else:
                 "Improved (%)": improved_pct,
                 "Net score": improved - worse,
             })
-        
+
         df_summary = pd.DataFrame(summary_rows).sort_values(
             ["Net score", "Improved (count)"], ascending=False
         )
-        
+
         st.dataframe(df_summary, use_container_width=True)
-        
-        # Summary text
+
         for _, r in df_summary.iterrows():
             st.write(
                 f"**{r['Scenario']}**: "
@@ -485,8 +478,7 @@ else:
                 f"➖ Same **{int(r['Same (count)'])}** | "
                 f"⚠️ Missing **{int(r['Missing (count)'])}**"
             )
-        
-        # Download buttons
+
         col1, col2 = st.columns(2)
         with col1:
             st.download_button(
@@ -495,7 +487,7 @@ else:
                 file_name="all_vs_base_summary.csv",
                 mime="text/csv",
             )
-        
+
         with col2:
             df_long = pd.DataFrame(long_rows)
             st.download_button(
@@ -504,8 +496,7 @@ else:
                 file_name="all_vs_base_kpi_detail.csv",
                 mime="text/csv",
             )
-        
-        # Detailed breakdown
+
         with st.expander("📋 Show KPI-by-KPI detailed effects"):
             df_long = pd.DataFrame(long_rows)
             df_long["effect_order"] = df_long["effect"].map({
@@ -515,11 +506,12 @@ else:
                 "Missing": 3
             }).fillna(9)
             df_long = df_long.sort_values(["scenario", "effect_order", "kpi_code"])
-            
+
             st.dataframe(
                 df_long[[
-                    "scenario", "kpi_code", "kpi_name", 
+                    "scenario", "kpi_code", "kpi_name",
                     "BASE", "delta", "pct_delta", "effect"
                 ]],
                 use_container_width=True
             )
+# ...existing code...
