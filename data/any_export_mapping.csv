@@ -1,0 +1,6 @@
+raw_metric,variable_name,unit,multiplier
+Lead time (min),lead_time_min,min,1
+Total CO2 (t),total_ghg_tco2e,tCO2e,1
+Transport work (t-km),transport_work_tkm,tkm,1
+Diesel consumption (kWh),diesel_kwh,kWh,1
+Electricity consumption (kWh),electricity_kwh,kWh,1

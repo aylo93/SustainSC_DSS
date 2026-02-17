@@ -1,0 +1,4 @@
+scenario_code,variable_name,value,unit,timestamp,source_system,comment
+ALX_RUN01,lead_time_min,1050,min,2025-12-01T00:00:00,AnyLogistix,"DES summary"
+ALX_RUN01,transport_work_tkm,45000000,tkm,2025-12-01T00:00:00,AnyLogistix,"Total transport work"
+ALX_RUN01,diesel_kwh,350000,kWh,2025-12-01T00:00:00,AnyLogistix,"Fuel energy"

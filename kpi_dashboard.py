@@ -484,11 +484,22 @@ else:
 st.markdown("## Scenario Comparison")
 st.caption("Compare multiple scenarios. BASE is reference for delta calculation.")
 
+# Initialize session state for comparison scenarios
+if "compare_default" not in st.session_state:
+    st.session_state.compare_default = scenarios[:min(3, len(scenarios))]
+
+default_cmp = st.session_state.get("compare_default", scenarios[:min(3, len(scenarios))])
+
 compare_scenarios = st.multiselect(
     "Select scenarios to compare",
     options=scenarios,
-    default=scenarios[: min(3, len(scenarios))],
+    default=default_cmp,
+    key="compare_scenarios_selector"
 )
+
+# Update session state whenever selection changes
+if compare_scenarios != default_cmp:
+    st.session_state.compare_default = compare_scenarios
 
 cmp = latest.copy()
 if sel_dim != "All":
