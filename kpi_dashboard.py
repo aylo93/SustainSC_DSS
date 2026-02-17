@@ -39,6 +39,10 @@ except ModuleNotFoundError:
     from load_example_data import main as load_example_data_main
 
 from sustainsc.kpi_engine import run_engine
+from sustainsc.vsmc import main as vsmc_main
+
+# VSM-C
+VSM_CSV = Path(__file__).parent / "data" / "vsm_steps.csv"
 
 # ============================================================================
 # 1) DB helpers + bootstrap (cached)
@@ -182,6 +186,15 @@ def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
     """Get latest result per (KPI, scenario) pair"""
     df2 = df.dropna(subset=["kpi_code"]).sort_values("period_end")
     return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
+
+# --- VSM-C (optional, only if CSV exists) ---
+try:
+    if VSM_CSV.exists():
+        # Esto escribe diagnósticos vsm_* y crea escenario Kaizen
+        vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
+except Exception as e:
+    # No rompemos la app si falta el CSV o hay un problema
+    st.warning(f"VSM-C skipped: {e}")
 
 # ============================================================================
 # 3) Streamlit App UI
@@ -534,4 +547,30 @@ else:
                 ]],
                 use_container_width=True
             )
-# ...existing code...
+
+# --- VSM-C (optional, only if CSV exists) ---
+try:
+    if VSM_CSV.exists():
+        # Esto escribe diagnósticos vsm_* y crea escenario Kaizen
+        vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
+except Exception as e:
+    # No rompemos la app si falta el CSV o hay un problema
+    st.warning(f"VSM-C skipped: {e}")
+
+# --- VSM-C (optional, only if CSV exists) ---
+try:
+    if VSM_CSV.exists():
+        # Esto escribe diagnósticos vsm_* y crea escenario Kaizen
+        vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
+except Exception as e:
+    # No rompemos la app si falta el CSV o hay un problema
+    st.warning(f"VSM-C skipped: {e}")
+
+# --- VSM-C (optional, only if CSV exists) ---
+try:
+    if VSM_CSV.exists():
+        # Esto escribe diagnósticos vsm_* y crea escenario Kaizen
+        vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
+except Exception as e:
+    # No rompemos la app si falta el CSV o hay un problema
+    st.warning(f"VSM-C skipped: {e}")
