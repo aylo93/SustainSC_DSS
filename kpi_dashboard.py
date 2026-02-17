@@ -47,7 +47,11 @@ def bootstrap_everything():
     """
     from sustainsc.config import engine
     from sustainsc.models import Base
-    from load_example_data import main as load_example_data_main
+    try:
+        from sustainsc.data_loader import main as load_example_data_main
+    except ModuleNotFoundError:
+        from load_example_data import main as load_example_data_main
+
     from sustainsc.milp_interface import register_demo_milp_scenarios
     from sustainsc.kpi_engine import run_engine
 
@@ -71,29 +75,14 @@ def bootstrap_everything():
         return True
 
     except Exception as e:
-        st.error(f"Bootstrap failed: {e}")
+        st.error(f"❌ Bootstrap failed: {e}")
+        import traceback
+        st.error(traceback.format_exc())
         return False
 
 # ============================================================================
 # 2) Data utilities & helpers
 # ============================================================================
-
-def _table_exists(con, table_name: str) -> bool:
-    """Check if table exists in SQLite"""
-    r = con.execute(
-        text("SELECT name FROM sqlite_master WHERE type='table' AND name=:t"),
-        {"t": table_name},
-    ).fetchone()
-    return r is not None
-
-def _count_rows(con, table_name: str) -> int:
-    """Count rows in table safely"""
-    if not _table_exists(con, table_name):
-        return 0
-    try:
-        return int(con.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar() or 0)
-    except Exception:
-        return 0
 
 def _pct_delta(base, other):
     """Calculate percentage change"""
@@ -116,17 +105,11 @@ def _effect_label(delta, is_benefit):
     else:
         return "Improved" if float(delta) < 0 else "Worse"
 
-def _get_table_columns(table_name: str, engine) -> list[str]:
-    """Get column names from table"""
-    with engine.connect() as con:
-        if not _table_exists(con, table_name):
-            return []
-        rows = con.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
-        return [r[1] for r in rows]
-
 @st.cache_data(ttl=5)
 def load_kpi_data():
     """Load KPI metadata + results + scenarios (cached 5s)"""
+    from sustainsc.config import engine
+    
     kpi_df = pd.read_sql(
         "SELECT id as kpi_id, code as kpi_code, name as kpi_name, dimension, decision_level, flow, unit, is_benefit "
         "FROM sc_kpi ORDER BY code",
@@ -156,17 +139,18 @@ def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
     df2 = df.dropna(subset=["kpi_code"]).sort_values("period_end")
     return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
 
-@st.cache_data(ttl=60)
-def load_vsm_measurements(engine):
-    """Load VSM-C measurements (cached 60s)"""
+@st.cache_data(ttl=5)
+def load_vsm_measurements():
+    """Load VSM-C measurements (cached 5s)"""
+    from sustainsc.config import engine
+    
     q = """
     SELECT m.variable_name, m.value, m.unit, m.timestamp, s.code as scenario_code
     FROM sc_measurement m
     LEFT JOIN sc_scenario s ON s.id = m.scenario_id
     WHERE m.variable_name LIKE 'vsm_%'
     """
-    with engine.connect() as con:
-        dfv = pd.read_sql(q, con)
+    dfv = pd.read_sql(q, engine)
     dfv["timestamp"] = pd.to_datetime(dfv["timestamp"], errors="coerce")
     dfv["scenario_code"] = dfv["scenario_code"].fillna("NONE")
     return dfv
@@ -180,27 +164,26 @@ st.title("SustainSCM DSS – KPI Dashboard")
 
 # Bootstrap
 if not bootstrap_everything():
-    st.error("Failed to bootstrap database")
+    st.error("❌ Failed to bootstrap database")
     st.stop()
 
-# Import engine after bootstrap (DB_URL guaranteed to be set)
+st.success("✅ Database initialized")
+
+# Import engine after bootstrap
 from sustainsc.config import engine
-from sustainsc.vsmc import main as vsmc_main
+try:
+    from sustainsc.vsmc import main as vsmc_main
+except ImportError:
+    vsmc_main = None
 
 VSM_CSV = Path(__file__).parent / "data" / "vsm_steps.csv"
 
-# Sidebar: Rebuild button
-st.sidebar.header("Controls")
-if st.sidebar.button("🔄 Rebuild demo (full)"):
-    try:
-        st.cache_data.clear()
-        st.cache_resource.clear()
-        st.rerun()
-    except Exception as e:
-        st.error(f"Rebuild failed: {e}")
-
 # Load KPI data
-df_all, kpi_meta, sc_meta = load_kpi_data()
+try:
+    df_all, kpi_meta, sc_meta = load_kpi_data()
+except Exception as e:
+    st.error(f"❌ Failed to load KPI data: {e}")
+    st.stop()
 
 if df_all.empty:
     st.warning("⚠️ No KPI results found. Try rebuilding or check logs.")
@@ -208,7 +191,13 @@ if df_all.empty:
 
 latest = latest_per_kpi_scenario(df_all)
 
-# Sidebar: Filters
+# Sidebar: Controls & Filters
+st.sidebar.header("Controls")
+if st.sidebar.button("🔄 Rebuild demo (full)"):
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    st.rerun()
+
 st.sidebar.header("Filters")
 dimensions = ["All"] + sorted(latest["dimension"].dropna().unique().tolist())
 decision_levels = ["All"] + sorted(latest["decision_level"].dropna().unique().tolist())
@@ -271,14 +260,14 @@ st.markdown("## VSM-C Diagnostics")
 st.caption("Diagnóstico VSM-C (lead time, VA ratio, hotspots) y escenario Kaizen auto-generado.")
 
 # Try to run VSM-C if CSV exists
-try:
-    if VSM_CSV.exists():
+if vsmc_main and VSM_CSV.exists():
+    try:
         with st.spinner("Running VSM-C analysis..."):
             vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
-except Exception as e:
-    st.warning(f"VSM-C skipped: {e}")
+    except Exception as e:
+        st.warning(f"⚠️ VSM-C skipped: {e}")
 
-vsm_df = load_vsm_measurements(engine)
+vsm_df = load_vsm_measurements()
 
 if vsm_df.empty:
     st.info("No VSM-C data found yet.")
@@ -312,10 +301,10 @@ else:
         steps["step_code"] = steps["variable_name"].str.split("::").str[1].fillna("UNKNOWN")
         steps = steps[["step_code", "value"]].groupby("step_code", as_index=False)["value"].sum()
         steps = steps.sort_values("value", ascending=False)
-        st.markdown("### CO₂ hotspots by step (tCO2e)")
+        st.markdown("### CO₂ Hotspots by Step (tCO2e)")
         st.bar_chart(steps.set_index("step_code")["value"])
 
-    with st.expander("Show raw VSM-C measurements (vsm_*)"):
+    with st.expander("📋 Show raw VSM-C measurements (vsm_*)"):
         st.dataframe(vv.sort_values("variable_name"), use_container_width=True)
 
 # ============================================================================
@@ -379,7 +368,7 @@ else:
     # All vs BASE Summary
     if "BASE" in pivot.columns:
         st.markdown("### Summary: All vs BASE")
-        
+
         base_col = "BASE"
         meta_cols = {"kpi_code", "kpi_name", "unit", "is_benefit"}
         derived_prefixes = ("Δ ", "%Δ ", "Effect ")
@@ -473,4 +462,22 @@ else:
                 df_long.to_csv(index=False).encode("utf-8"),
                 file_name="all_vs_base_kpi_detail.csv",
                 mime="text/csv",
+            )
+
+        with st.expander("📋 Show KPI-by-KPI detailed effects"):
+            df_long = pd.DataFrame(long_rows)
+            df_long["effect_order"] = df_long["effect"].map({
+                "Improved": 0,
+                "Worse": 1,
+                "Same": 2,
+                "Missing": 3
+            }).fillna(9)
+            df_long = df_long.sort_values(["scenario", "effect_order", "kpi_code"])
+
+            st.dataframe(
+                df_long[[
+                    "scenario", "kpi_code", "kpi_name",
+                    "BASE", "delta", "pct_delta", "effect"
+                ]],
+                use_container_width=True
             )
