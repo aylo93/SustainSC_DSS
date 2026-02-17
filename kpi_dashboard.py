@@ -47,53 +47,34 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 def bootstrap_everything():
     """
     Bootstrap pipeline:
-    1) Create schema
-    2) Load example data (BASE/S1/S2 + measurements)
-    3) Create MILP demo scenarios
-    4) Create VSM-C demo scenarios (optional)
-    5) Recompute KPIs
+    1) Create schema (incluye sc_emission_factor, sc_kpi, etc.)
+    2) Load example data (BASE/S1/S2 + measurements) → upsert idempotente
+    3) Create MILP demo scenarios → upsert idempotente
+    4) Recompute KPIs
     """
     from sustainsc.config import engine
     from sustainsc.models import Base
-    
     try:
         from sustainsc.data_loader import main as load_example_data_main
     except ModuleNotFoundError:
         from load_example_data import main as load_example_data_main
+
+    from sustainsc.milp_interface import register_demo_milp_scenarios
 
     try:
         # 1) Asegura esquema completo
         with st.spinner("Creating database schema..."):
             Base.metadata.create_all(bind=engine)
 
-        # 2) Carga CSVs
+        # 2) Carga CSVs (loader es upsert → idempotente)
         with st.spinner("Loading example data (BASE/S1/S2 + measurements)..."):
             load_example_data_main()
 
-        # 3) Crea escenarios MILP
+        # 3) Crea escenarios MILP (si existen, actualiza sin duplicar)
         with st.spinner("Registering demo MILP scenarios..."):
-            try:
-                from sustainsc.milp_interface import register_demo_milp_scenarios
-                register_demo_milp_scenarios()
-            except Exception as e:
-                st.warning(f"⚠️ MILP registration skipped: {type(e).__name__}")
+            register_demo_milp_scenarios()
 
-        # 4) Crea escenarios VSM-C (OPTIONAL - no falla si no existe)
-        with st.spinner("Registering demo VSM-C scenarios..."):
-            try:
-                from sustainsc.vsmc import register_demo_vsmc_scenarios
-                register_demo_vsmc_scenarios()
-            except ImportError:
-                # Module doesn't exist or import error - skip silently
-                pass
-            except FileNotFoundError:
-                # vsm_steps.csv doesn't exist - skip silently
-                pass
-            except Exception as e:
-                # Other errors - log but don't fail
-                print(f"[INFO] VSM-C skipped: {type(e).__name__}: {e}")
-
-        # 5) Recalcula KPIs
+        # 4) Recalcula KPIs
         with st.spinner("Computing KPI results..."):
             run_engine()
 
@@ -214,160 +195,19 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
     st.cache_resource.clear()
     st.rerun()
 
-# ============================================================================
-# Import Data Section (Collapsible)
-# ============================================================================
+# --- Sidebar: Import Data (SINGLE SECTION) ---
+st.sidebar.subheader("📥 Import Data")
 
-with st.sidebar.expander("📥 Import Data", expanded=False):
-    
-    # ========== AnyLogistix/AnyLogic (CSV long format) ==========
+with st.sidebar.expander("Import AnyLogistix / AnyLogic", expanded=False):
+
     st.markdown("### 📊 AnyLogistix Results (CSV)")
-    st.caption("Upload CSV: scenario_code, variable_name, value, etc.")
+    # ... aquí tu uploader CSV + parámetros + botón import ...
 
-    up_alx = st.file_uploader("CSV file", type=["csv"], key="anylogistix_uploader")
-
-    prefix = st.text_input("Scenario prefix (optional)", value="ALX_", key="alx_prefix")
-    recalc_alx = st.checkbox("Recalculate KPIs after import", value=True, key="alx_recalc")
-
-    if up_alx is not None:
-        # Show quick preview
-        try:
-            df_preview = pd.read_csv(up_alx)
-            st.write("Preview (first 10 rows):")
-            st.dataframe(df_preview.head(10), use_container_width=True)
-        except Exception as e:
-            st.error(f"Could not preview CSV: {e}")
-
-        if st.button("Import AnyLogistix", type="primary", key="alx_import_btn", use_container_width=True):
-            try:
-                # 1) write uploaded file to a temp path (works in Streamlit Cloud)
-                suffix = ".csv"
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, mode="w", newline="") as tmp:
-                    tmp.write(up_alx.getvalue().decode("utf-8"))
-                    tmp_path = Path(tmp.name)
-
-                # 2) import -> creates/updates scenarios + measurements
-                with st.spinner("Importing AnyLogistix data..."):
-                    stats = import_anylogistix_csv(tmp_path, scenario_prefix=prefix)
-
-                # 3) recalc KPIs so dashboard can see new scenario results
-                if recalc_alx:
-                    with st.spinner("Recalculating KPIs..."):
-                        run_engine()
-
-                # 4) clear Streamlit caches so new data is reloaded
-                try:
-                    st.cache_data.clear()
-                except Exception:
-                    pass
-                try:
-                    st.cache_resource.clear()
-                except Exception:
-                    pass
-
-                st.success(
-                    f"✅ Imported OK | Scenarios: {stats.scenarios_touched} "
-                    f"| Measurements: {stats.measurements_written}"
-                )
-
-                # 5) rerun app to refresh filters/scenario list
-                st.rerun()
-
-            except FileNotFoundError as e:
-                st.error(f"❌ File error: {e}")
-            except Exception as e:
-                st.error(f"❌ Import failed")
-                st.exception(e)
-
-    # ========== Divider ==========
     st.divider()
 
-    # ========== Simulation Export (XLSX/CSV raw format) ==========
     st.markdown("### 📈 AnyLogistix / AnyLogic Export (.xlsx/.csv)")
-    st.caption("Upload exported simulation results file (raw format)")
+    # ... aquí tu uploader XLSX/CSV raw + parámetros + botón import ...
 
-    uploaded = st.file_uploader(
-        "Select file (.xlsx, .xls, or .csv)",
-        type=["xlsx", "xls", "csv"],
-        key="sim_export_uploader"
-    )
-
-    default_scenario_code = st.text_input(
-        "Default scenario_code (if file doesn't include one)",
-        value="SIM_ALX",
-        key="sim_default_code"
-    )
-
-    source_label = st.text_input(
-        "source_system label",
-        value="AnyLogistix/AnyLogic",
-        key="sim_source_label"
-    )
-
-    if uploaded is not None:
-        try:
-            # Quick preview
-            if uploaded.name.endswith('.csv'):
-                df_preview = pd.read_csv(uploaded)
-            else:
-                df_preview = pd.read_excel(uploaded, sheet_name=0)
-            
-            st.write("Preview (first 5 rows):")
-            st.dataframe(df_preview.head(5), use_container_width=True)
-        except Exception as e:
-            st.warning(f"Could not preview file: {e}")
-
-        if st.button("Import Export", type="primary", key="sim_import_btn", use_container_width=True):
-            try:
-                # 1) save upload to temp file
-                suffix = "." + uploaded.name.split(".")[-1].lower()
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                    tmp.write(uploaded.getbuffer())
-                    tmp_path = Path(tmp.name)
-
-                # 2) read + normalize → MRV format
-                with st.spinner("Reading file..."):
-                    df_raw = read_any_file(tmp_path)
-                
-                with st.spinner("Normalizing to MRV format..."):
-                    df_mrv = normalize_any_export(
-                        df_raw,
-                        default_scenario_code=default_scenario_code,
-                        source_system=source_label,
-                    )
-
-                # 3) write to DB
-                with st.spinner("Writing measurements to database..."):
-                    session = SessionLocal()
-                    try:
-                        written = upsert_measurements(session, df_mrv)
-                    finally:
-                        session.close()
-
-                # 4) recalc KPIs
-                with st.spinner("Recalculating KPIs..."):
-                    run_engine()
-
-                # 5) refresh caches
-                try:
-                    st.cache_data.clear()
-                except Exception:
-                    pass
-                try:
-                    st.cache_resource.clear()
-                except Exception:
-                    pass
-
-                st.success(f"✅ Imported {written} measurements. KPIs recalculated.")
-                st.rerun()
-
-            except FileNotFoundError as e:
-                st.error(f"❌ File not found: {e}")
-            except Exception as e:
-                st.error(f"❌ Import failed")
-                st.exception(e)
-
-st.sidebar.header("Filters")
 
 # ============================================================================
 # Load KPI data
