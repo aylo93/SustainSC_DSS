@@ -124,34 +124,26 @@ def _get_table_columns(table_name: str, engine) -> list[str]:
         rows = con.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
         return [r[1] for r in rows]
 
-@st.cache_data(ttl=60)
-def load_kpi_data(engine):
-    """Load KPI metadata + results + scenarios (cached 60s)"""
-    kpi_cols = _get_table_columns("sc_kpi", engine)
-    has_flow = "flow" in kpi_cols
-
-    kpi_sql = (
-        "SELECT id as kpi_id, code as kpi_code, name as kpi_name, "
-        "dimension, decision_level, "
-        + ("flow, " if has_flow else "'n/a' as flow, ")
-        + "unit, is_benefit "
-        "FROM sc_kpi ORDER BY code"
+@st.cache_data(ttl=5)
+def load_kpi_data():
+    """Load KPI metadata + results + scenarios (cached 5s)"""
+    kpi_df = pd.read_sql(
+        "SELECT id as kpi_id, code as kpi_code, name as kpi_name, dimension, decision_level, flow, unit, is_benefit "
+        "FROM sc_kpi ORDER BY code",
+        engine
     )
 
-    res_sql = (
+    res_df = pd.read_sql(
         "SELECT id as result_id, kpi_id, scenario_id, period_end, value "
-        "FROM sc_kpi_result ORDER BY period_end"
+        "FROM sc_kpi_result ORDER BY period_end",
+        engine
     )
 
-    sc_sql = (
+    sc_df = pd.read_sql(
         "SELECT id as scenario_id, code as scenario_code, name as scenario_name "
-        "FROM sc_scenario ORDER BY id"
+        "FROM sc_scenario ORDER BY id",
+        engine
     )
-
-    with engine.connect() as con:
-        kpi_df = pd.read_sql_query(text(kpi_sql), con)
-        res_df = pd.read_sql_query(text(res_sql), con)
-        sc_df = pd.read_sql_query(text(sc_sql), con)
 
     df = res_df.merge(kpi_df, on="kpi_id", how="left").merge(sc_df, on="scenario_id", how="left")
     df["scenario_code"] = df["scenario_code"].fillna("NONE")
@@ -208,7 +200,7 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
         st.error(f"Rebuild failed: {e}")
 
 # Load KPI data
-df_all, kpi_meta, sc_meta = load_kpi_data(engine)
+df_all, kpi_meta, sc_meta = load_kpi_data()
 
 if df_all.empty:
     st.warning("⚠️ No KPI results found. Try rebuilding or check logs.")
