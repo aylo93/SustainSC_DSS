@@ -540,6 +540,43 @@ def run_all_from_csv() -> None:
         session.close()
 
 
+def register_demo_vsmc_scenarios() -> None:
+    """Register demo VSM-C scenarios from vsm_steps.csv
+    
+    This is the public entry point for bootstrap to call.
+    Writes VSM-C diagnostics for all scenarios in vsm_steps.csv.
+    """
+    if not VSM_CSV.exists():
+        print(f"[INFO] {VSM_CSV} not found. Skipping VSM-C demo registration.")
+        return
+
+    session = SessionLocal()
+    try:
+        df = pd.read_csv(VSM_CSV)
+        codes = sorted(set(df["scenario_code"].astype(str).tolist()))
+        
+        if not codes:
+            print(f"[WARN] vsm_steps.csv is empty or has no scenario_code column.")
+            return
+        
+        for sc in codes:
+            try:
+                write_vsmc_diagnostics(session, sc)
+            except Exception as e:
+                print(f"[WARN] VSM-C scenario '{sc}' failed: {e}")
+        
+        print(f"✅ VSM-C demo scenarios registered: {codes}")
+    
+    except FileNotFoundError as e:
+        print(f"[INFO] VSM-C data file not found: {e}")
+    except Exception as e:
+        print(f"❌ VSM-C demo registration error: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        session.close()
+
+
 def main(
     kaizen: bool = False,
     base_code: str = "BASE",
@@ -576,6 +613,12 @@ if __name__ == "__main__":
     p.add_argument("--base", default="BASE", help="Base scenario code (default: BASE)")
     p.add_argument("--code", default="VSMC_KAIZEN_01", help="New Kaizen scenario code")
     p.add_argument("--co2cap", type=float, default=None, help="Optional CO2 cap (tCO2e) for Kaizen scaling")
+    p.add_argument("--register", action="store_true", help="Register demo VSM-C scenarios from CSV")
     args = p.parse_args()
     
-    main(kaizen=args.kaizen, base_code=args.base, new_code=args.code, co2_cap=args.co2cap)
+    # If --register flag is passed, run demo registration
+    if args.register:
+        register_demo_vsmc_scenarios()
+    else:
+        # Otherwise run main with kaizen option
+        main(kaizen=args.kaizen, base_code=args.base, new_code=args.code, co2_cap=args.co2cap)

@@ -13,7 +13,7 @@ import streamlit as st
 from sqlalchemy import text
 
 # ============================================================================
-# 0) Imports from sustainsc
+# 0) Imports from sustainsc (antes de DB_URL setup para evitar duplicados)
 # ============================================================================
 
 from sustainsc.anylogistix_adapter import import_anylogistix_csv
@@ -47,38 +47,51 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 def bootstrap_everything():
     """
     Bootstrap pipeline:
-    1) Create schema (incluye sc_emission_factor, sc_kpi, etc.)
-    2) Load example data (BASE/S1/S2 + measurements) → upsert idempotente
-    3) Create MILP demo scenarios → upsert idempotente
-    4) Create VSM-C demo scenarios → upsert idempotente
+    1) Create schema
+    2) Load example data (BASE/S1/S2 + measurements)
+    3) Create MILP demo scenarios
+    4) Create VSM-C demo scenarios (optional)
     5) Recompute KPIs
     """
     from sustainsc.config import engine
     from sustainsc.models import Base
+    
     try:
         from sustainsc.data_loader import main as load_example_data_main
     except ModuleNotFoundError:
         from load_example_data import main as load_example_data_main
-
-    from sustainsc.milp_interface import register_demo_milp_scenarios
-    from sustainsc.vsmc import register_demo_vsmc_scenarios
 
     try:
         # 1) Asegura esquema completo
         with st.spinner("Creating database schema..."):
             Base.metadata.create_all(bind=engine)
 
-        # 2) Carga CSVs (loader es upsert → idempotente)
+        # 2) Carga CSVs
         with st.spinner("Loading example data (BASE/S1/S2 + measurements)..."):
             load_example_data_main()
 
-        # 3) Crea escenarios MILP (si existen, actualiza sin duplicar)
+        # 3) Crea escenarios MILP
         with st.spinner("Registering demo MILP scenarios..."):
-            register_demo_milp_scenarios()
+            try:
+                from sustainsc.milp_interface import register_demo_milp_scenarios
+                register_demo_milp_scenarios()
+            except Exception as e:
+                st.warning(f"⚠️ MILP registration skipped: {type(e).__name__}")
 
-        # 4) Crea escenarios VSM-C (si existen, actualiza sin duplicar)
+        # 4) Crea escenarios VSM-C (OPTIONAL - no falla si no existe)
         with st.spinner("Registering demo VSM-C scenarios..."):
-            register_demo_vsmc_scenarios()
+            try:
+                from sustainsc.vsmc import register_demo_vsmc_scenarios
+                register_demo_vsmc_scenarios()
+            except ImportError:
+                # Module doesn't exist or import error - skip silently
+                pass
+            except FileNotFoundError:
+                # vsm_steps.csv doesn't exist - skip silently
+                pass
+            except Exception as e:
+                # Other errors - log but don't fail
+                print(f"[INFO] VSM-C skipped: {type(e).__name__}: {e}")
 
         # 5) Recalcula KPIs
         with st.spinner("Computing KPI results..."):
@@ -209,15 +222,15 @@ with st.sidebar.expander("📥 Import AnyLogistix results", expanded=False):
     st.caption("Required columns: scenario_code, variable_name, value. "
                "Optional: timestamp, unit, source_system, comment.")
 
-    up = st.file_uploader("CSV file", type=["csv"], key="anylogistix_uploader")
+    up_alx = st.file_uploader("CSV file", type=["csv"], key="anylogistix_uploader")
 
     prefix = st.text_input("Scenario prefix (optional)", value="ALX_", key="alx_prefix")
-    recalc = st.checkbox("Recalculate KPIs after import", value=True, key="alx_recalc")
+    recalc_alx = st.checkbox("Recalculate KPIs after import", value=True, key="alx_recalc")
 
-    if up is not None:
+    if up_alx is not None:
         # Show quick preview
         try:
-            df_preview = pd.read_csv(up)
+            df_preview = pd.read_csv(up_alx)
             st.write("Preview (first 10 rows):")
             st.dataframe(df_preview.head(10), use_container_width=True)
         except Exception as e:
@@ -227,8 +240,8 @@ with st.sidebar.expander("📥 Import AnyLogistix results", expanded=False):
             try:
                 # 1) write uploaded file to a temp path (works in Streamlit Cloud)
                 suffix = ".csv"
-                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                    tmp.write(up.getvalue())
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, mode="w", newline="") as tmp:
+                    tmp.write(up_alx.getvalue().decode("utf-8"))
                     tmp_path = Path(tmp.name)
 
                 # 2) import -> creates/updates scenarios + measurements
@@ -236,7 +249,7 @@ with st.sidebar.expander("📥 Import AnyLogistix results", expanded=False):
                     stats = import_anylogistix_csv(tmp_path, scenario_prefix=prefix)
 
                 # 3) recalc KPIs so dashboard can see new scenario results
-                if recalc:
+                if recalc_alx:
                     with st.spinner("Recalculating KPIs..."):
                         run_engine()
 
@@ -296,7 +309,7 @@ if uploaded is not None:
             suffix = "." + uploaded.name.split(".")[-1].lower()
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                 tmp.write(uploaded.getbuffer())
-                tmp_path = tmp.name
+                tmp_path = Path(tmp.name)
 
             # 2) read + normalize → MRV format
             with st.spinner("Reading file..."):
