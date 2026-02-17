@@ -193,7 +193,7 @@ from pathlib import Path
 
 st.sidebar.subheader("📥 Import Data")
 
-with st.sidebar.expander("AnyLogistix / AnyLogic", expanded=False):
+with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=False):
     tab_alx, tab_export = st.tabs(["AnyLogistix CSV (long)", "Export (.xlsx/.csv)"])
 
     # ------------------------------------------------------------------------
