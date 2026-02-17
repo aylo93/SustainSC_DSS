@@ -19,10 +19,12 @@ VSM_CSV = DATA_DIR / "vsm_steps.csv"
 
 
 def parse_dt(s: str) -> datetime:
+    """Parse datetime string to datetime object"""
     return datetime.fromisoformat(str(s).strip())
 
 
 def _safe_float(x) -> float:
+    """Safely convert to float, return 0.0 on error"""
     try:
         if pd.isna(x):
             return 0.0
@@ -31,7 +33,14 @@ def _safe_float(x) -> float:
         return 0.0
 
 
-def get_or_create_scenario(session: Session, code: str, name: str, description: str = "", notes: str = "") -> int:
+def get_or_create_scenario(
+    session: Session, 
+    code: str, 
+    name: str, 
+    description: str = "", 
+    notes: str = ""
+) -> int:
+    """Get or create scenario, return scenario ID"""
     sc = session.query(Scenario).filter_by(code=code).first()
     if sc:
         sc.name = name or sc.name
@@ -46,11 +55,13 @@ def get_or_create_scenario(session: Session, code: str, name: str, description: 
 
 
 def get_scenario_id(session: Session, code: str) -> Optional[int]:
+    """Get scenario ID by code, return None if not found"""
     sc = session.query(Scenario).filter_by(code=code).first()
     return sc.id if sc else None
 
 
 def latest_snapshot_by_variable(session: Session, scenario_id: int) -> Dict[str, Measurement]:
+    """Get latest measurement per variable name for scenario"""
     rows = session.query(Measurement).filter_by(scenario_id=scenario_id).all()
     out: Dict[str, Measurement] = {}
     for m in rows:
@@ -63,7 +74,13 @@ def latest_snapshot_by_variable(session: Session, scenario_id: int) -> Dict[str,
     return out
 
 
-def select_valid_factor(session: Session, model_cls, activity_type: str, ts: datetime):
+def select_valid_factor(
+    session: Session, 
+    model_cls, 
+    activity_type: str, 
+    ts: datetime
+):
+    """Select valid EmissionFactor or CostFactor for timestamp"""
     q = session.query(model_cls).filter(model_cls.activity_type == activity_type)
     q = q.filter(
         and_(
@@ -77,6 +94,7 @@ def select_valid_factor(session: Session, model_cls, activity_type: str, ts: dat
 
 @dataclass
 class VSMTotals:
+    """VSM-C aggregated totals"""
     total_cycle_min: float
     total_wait_min: float
     total_lead_min: float
@@ -89,10 +107,20 @@ class VSMTotals:
     total_cost_eur: Optional[float]
 
 
-def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code: str) -> Dict[str, Any]:
+def compute_vsmc_for_scenario(
+    session: Session, 
+    df: pd.DataFrame, 
+    scenario_code: str
+) -> Dict[str, Any]:
+    """Compute VSM-C diagnostics for single scenario"""
     d = df[df["scenario_code"] == scenario_code].copy()
     if d.empty:
-        return {"scenario_code": scenario_code, "totals": None, "by_step": pd.DataFrame(), "timestamp": datetime.utcnow()}
+        return {
+            "scenario_code": scenario_code,
+            "totals": None,
+            "by_step": pd.DataFrame(),
+            "timestamp": datetime.utcnow()
+        }
 
     d["timestamp"] = pd.to_datetime(d["timestamp"], errors="coerce")
     ts = d["timestamp"].max()
@@ -101,7 +129,7 @@ def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code:
     else:
         ts = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
 
-    # Factors: kgCO2e per kWh
+    # Emission factors: kgCO2e per kWh
     ef_elec = select_valid_factor(session, EmissionFactor, "electricity_kwh", ts)
     ef_diesel = select_valid_factor(session, EmissionFactor, "diesel_kwh", ts)
     elec_ef = float(ef_elec.value) if ef_elec else 0.0
@@ -113,12 +141,15 @@ def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code:
     elec_cf = float(cf_elec.value) if cf_elec else None
     diesel_cf = float(cf_diesel.value) if cf_diesel else None
 
+    # Convert to float safely
     for c in ["cycle_time_min", "wait_time_min", "output_ton", "energy_kwh", "diesel_kwh"]:
         d[c] = d[c].apply(_safe_float)
 
+    # Calculate emissions
     d["emissions_kg"] = d["energy_kwh"] * elec_ef + d["diesel_kwh"] * diesel_ef
     d["emissions_tco2e"] = d["emissions_kg"] / 1000.0
 
+    # Calculate costs if factors available
     if elec_cf is not None and diesel_cf is not None:
         d["cost_eur"] = d["energy_kwh"] * elec_cf + d["diesel_kwh"] * diesel_cf
         total_cost = float(d["cost_eur"].sum())
@@ -126,6 +157,7 @@ def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code:
         d["cost_eur"] = pd.NA
         total_cost = None
 
+    # Aggregate totals
     total_cycle = float(d["cycle_time_min"].sum())
     total_wait = float(d["wait_time_min"].sum())
     total_lead = total_cycle + total_wait
@@ -136,9 +168,10 @@ def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code:
     total_diesel = float(d["diesel_kwh"].sum())
     total_em_t = float(d["emissions_tco2e"].sum())
 
+    # Emissions intensity: kgCO2e/ton
     intensity = None
     if total_output > 0:
-        intensity = (total_em_t * 1000.0) / total_output  # kgCO2e/ton
+        intensity = (total_em_t * 1000.0) / total_output
 
     totals = VSMTotals(
         total_cycle_min=total_cycle,
@@ -159,21 +192,46 @@ def compute_vsmc_for_scenario(session: Session, df: pd.DataFrame, scenario_code:
         "energy_kwh", "diesel_kwh", "emissions_tco2e", "cost_eur"
     ]].copy()
 
-    return {"scenario_code": scenario_code, "totals": totals, "by_step": by_step, "timestamp": ts}
+    return {
+        "scenario_code": scenario_code,
+        "totals": totals,
+        "by_step": by_step,
+        "timestamp": ts
+    }
 
 
-def delete_measurements_by_prefix(session: Session, scenario_id: int, prefix: str) -> None:
+def delete_measurements_by_prefix(
+    session: Session, 
+    scenario_id: int, 
+    prefix: str
+) -> None:
+    """Delete measurements matching prefix for scenario"""
     session.query(Measurement).filter(
         Measurement.scenario_id == scenario_id,
         Measurement.variable_name.like(f"{prefix}%")
     ).delete(synchronize_session=False)
 
 
-def delete_all_measurements(session: Session, scenario_id: int) -> None:
-    session.query(Measurement).filter(Measurement.scenario_id == scenario_id).delete(synchronize_session=False)
+def delete_all_measurements(
+    session: Session, 
+    scenario_id: int
+) -> None:
+    """Delete all measurements for scenario"""
+    session.query(Measurement).filter(
+        Measurement.scenario_id == scenario_id
+    ).delete(synchronize_session=False)
 
 
-def add_measurement(session: Session, scenario_id: int, var: str, value: float, unit: str, ts: datetime, comment: str) -> None:
+def add_measurement(
+    session: Session,
+    scenario_id: int,
+    var: str,
+    value: float,
+    unit: str,
+    ts: datetime,
+    comment: str
+) -> None:
+    """Add measurement to scenario"""
     session.add(Measurement(
         variable_name=var,
         value=float(value),
@@ -186,11 +244,16 @@ def add_measurement(session: Session, scenario_id: int, var: str, value: float, 
 
 
 def write_vsmc_diagnostics(session: Session, scenario_code: str) -> None:
+    """Write VSM-C diagnostics (totals + per-step) for scenario from CSV"""
     if not VSM_CSV.exists():
         raise FileNotFoundError(f"Missing {VSM_CSV}. Create data/vsm_steps.csv first.")
 
     df = pd.read_csv(VSM_CSV)
-    required = {"scenario_code","plant_code","step_code","step_name","cycle_time_min","wait_time_min","output_ton","energy_kwh","diesel_kwh","timestamp"}
+    required = {
+        "scenario_code", "plant_code", "step_code", "step_name",
+        "cycle_time_min", "wait_time_min", "output_ton",
+        "energy_kwh", "diesel_kwh", "timestamp"
+    }
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"vsm_steps.csv missing columns: {sorted(missing)}")
@@ -221,27 +284,53 @@ def write_vsmc_diagnostics(session: Session, scenario_code: str) -> None:
     add_measurement(session, scenario_id, "vsm_total_lead_time_min", totals.total_lead_min, "min", ts, "VSM total lead time")
     add_measurement(session, scenario_id, "vsm_va_ratio_pct", totals.va_ratio_pct, "%", ts, "Value-added ratio proxy")
     add_measurement(session, scenario_id, "vsm_total_emissions_tco2e", totals.total_emissions_tco2e, "tCO2e", ts, "Total VSM emissions")
+    
     if totals.emissions_intensity_kg_per_ton is not None:
-        add_measurement(session, scenario_id, "vsm_emissions_intensity_kg_per_ton", totals.emissions_intensity_kg_per_ton, "kgCO2e/ton", ts, "Emissions intensity")
+        add_measurement(
+            session, scenario_id, "vsm_emissions_intensity_kg_per_ton",
+            totals.emissions_intensity_kg_per_ton, "kgCO2e/ton", ts,
+            "Emissions intensity"
+        )
+    
     if totals.total_cost_eur is not None:
-        add_measurement(session, scenario_id, "vsm_total_cost_eur", totals.total_cost_eur, "EUR", ts, "Total energy+diesel cost (from cost factors)")
+        add_measurement(
+            session, scenario_id, "vsm_total_cost_eur",
+            totals.total_cost_eur, "EUR", ts,
+            "Total energy+diesel cost (from cost factors)"
+        )
 
     # Por paso
     for _, r in by_step.iterrows():
         step_code = str(r["step_code"])
         plant = str(r["plant_code"])
-        add_measurement(session, scenario_id, f"vsm_step_emissions_tco2e::{step_code}", _safe_float(r["emissions_tco2e"]), "tCO2e", ts, f"Step emissions ({plant})")
-        add_measurement(session, scenario_id, f"vsm_step_cycle_time_min::{step_code}", _safe_float(r["cycle_time_min"]), "min", ts, f"Step cycle time ({plant})")
-        add_measurement(session, scenario_id, f"vsm_step_wait_time_min::{step_code}", _safe_float(r["wait_time_min"]), "min", ts, f"Step wait time ({plant})")
+        add_measurement(
+            session, scenario_id, f"vsm_step_emissions_tco2e::{step_code}",
+            _safe_float(r["emissions_tco2e"]), "tCO2e", ts,
+            f"Step emissions ({plant})"
+        )
+        add_measurement(
+            session, scenario_id, f"vsm_step_cycle_time_min::{step_code}",
+            _safe_float(r["cycle_time_min"]), "min", ts,
+            f"Step cycle time ({plant})"
+        )
+        add_measurement(
+            session, scenario_id, f"vsm_step_wait_time_min::{step_code}",
+            _safe_float(r["wait_time_min"]), "min", ts,
+            f"Step wait time ({plant})"
+        )
         if not pd.isna(r.get("cost_eur", pd.NA)):
-            add_measurement(session, scenario_id, f"vsm_step_cost_eur::{step_code}", float(r["cost_eur"]), "EUR", ts, f"Step cost ({plant})")
+            add_measurement(
+                session, scenario_id, f"vsm_step_cost_eur::{step_code}",
+                float(r["cost_eur"]), "EUR", ts,
+                f"Step cost ({plant})"
+            )
 
     session.commit()
 
 
-# -------------------------
+# ============================================================================
 # KAIZEN scenario generator
-# -------------------------
+# ============================================================================
 
 DEFAULT_STEP_MULTIPLIERS = {
     # Mejora Lean típica (ajústalo a tu tesis)
@@ -271,10 +360,11 @@ def create_kaizen_from_base(
     co2_cap_tco2e: Optional[float] = None,
 ) -> None:
     """
+    Create Kaizen scenario from BASE:
     1) Lee VSM steps de BASE
     2) Aplica multiplicadores (tiempo/energía/diesel)
-    3) Crea un NUEVO escenario new_code
-    4) Copia snapshot MRV desde BASE y sobre-escribe electricidad_kwh / diesel_kwh / output_qty_fu con totales VSM Kaizen
+    3) Crea escenario new_code
+    4) Copia snapshot MRV desde BASE y sobre-escribe con totales VSM Kaizen
     5) Escribe diagnósticos VSM-C (vsm_*) para el nuevo escenario
     """
 
@@ -309,7 +399,6 @@ def create_kaizen_from_base(
             kaizen_steps[col] = kaizen_steps[col].apply(_safe_float) * float(mult)
 
     # Compute totals from Kaizen steps
-    # emissions need factors
     ef_elec = select_valid_factor(session, EmissionFactor, "electricity_kwh", ts)
     ef_diesel = select_valid_factor(session, EmissionFactor, "diesel_kwh", ts)
     elec_ef = float(ef_elec.value) if ef_elec else 0.0
@@ -368,7 +457,7 @@ def create_kaizen_from_base(
     session.flush()
 
     # 2) Override core KPI driver variables with Kaizen totals from VSM steps
-    # (FU en tu tesis = toneladas; mantenemos unit como FU por compatibilidad con engine)
+    # (FU = toneladas; unit = FU por compatibilidad con engine)
     overrides = [
         ("output_qty_fu", tot_output, "FU"),
         ("electricity_kwh", tot_elec, "kWh"),
@@ -387,34 +476,53 @@ def create_kaizen_from_base(
 
     session.commit()
 
-    # 3) Escribe diagnósticos VSM-C (vsm_*) para el nuevo escenario usando df combinado (base + kaizen)
+    # 3) Escribe diagnósticos VSM-C (vsm_*) para el nuevo escenario
     df2 = pd.concat([base_steps, kaizen_steps], ignore_index=True)
     res = compute_vsmc_for_scenario(session, df2, new_code)
-    # Re-usa writer: simulamos escribiendo desde df2 sin tocar CSV
-    # (Solución simple: escribir directamente vsm_*)
+    
     delete_measurements_by_prefix(session, new_scenario_id, "vsm_")
+    
     totals = res["totals"]
     by_step = res["by_step"]
+    
     if totals:
         add_measurement(session, new_scenario_id, "vsm_total_cycle_time_min", totals.total_cycle_min, "min", ts, "VSM total cycle time")
         add_measurement(session, new_scenario_id, "vsm_total_wait_time_min", totals.total_wait_min, "min", ts, "VSM total waiting time")
         add_measurement(session, new_scenario_id, "vsm_total_lead_time_min", totals.total_lead_min, "min", ts, "VSM total lead time")
         add_measurement(session, new_scenario_id, "vsm_va_ratio_pct", totals.va_ratio_pct, "%", ts, "Value-added ratio proxy")
         add_measurement(session, new_scenario_id, "vsm_total_emissions_tco2e", totals.total_emissions_tco2e, "tCO2e", ts, "Total VSM emissions")
+        
         if totals.emissions_intensity_kg_per_ton is not None:
-            add_measurement(session, new_scenario_id, "vsm_emissions_intensity_kg_per_ton", totals.emissions_intensity_kg_per_ton, "kgCO2e/ton", ts, "Emissions intensity")
+            add_measurement(
+                session, new_scenario_id, "vsm_emissions_intensity_kg_per_ton",
+                totals.emissions_intensity_kg_per_ton, "kgCO2e/ton", ts,
+                "Emissions intensity"
+            )
 
         for _, r in by_step.iterrows():
             step_code = str(r["step_code"])
             plant = str(r["plant_code"])
-            add_measurement(session, new_scenario_id, f"vsm_step_emissions_tco2e::{step_code}", _safe_float(r["emissions_tco2e"]), "tCO2e", ts, f"Step emissions ({plant})")
-            add_measurement(session, new_scenario_id, f"vsm_step_cycle_time_min::{step_code}", _safe_float(r["cycle_time_min"]), "min", ts, f"Step cycle time ({plant})")
-            add_measurement(session, new_scenario_id, f"vsm_step_wait_time_min::{step_code}", _safe_float(r["wait_time_min"]), "min", ts, f"Step wait time ({plant})")
+            add_measurement(
+                session, new_scenario_id, f"vsm_step_emissions_tco2e::{step_code}",
+                _safe_float(r["emissions_tco2e"]), "tCO2e", ts,
+                f"Step emissions ({plant})"
+            )
+            add_measurement(
+                session, new_scenario_id, f"vsm_step_cycle_time_min::{step_code}",
+                _safe_float(r["cycle_time_min"]), "min", ts,
+                f"Step cycle time ({plant})"
+            )
+            add_measurement(
+                session, new_scenario_id, f"vsm_step_wait_time_min::{step_code}",
+                _safe_float(r["wait_time_min"]), "min", ts,
+                f"Step wait time ({plant})"
+            )
 
     session.commit()
 
 
 def run_all_from_csv() -> None:
+    """Process all scenarios in vsm_steps.csv"""
     if not VSM_CSV.exists():
         print(f"[WARN] {VSM_CSV} not found. Skipping VSM-C.")
         return
@@ -425,12 +533,20 @@ def run_all_from_csv() -> None:
         codes = sorted(set(df["scenario_code"].astype(str).tolist()))
         for sc in codes:
             write_vsmc_diagnostics(session, sc)
-        print(f"VSM-C diagnostics written for: {codes}")
+        print(f"✅ VSM-C diagnostics written for: {codes}")
+    except Exception as e:
+        print(f"❌ VSM-C error: {e}")
     finally:
         session.close()
 
 
-def main(kaizen: bool = False, base_code: str = "BASE", new_code: str = "VSMC_KAIZEN_01", co2_cap: Optional[float] = None) -> None:
+def main(
+    kaizen: bool = False,
+    base_code: str = "BASE",
+    new_code: str = "VSMC_KAIZEN_01",
+    co2_cap: Optional[float] = None
+) -> None:
+    """Main VSM-C entry point"""
     # 1) write diagnostics for all scenarios present in vsm_steps.csv
     run_all_from_csv()
 
@@ -438,18 +554,28 @@ def main(kaizen: bool = False, base_code: str = "BASE", new_code: str = "VSMC_KA
     if kaizen:
         session = SessionLocal()
         try:
-            create_kaizen_from_base(session, base_code=base_code, new_code=new_code, co2_cap_tco2e=co2_cap)
-            print(f"Kaizen scenario created: {new_code} (from {base_code})")
+            create_kaizen_from_base(
+                session,
+                base_code=base_code,
+                new_code=new_code,
+                co2_cap_tco2e=co2_cap
+            )
+            print(f"✅ Kaizen scenario created: {new_code} (from {base_code})")
+        except Exception as e:
+            print(f"❌ Kaizen creation failed: {e}")
+            import traceback
+            traceback.print_exc()
         finally:
             session.close()
 
 
 if __name__ == "__main__":
     import argparse
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(description="VSM-C diagnostics & Kaizen scenario generator")
     p.add_argument("--kaizen", action="store_true", help="Create VSM-C improvement scenario from BASE")
-    p.add_argument("--base", default="BASE")
-    p.add_argument("--code", default="VSMC_KAIZEN_01")
+    p.add_argument("--base", default="BASE", help="Base scenario code (default: BASE)")
+    p.add_argument("--code", default="VSMC_KAIZEN_01", help="New Kaizen scenario code")
     p.add_argument("--co2cap", type=float, default=None, help="Optional CO2 cap (tCO2e) for Kaizen scaling")
     args = p.parse_args()
+    
     main(kaizen=args.kaizen, base_code=args.base, new_code=args.code, co2_cap=args.co2cap)
