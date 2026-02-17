@@ -1,0 +1,12 @@
+source_metric,target_variable,unit
+total_cost,sim_total_cost_eur,EUR
+total_cost_eur,sim_total_cost_eur,EUR
+co2,sim_total_ghg_tco2e,tCO2e
+co2e,sim_total_ghg_tco2e,tCO2e
+co2_emissions,sim_total_ghg_tco2e,tCO2e
+service_level,sim_service_level,fraction
+fill_rate,sim_service_level,fraction
+avg_lead_time,sim_avg_lead_time_d,day
+lead_time,sim_avg_lead_time_d,day
+on_time_delivery,sim_otd_rate,fraction
+stockout_rate,sim_stockout_rate,fraction

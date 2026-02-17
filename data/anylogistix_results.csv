@@ -1,0 +1,2 @@
+scenario_code,timestamp,variable_name,value,unit,source_system,comment
+ALX_POLICY_CO2CAP_300,2025-12-01T00:00:00,logistics_cost_eur,940000,EUR,AnyLogistix,CO2 cap 300
