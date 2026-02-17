@@ -330,7 +330,7 @@ else:
         st.info("No time series data for selected KPI.")
     else:
         ts_plot = ts[["period_end", "value"]].rename(columns={"period_end": "timestamp"})
-        st.line_chart(ts_plot.set_index("timestamp"))
+        st.line_chart(ts_plot.set_index("timestamp"), use_container_width=True)
 
 # ============================================================================
 # Section 3: VSM-C Diagnostics
@@ -340,7 +340,7 @@ st.markdown("## VSM-C Diagnostics")
 st.caption("Diagnóstico VSM-C (lead time, VA ratio, hotspots) y escenario Kaizen auto-generado.")
 
 # Try to run VSM-C if CSV exists
-if vsmc_main and VSM_CSV.exists():
+if vsmc_main is not None and VSM_CSV is not None and VSM_CSV.exists():
     try:
         with st.spinner("Running VSM-C analysis..."):
             vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
