@@ -238,7 +238,7 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
         except Exception as e:
             st.error(f"Could not preview CSV: {e}")
 
-        if st.button("Import AnyLogistix", type="primary", key="alx_import_btn"):
+        if st.button("Import AnyLogistix", type="primary", key="alx_import_btn", use_container_width=True):
             try:
                 # 1) write uploaded file to a temp path (works in Streamlit Cloud)
                 suffix = ".csv"
@@ -283,8 +283,8 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
     st.divider()
 
     # ========== Simulation Export (XLSX/CSV raw format) ==========
-    st.markdown("### 📈 Simulation Export (.xlsx/.csv)")
-    st.caption("Upload exported simulation results file")
+    st.markdown("### 📈 AnyLogistix / AnyLogic Export (.xlsx/.csv)")
+    st.caption("Upload exported simulation results file (raw format)")
 
     uploaded = st.file_uploader(
         "Select file (.xlsx, .xls, or .csv)",
@@ -292,7 +292,7 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
         key="sim_export_uploader"
     )
 
-    default_code = st.text_input(
+    default_scenario_code = st.text_input(
         "Default scenario_code (if file doesn't include one)",
         value="SIM_ALX",
         key="sim_default_code"
@@ -317,7 +317,7 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
         except Exception as e:
             st.warning(f"Could not preview file: {e}")
 
-        if st.button("Import Simulation Export", type="primary", key="sim_import_btn"):
+        if st.button("Import Export", type="primary", key="sim_import_btn", use_container_width=True):
             try:
                 # 1) save upload to temp file
                 suffix = "." + uploaded.name.split(".")[-1].lower()
@@ -332,11 +332,11 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
                 with st.spinner("Normalizing to MRV format..."):
                     df_mrv = normalize_any_export(
                         df_raw,
-                        default_scenario_code=default_code,
+                        default_scenario_code=default_scenario_code,
                         source_system=source_label,
                     )
 
-                # 3) write to DB + recompute KPIs
+                # 3) write to DB
                 with st.spinner("Writing measurements to database..."):
                     session = SessionLocal()
                     try:
@@ -344,10 +344,11 @@ with st.sidebar.expander("📥 Import Data", expanded=False):
                     finally:
                         session.close()
 
+                # 4) recalc KPIs
                 with st.spinner("Recalculating KPIs..."):
                     run_engine()
 
-                # 4) refresh caches so new scenarios appear immediately
+                # 5) refresh caches
                 try:
                     st.cache_data.clear()
                 except Exception:
