@@ -3,3 +3,4 @@ pandas
 sqlalchemy
 python-dateutil
 ortools
+openpyxl

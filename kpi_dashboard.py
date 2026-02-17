@@ -1,4 +1,3 @@
-# ...existing code...
 from __future__ import annotations
 
 import os
@@ -14,23 +13,12 @@ import streamlit as st
 from sqlalchemy import text
 
 # ============================================================================
-# 0) Set DB URL BEFORE importing sustainsc modules
+# 0) Imports from sustainsc
 # ============================================================================
 
-def _default_db_url() -> str:
-    """Get appropriate DB URL for environment (local vs Cloud)"""
-    if os.getenv("SUSTAINSC_DB_URL"):
-        return os.environ["SUSTAINSC_DB_URL"]
-
-    # Streamlit Community Cloud
-    if Path("/mount/src").exists() or os.getenv("STREAMLIT_SERVER_HEADLESS") == "true":
-        return "sqlite:////tmp/sustainsc.db"
-
-    # Local development (Windows/Mac/Linux)
-    db_path = Path(tempfile.gettempdir()) / "sustainsc.db"
-    return f"sqlite:///{db_path.as_posix()}"
-
-os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
+from sustainsc.anylogistix_adapter import import_anylogistix_csv
+from sustainsc.sim_export_adapter import read_any_file, normalize_any_export, upsert_measurements
+from sustainsc.kpi_engine import run_engine
 
 # ============================================================================
 # 1) Bootstrap everything (imports inside to ensure DB_URL is set)
@@ -171,6 +159,8 @@ st.success("✅ Database initialized")
 
 # Import engine after bootstrap
 from sustainsc.config import engine
+from sustainsc.anylogistix_adapter import import_anylogistix_csv
+from sustainsc.kpi_engine import run_engine
 try:
     from sustainsc.vsmc import main as vsmc_main
 except ImportError:
@@ -178,7 +168,83 @@ except ImportError:
 
 VSM_CSV = Path(__file__).parent / "data" / "vsm_steps.csv"
 
+# Sidebar: Controls & Filters
+st.sidebar.header("Controls")
+
+if st.sidebar.button("🔄 Rebuild demo (full)"):
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    st.rerun()
+
+# ============================================================================
+# AnyLogistix/AnyLogic upload (Cloud-friendly)
+# ============================================================================
+with st.sidebar.expander("📥 Import AnyLogistix/AnyLogic results", expanded=False):
+    st.write("Upload a CSV (long format recommended):")
+    st.caption("Required columns: scenario_code, variable_name, value. "
+               "Optional: timestamp, unit, source_system, comment.")
+
+    up = st.file_uploader("CSV file", type=["csv"], key="anylogistix_uploader")
+
+    prefix = st.text_input("Scenario prefix (optional)", value="ALX_", key="alx_prefix")
+    recalc = st.checkbox("Recalculate KPIs after import", value=True, key="alx_recalc")
+
+    if up is not None:
+        # Show quick preview
+        try:
+            df_preview = pd.read_csv(up)
+            st.write("Preview (first 10 rows):")
+            st.dataframe(df_preview.head(10), use_container_width=True)
+        except Exception as e:
+            st.error(f"Could not preview CSV: {e}")
+
+        if st.button("Import into DB", type="primary", key="alx_import_btn"):
+            try:
+                # 1) write uploaded file to a temp path (works in Streamlit Cloud)
+                suffix = ".csv"
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                    tmp.write(up.getvalue())
+                    tmp_path = Path(tmp.name)
+
+                # 2) import -> creates/updates scenarios + measurements
+                with st.spinner("Importing AnyLogistix data..."):
+                    stats = import_anylogistix_csv(tmp_path, scenario_prefix=prefix)
+
+                # 3) recalc KPIs so dashboard can see new scenario results
+                if recalc:
+                    with st.spinner("Recalculating KPIs..."):
+                        run_engine()
+
+                # 4) clear Streamlit caches so new data is reloaded
+                try:
+                    st.cache_data.clear()
+                except Exception:
+                    pass
+                try:
+                    st.cache_resource.clear()
+                except Exception:
+                    pass
+
+                st.success(
+                    f"✅ Imported OK | Scenarios: {stats.scenarios_touched} "
+                    f"| Measurements: {stats.measurements_written}"
+                )
+
+                # 5) rerun app to refresh filters/scenario list
+                st.rerun()
+
+            except FileNotFoundError as e:
+                st.error(f"❌ File error: {e}")
+            except Exception as e:
+                st.error(f"❌ Import failed")
+                st.exception(e)
+
+st.sidebar.header("Filters")
+
+# ============================================================================
 # Load KPI data
+# ============================================================================
+
 try:
     df_all, kpi_meta, sc_meta = load_kpi_data()
 except Exception as e:
@@ -191,14 +257,7 @@ if df_all.empty:
 
 latest = latest_per_kpi_scenario(df_all)
 
-# Sidebar: Controls & Filters
-st.sidebar.header("Controls")
-if st.sidebar.button("🔄 Rebuild demo (full)"):
-    st.cache_data.clear()
-    st.cache_resource.clear()
-    st.rerun()
-
-st.sidebar.header("Filters")
+# Sidebar filters
 dimensions = ["All"] + sorted(latest["dimension"].dropna().unique().tolist())
 decision_levels = ["All"] + sorted(latest["decision_level"].dropna().unique().tolist())
 flows = ["All"] + sorted(latest["flow"].dropna().unique().tolist())
@@ -481,3 +540,75 @@ else:
                 ]],
                 use_container_width=True
             )
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("Import AnyLogistix / AnyLogic export")
+
+uploaded = st.sidebar.file_uploader(
+    "Upload .xlsx or .csv (exported results)",
+    type=["xlsx", "xls", "csv"],
+    key="sim_export_uploader"
+)
+
+default_code = st.sidebar.text_input(
+    "Default scenario_code (if file doesn't include one)",
+    value="SIM_ALX",
+    key="sim_default_code"
+)
+
+source_label = st.sidebar.text_input(
+    "source_system label",
+    value="AnyLogistix/AnyLogic",
+    key="sim_source_label"
+)
+
+if uploaded is not None:
+    if st.sidebar.button("Import → write MRV → recompute KPIs", key="sim_import_btn"):
+        try:
+            # 1) save upload to temp file
+            suffix = "." + uploaded.name.split(".")[-1].lower()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(uploaded.getbuffer())
+                tmp_path = tmp.name
+
+            # 2) read + normalize → MRV format
+            with st.spinner("Reading file..."):
+                df_raw = read_any_file(tmp_path)
+            
+            with st.spinner("Normalizing to MRV format..."):
+                df_mrv = normalize_any_export(
+                    df_raw,
+                    default_scenario_code=default_code,
+                    source_system=source_label,
+                )
+
+            # 3) write to DB + recompute KPIs
+            with st.spinner("Writing measurements to database..."):
+                from sustainsc.config import SessionLocal
+                session = SessionLocal()
+                try:
+                    written = upsert_measurements(session, df_mrv)
+                finally:
+                    session.close()
+
+            with st.spinner("Recalculating KPIs..."):
+                run_engine()
+
+            # 4) refresh caches so new scenarios appear immediately
+            try:
+                st.cache_data.clear()
+            except Exception:
+                pass
+            try:
+                st.cache_resource.clear()
+            except Exception:
+                pass
+
+            st.sidebar.success(f"✅ Imported {written} measurements. KPIs recalculated.")
+            st.rerun()
+
+        except FileNotFoundError as e:
+            st.sidebar.error(f"❌ File not found: {e}")
+        except Exception as e:
+            st.sidebar.error(f"❌ Import failed")
+            st.sidebar.exception(e)
