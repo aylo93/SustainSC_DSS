@@ -260,10 +260,16 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
                     except Exception:
                         pass
 
+                    # 5) Auto-select imported scenarios in comparison section
+                    if hasattr(stats, 'scenario_codes') and stats.scenario_codes:
+                        st.session_state["compare_autoselect"] = ["BASE"] + list(stats.scenario_codes)
+                        st.session_state["scroll_to_compare"] = True
+
                     st.success(
                         f"✅ Imported OK | Scenarios: {stats.scenarios_touched} "
                         f"| Measurements: {stats.measurements_written}"
                     )
+                    st.success("Imported. Go to [Scenario comparison](#scenario-compare) section (scroll down) to compare vs BASE.")
                     st.rerun()
 
                 except FileNotFoundError as e:
@@ -302,7 +308,7 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
                     # 1) Save upload to temp file
                     suffix = "." + uploaded.name.split(".")[-1].lower()
                     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                        tmp.write(uploaded.getvalue())
+                        tmp.write(uploaded.getbuffer())
                         tmp_path = Path(tmp.name)
 
                     # 2) Read + normalize → MRV format
@@ -337,7 +343,15 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
                     except Exception:
                         pass
 
+                    # 5) Auto-select imported scenarios in comparison section
+                    # Extract unique scenario codes from the imported data
+                    imported_codes = sorted(df_mrv["scenario_code"].unique().tolist())
+                    if imported_codes:
+                        st.session_state["compare_autoselect"] = ["BASE"] + imported_codes
+                        st.session_state["scroll_to_compare"] = True
+
                     st.success(f"✅ Imported {written} measurements. KPIs recalculated.")
+                    st.success("Imported. Go to [Scenario comparison](#scenario-compare) section (scroll down) to compare vs BASE.")
                     st.rerun()
 
                 except FileNotFoundError as e:
@@ -481,25 +495,34 @@ else:
 # Section 4: Scenario Comparison (All vs BASE)
 # ============================================================================
 
+st.markdown('<div id="scenario-compare"></div>', unsafe_allow_html=True)
+
 st.markdown("## Scenario Comparison")
 st.caption("Compare multiple scenarios. BASE is reference for delta calculation.")
 
 # Initialize session state for comparison scenarios
-if "compare_default" not in st.session_state:
-    st.session_state.compare_default = scenarios[:min(3, len(scenarios))]
+if "compare_autoselect" not in st.session_state:
+    st.session_state.compare_autoselect = []
 
-default_cmp = st.session_state.get("compare_default", scenarios[:min(3, len(scenarios))])
+if "scroll_to_compare" not in st.session_state:
+    st.session_state.scroll_to_compare = False
 
+# Check if we should scroll to this section
+if st.session_state.get("scroll_to_compare", False):
+    st.info("📍 Auto-selected imported scenarios below")
+    st.session_state.scroll_to_compare = False
+
+# Get autoselect list and filter to only available scenarios
+default_compare = st.session_state.get("compare_autoselect", [])
 compare_scenarios = st.multiselect(
     "Select scenarios to compare",
     options=scenarios,
-    default=default_cmp,
+    default=[s for s in default_compare if s in scenarios],
     key="compare_scenarios_selector"
 )
 
 # Update session state whenever selection changes
-if compare_scenarios != default_cmp:
-    st.session_state.compare_default = compare_scenarios
+st.session_state.compare_autoselect = compare_scenarios
 
 cmp = latest.copy()
 if sel_dim != "All":
