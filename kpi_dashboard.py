@@ -184,29 +184,81 @@ except ImportError:
 
 VSM_CSV = Path(__file__).parent / "data" / "vsm_steps.csv"
 
+# Simulation Export Import (AnyLogistix/AnyLogic)
 # ============================================================================
-# Sidebar: Controls & Filters
-# ============================================================================
 
-st.sidebar.header("Controls")
+st.sidebar.markdown("---")
+st.sidebar.subheader("📊 Import Simulation Export")
 
-if st.sidebar.button("🔄 Rebuild demo (full)"):
-    st.cache_data.clear()
-    st.cache_resource.clear()
-    st.rerun()
+uploaded = st.sidebar.file_uploader(
+    "Upload .xlsx or .csv (exported results)",
+    type=["xlsx", "xls", "csv"],
+    key="sim_export_uploader"
+)
 
-# --- Sidebar: Import Data (SINGLE SECTION) ---
-st.sidebar.subheader("📥 Import Data")
+default_code = st.sidebar.text_input(
+    "Default scenario_code (if file doesn't include one)",
+    value="SIM_ALX",
+    key="sim_default_code"
+)
 
-with st.sidebar.expander("Import AnyLogistix / AnyLogic", expanded=False):
+source_label = st.sidebar.text_input(
+    "source_system label",
+    value="AnyLogistix/AnyLogic",
+    key="sim_source_label"
+)
 
-    st.markdown("### 📊 AnyLogistix Results (CSV)")
-    # ... aquí tu uploader CSV + parámetros + botón import ...
+if uploaded is not None:
+    if st.sidebar.button("Import → write MRV → recompute KPIs", key="sim_import_btn"):
+        try:
+            # 1) save upload to temp file
+            suffix = "." + uploaded.name.split(".")[-1].lower()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp.write(uploaded.getbuffer())
+                tmp_path = Path(tmp.name)
 
-    st.divider()
+            # 2) read + normalize → MRV format
+            with st.spinner("Reading file..."):
+                df_raw = read_any_file(tmp_path)
+            
+            with st.spinner("Normalizing to MRV format..."):
+                df_mrv = normalize_any_export(
+                    df_raw,
+                    default_scenario_code=default_code,
+                    source_system=source_label,
+                )
 
-    st.markdown("### 📈 AnyLogistix / AnyLogic Export (.xlsx/.csv)")
-    # ... aquí tu uploader XLSX/CSV raw + parámetros + botón import ...
+            # 3) write to DB + recompute KPIs
+            with st.spinner("Writing measurements to database..."):
+                session = SessionLocal()
+                try:
+                    written = upsert_measurements(session, df_mrv)
+                finally:
+                    session.close()
+
+            with st.spinner("Recalculating KPIs..."):
+                run_engine()
+
+            # 4) refresh caches so new scenarios appear immediately
+            try:
+                st.cache_data.clear()
+            except Exception:
+                pass
+            try:
+                st.cache_resource.clear()
+            except Exception:
+                pass
+
+            st.sidebar.success(f"✅ Imported {written} measurements. KPIs recalculated.")
+            st.rerun()
+
+        except FileNotFoundError as e:
+            st.sidebar.error(f"❌ File not found: {e}")
+        except Exception as e:
+            st.sidebar.error(f"❌ Import failed")
+            st.sidebar.exception(e)
+
+st.sidebar.header("Filters")
 
 
 # ============================================================================
