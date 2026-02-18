@@ -52,6 +52,9 @@ def bootstrap_everything():
     3) Create MILP demo scenarios → upsert idempotente
     4) Recompute KPIs
     """
+    from sustainsc.vsmc import register_demo_vsmc_scenarios
+    register_demo_vsmc_scenarios()
+
     from sustainsc.config import engine
     from sustainsc.models import Base
     try:
@@ -160,6 +163,13 @@ def load_vsm_measurements():
     dfv["timestamp"] = pd.to_datetime(dfv["timestamp"], errors="coerce")
     dfv["scenario_code"] = dfv["scenario_code"].fillna("NONE")
     return dfv
+
+def list_scenarios_by_prefix(prefixes=("ALX_", "SIM_", "VSMC_", "MILP_")):
+    with engine.connect() as con:
+        rows = con.execute(text("SELECT code FROM sc_scenario ORDER BY code")).fetchall()
+    codes = [r[0] for r in rows]
+    picked = [c for c in codes if any(c.startswith(p) for p in prefixes)]
+    return picked
 
 # ============================================================================
 # 4) Streamlit App UI
@@ -301,6 +311,18 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
             value="AnyLogistix/AnyLogic",
             key="sim_source_label",
         )
+st.markdown("---")
+st.caption("Quick actions")
+
+if st.button("🆚 Compare imported scenarios vs BASE", key="btn_compare_vs_base"):
+    candidates = list_scenarios_by_prefix(prefixes=("ALX_", "SIM_", "VSMC_", "MILP_"))
+    if not candidates:
+        st.warning("No imported scenarios found (ALX_/SIM_/VSMC_/MILP_). Import data or rebuild demo first.")
+    else:
+        st.session_state["compare_scenarios_default"] = ["BASE"] + candidates[:4]
+        st.success(f"Loaded {len(candidates)} scenario(s) for comparison.")
+        st.rerun()
+
 
         if uploaded is not None:
             if st.button("Import → write MRV → recompute KPIs", key="sim_import_btn", type="primary"):
@@ -363,8 +385,13 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
 # ----------------------------------------------------------------------------
 # Continue with the rest of your sidebar
 # ----------------------------------------------------------------------------
-st.sidebar.header("Filters")
+st.sidebar.header("Controls")
 
+if st.sidebar.button("🔄 Rebuild demo (full)"):
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    bootstrap_everything(force=True)  # o tu equivalente
+    st.rerun()
 
 # ============================================================================
 # Load KPI data
