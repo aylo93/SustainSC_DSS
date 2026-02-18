@@ -44,7 +44,7 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # ============================================================================
 
 @st.cache_resource
-def bootstrap_everything():
+def bootstrap_everything(force: bool = False):
     """
     Bootstrap pipeline:
     1) Create schema (incluye sc_emission_factor, sc_kpi, etc.)
@@ -548,6 +548,11 @@ compare_scenarios = st.multiselect(
     key="compare_scenarios_selector"
 )
 
+# only persist manual changes (don't always override autoselect)
+prev_autoselect = st.session_state.get("compare_autoselect", [])
+if compare_scenarios != prev_autoselect:
+    st.session_state["compare_default"] = compare_scenarios
+    st.session_state["compare_autoselect"] = []
 # Update session state whenever selection changes
 st.session_state.compare_autoselect = compare_scenarios
 
