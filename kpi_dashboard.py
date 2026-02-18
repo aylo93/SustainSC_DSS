@@ -19,6 +19,7 @@ from sqlalchemy import text
 from sustainsc.anylogistix_adapter import import_anylogistix_csv
 from sustainsc.sim_export_adapter import read_any_file, normalize_any_export, upsert_measurements
 from sustainsc.kpi_engine import run_engine
+from sustainsc.benchmarks import load_benchmarks, semaforo_label
 
 # ============================================================================
 # 1) Set DB URL BEFORE importing other sustainsc modules
@@ -717,3 +718,79 @@ else:
                 ]],
                 use_container_width=True
             )
+
+# ============================================================================
+# Section 5: KPI Benchmark (Semáforo)
+# ============================================================================
+
+st.markdown("## KPI Benchmark (Semáforo)")
+
+bench = load_benchmarks()
+if bench.empty:
+    st.info("No benchmark file found in /data (kpi_benchmarks_semaforo.json/.csv).")
+else:
+    # Selector de escenario para semáforo
+    sc_for_bench = st.selectbox(
+        "Scenario to benchmark",
+        options=sorted(latest["scenario_code"].unique().tolist()),
+        index=0,
+        key="bench_scenario"
+    )
+
+    # Snapshot del escenario y BASE (si existe)
+    snap = latest[latest["scenario_code"] == sc_for_bench].copy()
+    base_snap = latest[latest["scenario_code"] == "BASE"].copy()
+
+    snap = snap[["kpi_code", "kpi_name", "unit", "is_benefit", "value"]].rename(columns={"value": "scenario_value"})
+    base_snap = base_snap[["kpi_code", "value"]].rename(columns={"value": "base_value"})
+
+    dfb = snap.merge(base_snap, on="kpi_code", how="left")
+    dfb = dfb.merge(
+        bench.rename(columns={"code": "kpi_code"}),
+        on="kpi_code",
+        how="left"
+    )
+
+    # Semáforo
+    dfb["semaforo"] = dfb.apply(
+        lambda r: semaforo_label(
+            value=r.get("scenario_value"),
+            base_value=r.get("base_value"),
+            direction=r.get("direction", ""),
+            benchmark_method=r.get("benchmark_method", ""),
+            green_rule=r.get("green_rule", ""),
+            amber_rule=r.get("amber_rule", ""),
+            red_rule=r.get("red_rule", ""),
+            baseline_required=r.get("baseline_required", 0),
+        ),
+        axis=1
+    )
+
+    # Avisos útiles para tesis (industry-dependent / baseline-required)
+    dfb["industry_dependent"] = dfb["industry_dependent"].fillna(0).astype(int)
+    dfb["baseline_required"] = dfb["baseline_required"].fillna(0).astype(int)
+
+    st.caption(
+        "Notas: algunos KPIs dependen de industria/escala y usan comparación vs baseline. "
+        "Ej: E1/E2/E3 y EC1 requieren BASE. "
+        "Umbrales absolutos típicos existen para renovables, OEE, MRV, DPP, etc."
+    )
+
+    show_cols = [
+        "kpi_code", "kpi_name", "unit",
+        "scenario_value", "base_value",
+        "semaforo",
+        "direction", "benchmark_method",
+        "green_rule", "amber_rule", "red_rule",
+        "industry_dependent", "baseline_required",
+    ]
+    show_cols = [c for c in show_cols if c in dfb.columns]
+
+    st.dataframe(dfb[show_cols].sort_values(["semaforo", "kpi_code"]), use_container_width=True)
+
+    st.download_button(
+        "Download benchmark table (CSV)",
+        dfb.to_csv(index=False).encode("utf-8"),
+        file_name=f"benchmark_semaforo_{sc_for_bench}.csv",
+        mime="text/csv",
+    )
