@@ -771,9 +771,9 @@ else:
     dfb["baseline_required"] = dfb["baseline_required"].fillna(0).astype(int)
 
     st.caption(
-        "Notas: algunos KPIs dependen de industria/escala y usan comparación vs baseline. "
-        "Ej: E1/E2/E3 y EC1 requieren BASE. "
-        "Umbrales absolutos típicos existen para renovables, OEE, MRV, DPP, etc."
+        "Notes: Some KPIs depend on industry/scale and use comparison vs baseline. "
+        "Eg: E1/E2/E3 y EC1 require BASE. "
+        "Typical absolute thresholds exist for renovalbles, OEE, MRV, DPP, etc."
     )
 
     show_cols = [
