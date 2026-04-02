@@ -16,6 +16,17 @@ from sqlalchemy import and_
 from .config import SessionLocal
 from .models import KPI, KPIResult, Measurement, EmissionFactor, CostFactor, Scenario
 
+# IMPORTS opcionales para no romper si el nombre real cambia
+try:
+    from .normalization import run_normalization
+except Exception:
+    run_normalization = None
+
+try:
+    from .composite_indices import run_composite_indices
+except Exception:
+    run_composite_indices = None
+
 
 # -----------------------------
 # Helpers
@@ -724,5 +735,30 @@ def run_engine(debug_missing: bool = False) -> None:
         session.close()
 
 
+def run_full_pipeline(debug_missing: bool = False) -> None:
+    """
+    Orchestrates the complete pipeline:
+    1. KPI engine (raw values)
+    2. KPI normalization (0..100 scores)
+    3. Composite indices (dimension + sustainability indices)
+    """
+    print("=== STEP 1/3: KPI engine ===")
+    run_engine(debug_missing=debug_missing)
+
+    print("=== STEP 2/3: KPI normalization ===")
+    if run_normalization is None:
+        print("WARNING: normalization step skipped (module/function not found).")
+    else:
+        run_normalization(context_id="aggregates_ton")
+        print("=== KPI normalization completed ===")
+
+    print("=== STEP 3/3: Composite indices ===")
+    if run_composite_indices is None:
+        print("WARNING: composite indices step skipped (module/function not found).")
+    else:
+        run_composite_indices(context_id="aggregates_ton")
+        print("=== Composite indices completed ===")
+
+
 if __name__ == "__main__":
-    run_engine()
+    run_full_pipeline(debug_missing=True)

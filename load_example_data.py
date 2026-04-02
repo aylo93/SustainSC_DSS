@@ -1,22 +1,22 @@
-# load_example_data.py
-from __future__ import annotations
+from _future_ import annotations
 
 import csv
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Set, Tuple, List
 
 from sustainsc.config import SessionLocal
 from sustainsc.models import Scenario, EmissionFactor, CostFactor, KPI, Measurement
 
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(_file_).parent
 DATA_DIR = BASE_DIR / "data"
 
 SCENARIOS_CSV = DATA_DIR / "scenarios.csv"
 EMISSION_FACTORS_CSV = DATA_DIR / "emission_factors.csv"
 COST_FACTORS_CSV = DATA_DIR / "cost_factors.csv"
 KPIS_CSV = DATA_DIR / "kpis.csv"
+NORMALIZATION_RULES_CSV = DATA_DIR / "kpi_normalization_rules.csv"
 MEASUREMENTS_CSV = DATA_DIR / "measurements.csv"
 
 
@@ -62,11 +62,43 @@ def open_dict_reader(path: Path) -> csv.DictReader:
         return csv.DictReader(f, delimiter=delim, skipinitialspace=True)
 
 
+def get_expected_base_kpi_codes() -> Set[str]:
+    """
+    Toma los KPI esperados desde kpi_normalization_rules.csv.
+    Para tu caso deben ser 30: E1..E9, EC1..EC8, S1..S6, T1..T7.
+    """
+    codes: Set[str] = set()
+
+    if not NORMALIZATION_RULES_CSV.exists():
+        print("[WARN] kpi_normalization_rules.csv not found. Expected KPI validation skipped.")
+        return codes
+
+    reader = open_dict_reader(NORMALIZATION_RULES_CSV)
+    for raw in reader:
+        row = norm_row(raw)
+        code = (row.get("kpi_code") or row.get("code") or "").strip()
+        if code:
+            codes.add(code)
+
+    return codes
+
+
+def get_supported_formula_ids() -> Set[str]:
+    """
+    Lee los formula_id soportados por el motor KPI.
+    """
+    try:
+        from sustainsc.kpi_engine import FORMULAS
+        return set(FORMULAS.keys())
+    except Exception as e:
+        print(f"[WARN] Could not import FORMULAS from sustainsc.kpi_engine: {e}")
+        return set()
+
+
 def load_scenarios(session) -> Dict[str, int]:
     scenario_map: Dict[str, int] = {}
 
     if not SCENARIOS_CSV.exists():
-        # asegura BASE
         base = session.query(Scenario).filter_by(code="BASE").first()
         if not base:
             base = Scenario(code="BASE", name="Baseline", description="Default baseline", notes="")
@@ -106,6 +138,31 @@ def load_scenarios(session) -> Dict[str, int]:
     session.commit()
     print(f"Loaded {count} scenarios.")
     return scenario_map
+
+
+def summarize_kpi_catalog(session, expected_codes: Set[str]) -> None:
+    db_rows = session.query(KPI.code, KPI.formula_id).all()
+    db_codes = {code for code, _ in db_rows}
+
+    if expected_codes:
+        present_expected = sorted(db_codes & expected_codes)
+        missing_expected = sorted(expected_codes - db_codes)
+        extra_db = sorted(db_codes - expected_codes)
+
+        print(f"[CHECK] Expected base KPI codes from rules: {len(expected_codes)}")
+        print(f"[CHECK] Expected base KPI codes present in DB: {len(present_expected)}/{len(expected_codes)}")
+
+        if missing_expected:
+            print("[WARN] Missing KPI codes in DB:")
+            print("       " + ", ".join(missing_expected))
+        else:
+            print("[OK] All expected base KPI codes are present in DB.")
+
+        if extra_db:
+            print(f"[INFO] Extra KPI codes in DB (not in normalization rules): {len(extra_db)}")
+            print("       " + ", ".join(sorted(extra_db)))
+    else:
+        print(f"[INFO] Total KPI codes in DB: {len(db_codes)}")
 
 
 def load_emission_factors(session) -> None:
@@ -179,16 +236,42 @@ def load_kpis(session) -> None:
         print("[WARN] kpis.csv not found. Skipping.")
         return
 
+    expected_codes = get_expected_base_kpi_codes()
+    supported_formula_ids = get_supported_formula_ids()
+
     reader = open_dict_reader(KPIS_CSV)
-    count = 0
+
+    created = 0
+    updated = 0
+    skipped = 0
+
+    csv_codes: Set[str] = set()
+    csv_rows_seen = 0
+    duplicate_codes: List[str] = []
+    unsupported_formulas: List[Tuple[str, str]] = []
+    missing_formula_ids: List[str] = []
+
     for raw in reader:
         row = norm_row(raw)
         code = (row.get("code") or "").strip()
         if not code:
+            skipped += 1
             continue
+
+        csv_rows_seen += 1
+
+        if code in csv_codes:
+            duplicate_codes.append(code)
+        csv_codes.add(code)
 
         is_benefit_raw = (row.get("is_benefit") or "0").strip().lower()
         is_benefit = is_benefit_raw in ("1", "true", "yes", "y")
+
+        formula_id = (row.get("formula_id") or "").strip()
+        if not formula_id:
+            missing_formula_ids.append(code)
+        elif supported_formula_ids and formula_id not in supported_formula_ids:
+            unsupported_formulas.append((code, formula_id))
 
         payload = dict(
             code=code,
@@ -199,7 +282,7 @@ def load_kpis(session) -> None:
             flow=(row.get("flow") or "").strip(),
             unit=(row.get("unit") or "").strip(),
             is_benefit=is_benefit,
-            formula_id=(row.get("formula_id") or "").strip(),
+            formula_id=formula_id,
             protocol_notes=(row.get("protocol_notes") or "").strip(),
         )
 
@@ -208,15 +291,41 @@ def load_kpis(session) -> None:
             for k, v in payload.items():
                 if hasattr(existing, k):
                     setattr(existing, k, v)
+            updated += 1
         else:
-            # filtra campos que existan
             clean = {k: v for k, v in payload.items() if hasattr(KPI, k)}
             session.add(KPI(**clean))
-
-        count += 1
+            created += 1
 
     session.commit()
-    print(f"Loaded {count} KPIs.")
+
+    print(f"Loaded KPI rows from CSV: {csv_rows_seen}")
+    print(f"Created KPIs: {created}")
+    print(f"Updated KPIs: {updated}")
+    print(f"Skipped rows without code: {skipped}")
+
+    if duplicate_codes:
+        print("[WARN] Duplicate KPI codes found in kpis.csv:")
+        print("       " + ", ".join(sorted(set(duplicate_codes))))
+
+    if missing_formula_ids:
+        print("[WARN] KPI codes with empty formula_id:")
+        print("       " + ", ".join(sorted(set(missing_formula_ids))))
+
+    if unsupported_formulas:
+        print("[WARN] KPI rows whose formula_id is not supported by sustainsc.kpi_engine:")
+        for code, formula_id in sorted(set(unsupported_formulas)):
+            print(f"       {code} -> {formula_id}")
+
+    if expected_codes:
+        missing_in_csv = sorted(expected_codes - csv_codes)
+        if missing_in_csv:
+            print("[WARN] Expected KPI codes missing from kpis.csv:")
+            print("       " + ", ".join(missing_in_csv))
+        else:
+            print(f"[OK] kpis.csv contains all expected base KPI codes ({len(expected_codes)}).")
+
+    summarize_kpi_catalog(session, expected_codes)
 
 
 def load_measurements(session, scenario_map: Dict[str, int]) -> None:
@@ -285,5 +394,5 @@ def main() -> None:
         session.close()
 
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     main()

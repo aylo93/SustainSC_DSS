@@ -1,4 +1,25 @@
-code,name,description,notes
-BASE,Baseline,Reference scenario,Default baseline
-S1,Low-carbon energy mix,More renewable energy,Higher RES share
-S2,Efficiency + digital,Efficiency improvements,Lower energy intensity
+code	name	description	notes
+BASE	Baseline	Reference baseline scenario	Default baseline for comparison and normalization
+VSMC_KAIZEN	VSM-C Kaizen	Scenario derived from VSM-C hotspot improvements	Kaizen actions on process efficiency, dispatch and idle-time reduction
+SOCIAL_PUSH	Social Push	Scenario emphasizing workforce and community improvements	Training, participation, prevention and social performance improvements
+MILP_MIN_COST	MILP Minimum Cost	Optimization scenario minimizing operating cost	Directly derived from MILP/LP cost-minimization results
+MILP_CO2CAP_940	MILP CO2 Cap 940	Optimization scenario minimizing cost under a CO2 cap	Directly derived from MILP/LP results with CO2 cap = 940
+MILP_MIN_CO2	MILP Minimum CO2	Optimization scenario minimizing emissions	Directly derived from MILP/LP emission-minimization results
+SD_BAU_2035	SD BAU 2035	System dynamics business-as-usual scenario for 2035	Translated from SD outputs into a measurement-style snapshot
+SD_ENERGY_PUSH_2035	SD Energy Push 2035	System dynamics scenario emphasizing renewable/energy actions	Translated from SD outputs into a measurement-style snapshot
+SD_MAINT_PUSH_2035	SD Maintenance Push 2035	System dynamics scenario emphasizing maintenance policy improvements	Translated from SD outputs into a measurement-style snapshot
+SD_MRV_PUSH_2035	SD MRV Push 2035	System dynamics scenario emphasizing MRV expansion and data traceability	Translated from SD outputs into a measurement-style snapshot
+SD_CIRC_PUSH_2035	SD Circularity Push 2035	System dynamics scenario emphasizing circularity improvements	Translated from SD outputs into a measurement-style snapshot
+SD_INTEGRATED_2035	SD Integrated 2035	Integrated system dynamics scenario combining major policy levers	Translated from SD outputs into a measurement-style snapshot
+SD_CO2_LENIENT_2035	SD CO2 Lenient 2035	System dynamics scenario with lenient CO2 constraint	Translated from SD outputs into a measurement-style snapshot
+SD_CO2_STRICT_2035	SD CO2 Strict 2035	System dynamics scenario with strict CO2 constraint	Translated from SD outputs into a measurement-style snapshot
+SD_REALITY_CHECK_2035	SD Reality Check 2035	System dynamics reality-check scenario	Translated from SD outputs into a measurement-style snapshot
+DES_BASE_2025	DES Base 2025	Discrete-event simulation baseline for 2025	Translated from DES network-level snapshot
+DES_BASE_2030	DES Base 2030	Discrete-event simulation baseline for 2030	Translated from DES network-level snapshot
+DES_INTEGRATED_2030	DES Integrated 2030	Discrete-event simulation integrated scenario for 2030	Translated from DES network-level snapshot
+DES_MAINT_PUSH_2030	DES Maintenance Push 2030	Discrete-event simulation maintenance scenario for 2030	Translated from DES network-level snapshot
+DES_MRV_PUSH_2030	DES MRV Push 2030	Discrete-event simulation MRV scenario for 2030	Translated from DES network-level snapshot
+DES_BASE_2035	DES Base 2035	Discrete-event simulation baseline for 2035	Translated from DES network-level snapshot
+DES_INTEGRATED_2035	DES Integrated 2035	Discrete-event simulation integrated scenario for 2035	Translated from DES network-level snapshot
+DES_MAINT_PUSH_2035	DES Maintenance Push 2035	Discrete-event simulation maintenance scenario for 2035	Translated from DES network-level snapshot
+DES_MRV_PUSH_2035	DES MRV Push 2035	Discrete-event simulation MRV scenario for 2035	Translated from DES network-level snapshot
