@@ -44,50 +44,17 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # 2) Bootstrap everything (imports inside to ensure DB_URL is set)
 # ============================================================================
 
-@st.cache_resource
-def bootstrap_everything(force: bool = False):
-    """
-    Bootstrap pipeline:
-    1) Create schema (incluye sc_emission_factor, sc_kpi, etc.)
-    2) Load example data (BASE/S1/S2 + measurements) → upsert idempotente
-    3) Create MILP demo scenarios → upsert idempotente
-    4) Recompute KPIs
-    """
-    from sustainsc.vsmc import register_demo_vsmc_scenarios
-    register_demo_vsmc_scenarios()
-
-    from sustainsc.config import engine
-    from sustainsc.models import Base
+@st.cache_resource(show_spinner=False)
+def bootstrap_everything():
     try:
-        from sustainsc.data_loader import main as load_example_data_main
-    except ModuleNotFoundError:
         from load_example_data import main as load_example_data_main
+        from sustainsc.kpi_engine import run_full_pipeline
 
-    from sustainsc.milp_interface import register_demo_milp_scenarios
-
-    try:
-        # 1) Asegura esquema completo
-        with st.spinner("Creating database schema..."):
-            Base.metadata.create_all(bind=engine)
-
-        # 2) Carga CSVs (loader es upsert → idempotente)
-        with st.spinner("Loading example data (BASE/S1/S2 + measurements)..."):
-            load_example_data_main()
-
-        # 3) Crea escenarios MILP (si existen, actualiza sin duplicar)
-        with st.spinner("Registering demo MILP scenarios..."):
-            register_demo_milp_scenarios()
-
-        # 4) Recalcula KPIs
-        with st.spinner("Computing KPI results..."):
-            run_engine()
-
+        load_example_data_main()
+        run_full_pipeline(debug_missing=True)
         return True
-
     except Exception as e:
-        st.error(f"❌ Bootstrap failed: {e}")
-        import traceback
-        st.error(traceback.format_exc())
+        print(f"[BOOTSTRAP ERROR] {e}")
         return False
 
 # ============================================================================
@@ -389,9 +356,14 @@ if st.button("🆚 Compare imported scenarios vs BASE", key="btn_compare_vs_base
 st.sidebar.header("Controls")
 
 if st.sidebar.button("🔄 Rebuild demo (full)"):
+    from load_example_data import main as load_example_data_main
+    from sustainsc.kpi_engine import run_full_pipeline
+
+    load_example_data_main()
+    run_full_pipeline(debug_missing=True)
+
     st.cache_data.clear()
     st.cache_resource.clear()
-    bootstrap_everything(force=True)  # o tu equivalente
     st.rerun()
 
 # ============================================================================
@@ -469,7 +441,7 @@ else:
 # ============================================================================
 
 st.markdown("## VSM-C Diagnostics")
-st.caption("Diagnóstico VSM-C (lead time, VA ratio, hotspots) y escenario Kaizen auto-generado.")
+st.caption("VSM-C Diagnostic (lead time, VA ratio, hotspots) and auto-generated Kaizen scenario.")
 
 # Try to run VSM-C if CSV exists
 if vsmc_main is not None and VSM_CSV is not None and VSM_CSV.exists():
@@ -782,7 +754,7 @@ else:
         key="sel_norm_scenario"
     )
 
-    # ---- Cards de índices compuestos ----
+    # ---- Composite index cards ----
     st.markdown("### Composite index cards")
     comp_s = comp_df[comp_df["scenario_code"] == sel_norm_scenario].copy()
     if not comp_s.empty:
@@ -802,7 +774,7 @@ else:
     else:
         st.warning("No composite indices found for this scenario.")
 
-    # ---- Comparación BASE vs escenario ----
+    # ---- BASE vs scenario comparison ----
     st.markdown("### BASE vs selected scenario (composite indices)")
     comp_base = comp_df[comp_df["scenario_code"] == "BASE"].copy()
     if not comp_base.empty and not comp_s.empty:
@@ -816,8 +788,8 @@ else:
         cmp["delta_vs_BASE"] = cmp[sel_norm_scenario] - cmp["BASE"]
         st.dataframe(cmp, use_container_width=True)
 
-    # ---- Tabla KPI real + normalizado ----
-    st.markdown("### KPI table: raw + normalized + semáforo")
+    # ---- Raw KPI + normalized table ----
+    st.markdown("### KPI table: raw + normalized + traffic light")
 
     nv = norm_df[norm_df["scenario_code"] == sel_norm_scenario].copy()
     nv["period_end"] = pd.to_datetime(nv["period_end"], errors="coerce")
@@ -844,28 +816,54 @@ else:
     )
     st.dataframe(styled, use_container_width=True)
 
-    # ---- Resumen semáforo ----
-    st.markdown("### Semáforo summary")
+    # ---- Traffic light summary ----
+    st.markdown("### Traffic light summary")
     sem_summary = nv["semaforo"].value_counts(dropna=False).rename_axis("semaforo").reset_index(name="count")
     st.dataframe(sem_summary, use_container_width=True)
 
-    # ---- Barras por dimensión (promedio normalizado) ----
+    # ---- Bars by dimension (normalized average) ----
     st.markdown("### Average normalized score by dimension")
     dim_avg = nv.groupby("dimension", as_index=False)["normalized_value"].mean().sort_values("normalized_value", ascending=False)
     st.bar_chart(dim_avg.set_index("dimension")["normalized_value"])
 
 
 # ============================================================================
-# Section 5: KPI Benchmark (Semáforo)
+# Section 5: KPI Benchmark (Traffic Light)
 # ============================================================================
 
-st.markdown("## KPI Benchmark (Semáforo)")
+@st.cache_data(ttl=30)
+def load_benchmark_dataframe(scenario_code: str):
+    """Load benchmark dataframe for a specific scenario"""
+    try:
+        # Load normalized KPI data for the scenario
+        norm_df, comp_df = load_normalized_and_composites()
+
+        if norm_df.empty:
+            return None
+
+        # Filter by scenario
+        scenario_data = norm_df[norm_df["scenario_code"] == scenario_code].copy()
+
+        if scenario_data.empty:
+            return None
+
+        # Get latest data per KPI
+        scenario_data["period_end"] = pd.to_datetime(scenario_data["period_end"], errors="coerce")
+        scenario_data = scenario_data.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+
+        return scenario_data
+
+    except Exception as e:
+        st.error(f"Error loading benchmark dataframe: {e}")
+        return None
+
+st.markdown("## KPI Benchmark (Traffic Light)")
 
 bench = load_benchmarks()
 if bench.empty:
     st.info("No benchmark file found in /data (kpi_benchmarks_semaforo.json/.csv).")
 else:
-    # Selector de escenario para semáforo
+    # Scenario selector for traffic light
     sc_for_bench = st.selectbox(
         "Scenario to benchmark",
         options=sorted(latest["scenario_code"].unique().tolist()),
@@ -887,7 +885,7 @@ else:
         how="left"
     )
 
-    # Semáforo
+    # Traffic Light
     dfb["semaforo"] = dfb.apply(
         lambda r: semaforo_label(
             value=r.get("scenario_value"),
@@ -902,7 +900,7 @@ else:
         axis=1
     )
 
-    # Avisos útiles para tesis (industry-dependent / baseline-required)
+    # Useful notes for thesis (industry-dependent / baseline-required)
     dfb["industry_dependent"] = dfb["industry_dependent"].fillna(0).astype(int)
     dfb["baseline_required"] = dfb["baseline_required"].fillna(0).astype(int)
 
@@ -930,3 +928,44 @@ else:
         file_name=f"benchmark_semaforo_{sc_for_bench}.csv",
         mime="text/csv",
     )
+
+    # Additional benchmark dataframe loading and rendering
+    bench_df = load_benchmark_dataframe(sc_for_bench)
+
+    if bench_df is None or bench_df.empty:
+        st.info("No benchmark/normalized KPI data available for the selected scenario.")
+    else:
+        # Render table with colors and summary
+        st.markdown("### Benchmark Table with Traffic Light")
+
+        def color_semaforo_bench(val):
+            if val == "Green":
+                return "background-color: #d4edda; color: black"
+            if val == "Amber":
+                return "background-color: #fff3cd; color: black"
+            if val == "Red":
+                return "background-color: #f8d7da; color: black"
+            return ""
+
+        display_cols = [
+            "kpi_code", "kpi_name", "dimension", "unit",
+            "raw_value", "normalized_value", "semaforo",
+            "baseline_value", "lower_ref", "upper_ref"
+        ]
+        display_cols = [c for c in display_cols if c in bench_df.columns]
+
+        styled_bench = bench_df[display_cols].sort_values(["dimension", "kpi_code"]).style.map(
+            color_semaforo_bench, subset=["semaforo"]
+        )
+
+        st.dataframe(styled_bench, use_container_width=True)
+
+        # Summary
+        st.markdown("### Benchmark Summary")
+        bench_summary = bench_df["semaforo"].value_counts(dropna=False).rename_axis("semaforo").reset_index(name="count")
+        st.dataframe(bench_summary, use_container_width=True)
+
+        # Average by dimension
+        st.markdown("### Average Normalized Score by Dimension")
+        dim_avg_bench = bench_df.groupby("dimension", as_index=False)["normalized_value"].mean().sort_values("normalized_value", ascending=False)
+        st.bar_chart(dim_avg_bench.set_index("dimension")["normalized_value"])
