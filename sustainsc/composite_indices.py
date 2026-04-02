@@ -142,10 +142,11 @@ def run_composite_indices(context_id="aggregates_ton", dimension_weights=None):
                         totw = sum(wdim.values())
                         if totw > 0:
                             wdim = {k: v / totw for k, v in wdim.items()}
-                            # media geométrica ponderada
-                            g = 100.0
+
+                            # media geométrica ponderada correcta en escala 0..100
+                            g = 1.0
                             for dim, val in valid.items():
-                                g *= (max(val, 1e-6) / 100.0) ** wdim[dim]
+                                g *= (max(float(val), 1e-6) / 100.0) ** wdim[dim]
                             g *= 100.0
 
                             session.add(KPIResult(

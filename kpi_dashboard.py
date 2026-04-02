@@ -8,6 +8,7 @@ from pathlib import Path
 if os.path.exists("/mount/src"):
     os.environ["SUSTAINSC_DB_URL"] = "sqlite:////tmp/sustainsc.db"
 
+import numpy as np
 import pandas as pd
 import streamlit as st
 from sqlalchemy import text
@@ -18,8 +19,7 @@ from sqlalchemy import text
 
 from sustainsc.anylogistix_adapter import import_anylogistix_csv
 from sustainsc.sim_export_adapter import read_any_file, normalize_any_export, upsert_measurements
-from sustainsc.kpi_engine import run_engine
-from sustainsc.benchmarks import load_benchmarks, semaforo_label
+from sustainsc.kpi_engine import run_full_pipeline
 
 # ============================================================================
 # 1) Set DB URL BEFORE importing other sustainsc modules
@@ -115,6 +115,29 @@ def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
     """Get latest result per (KPI, scenario) pair"""
     df2 = df.dropna(subset=["kpi_code"]).sort_values("period_end")
     return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
+
+COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
+
+def exclude_composites(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "kpi_code" not in df.columns:
+        return df.copy()
+    return df[~df["kpi_code"].isin(COMPOSITE_CODES)].copy()
+
+def latest_norm_for_scenario(norm_df: pd.DataFrame, scenario_code: str) -> pd.DataFrame:
+    if norm_df.empty:
+        return pd.DataFrame()
+
+    nn = norm_df[norm_df["scenario_code"] == scenario_code].copy()
+    if nn.empty:
+        return nn
+
+    nn["period_end"] = pd.to_datetime(nn["period_end"], errors="coerce")
+    nn = nn.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+    nn = exclude_composites(nn)
+
+    keep = ["kpi_code", "normalized_value", "semaforo", "baseline_value", "normalization_method"]
+    keep = [c for c in keep if c in nn.columns]
+    return nn[keep].copy()
 
 @st.cache_data(ttl=5)
 def load_vsm_measurements():
@@ -226,7 +249,7 @@ with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=F
                     # 3) Recalc KPIs if requested
                     if recalc_alx:
                         with st.spinner("Recalculating KPIs..."):
-                            run_engine()
+                            run_full_pipeline(debug_missing=False)
 
                     # 4) Clear caches so filters/scenario lists refresh
                     try:
@@ -321,7 +344,7 @@ if st.button("🆚 Compare imported scenarios vs BASE", key="btn_compare_vs_base
                             session.close()
 
                     with st.spinner("Recalculating KPIs..."):
-                        run_engine()
+                        run_full_pipeline(debug_missing=False)
 
                     # 4) Clear caches
                     try:
@@ -367,83 +390,482 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
     st.rerun()
 
 # ============================================================================
-# Load KPI data
+# Load normalized KPI results + rules
 # ============================================================================
 
-try:
-    df_all, kpi_meta, sc_meta = load_kpi_data()
-except Exception as e:
-    st.error(f"❌ Failed to load KPI data: {e}")
+@st.cache_data(ttl=30)
+def load_normalized_results():
+    from sustainsc.config import engine
+
+    q = """
+    SELECT
+        n.scenario_id,
+        s.code AS scenario_code,
+        k.id AS kpi_id,
+        k.code AS kpi_code,
+        k.name AS kpi_name,
+        k.dimension,
+        k.decision_level,
+        k.flow,
+        k.unit,
+        n.raw_value,
+        n.normalized_value,
+        n.semaforo,
+        n.lower_ref,
+        n.upper_ref,
+        n.baseline_value,
+        n.normalization_method,
+        n.notes,
+        n.period_end
+    FROM sc_kpi_normalized_result n
+    JOIN sc_kpi k ON k.id = n.kpi_id
+    JOIN sc_scenario s ON s.id = n.scenario_id
+    """
+    df = pd.read_sql(q, engine)
+    if not df.empty:
+        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
+        df["scenario_code"] = df["scenario_code"].fillna("NONE")
+        df["dimension"] = df["dimension"].fillna("unknown")
+        df["decision_level"] = df["decision_level"].fillna("unknown")
+        df["flow"] = df["flow"].fillna("unknown")
+    return df
+
+
+@st.cache_data(ttl=30)
+def load_normalization_rules():
+    path = Path(__file__).parent / "data" / "kpi_normalization_rules.csv"
+    if not path.exists():
+        return pd.DataFrame()
+
+    rules = pd.read_csv(path)
+    rules.columns = [c.strip().lower() for c in rules.columns]
+    rules["kpi_code"] = rules["kpi_code"].astype(str).str.strip()
+    rules["dimension"] = rules["dimension"].astype(str).str.strip()
+    rules["weight"] = pd.to_numeric(rules["weight"], errors="coerce")
+    return rules
+
+
+def latest_norm_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df.copy()
+    df2 = df.dropna(subset=["kpi_code", "scenario_code"]).sort_values("period_end")
+    return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
+
+
+def _default_base_index(options):
+    if not options:
+        return 0
+    for i, s in enumerate(options):
+        if "BASE" in str(s).upper():
+            return i
+    return 0
+
+
+def _apply_common_filters(df, dim_sel, level_sel, flow_sel):
+    out = df.copy()
+    if dim_sel != "All":
+        out = out[out["dimension"] == dim_sel]
+    if level_sel != "All":
+        out = out[out["decision_level"] == level_sel]
+    if flow_sel != "All":
+        out = out[out["flow"] == flow_sel]
+    return out
+
+
+def _normalized_delta(ref_score, other_score):
+    try:
+        if pd.isna(ref_score) or pd.isna(other_score):
+            return None
+        return float(other_score) - float(ref_score)
+    except Exception:
+        return None
+
+
+def _effect_from_normalized_delta(delta_pts, tol=0.5):
+    if delta_pts is None or pd.isna(delta_pts):
+        return "Missing"
+    if float(delta_pts) > tol:
+        return "Improved"
+    if float(delta_pts) < -tol:
+        return "Worse"
+    return "Same"
+
+
+def normalize_dim_weights(raw_weights: dict) -> dict:
+    cleaned = {k: max(float(v), 0.0) for k, v in raw_weights.items()}
+    total = sum(cleaned.values())
+    if total <= 0:
+        n = len(cleaned)
+        return {k: 1.0 / n for k in cleaned}
+    return {k: v / total for k, v in cleaned.items()}
+
+
+def corrected_sustain_index(dim_scores: dict, dim_weights: dict, method: str = "geometric"):
+    dims = ["environmental", "economic", "social", "technological"]
+
+    vals = []
+    ws = []
+    for d in dims:
+        v = dim_scores.get(d, None)
+        w = dim_weights.get(d, 0.0)
+        if v is None or pd.isna(v) or w <= 0:
+            continue
+        vals.append(float(v))
+        ws.append(float(w))
+
+    if not vals or sum(ws) <= 0:
+        return None
+
+    ws = np.array(ws, dtype=float)
+    ws = ws / ws.sum()
+    vals = np.array(vals, dtype=float)
+
+    if method == "arithmetic":
+        return float(np.sum(ws * vals))
+
+    # geometric (corrected)
+    return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
+
+
+def compute_dimension_indices(norm_latest: pd.DataFrame, rules_df: pd.DataFrame, dim_weights: dict):
+    if norm_latest.empty or rules_df.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    weights = (
+        rules_df[["kpi_code", "dimension", "weight"]]
+        .dropna(subset=["kpi_code", "dimension", "weight"])
+        .drop_duplicates()
+        .rename(columns={"dimension": "rule_dimension", "weight": "local_weight"})
+    )
+
+    merged = norm_latest.merge(weights, on="kpi_code", how="inner")
+    if merged.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    rows = []
+    for (scenario_code, rule_dimension), g in merged.groupby(["scenario_code", "rule_dimension"]):
+        gg = g.dropna(subset=["normalized_value", "local_weight"]).copy()
+        if gg.empty:
+            continue
+
+        x = gg["normalized_value"].astype(float).to_numpy()
+        w = gg["local_weight"].astype(float).to_numpy()
+        if w.sum() <= 0:
+            continue
+
+        score = float(np.average(x, weights=w))
+        rows.append({
+            "scenario_code": scenario_code,
+            "dimension": rule_dimension,
+            "dimension_index": score,
+            "kpis_used": len(gg),
+        })
+
+    dim_long = pd.DataFrame(rows)
+    if dim_long.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    dim_wide = dim_long.pivot(index="scenario_code", columns="dimension", values="dimension_index").reset_index()
+
+    for col in ["environmental", "economic", "social", "technological"]:
+        if col not in dim_wide.columns:
+            dim_wide[col] = np.nan
+
+    dim_wide["SUSTAIN_INDEX_GEOM"] = dim_wide.apply(
+        lambda r: corrected_sustain_index(
+            {
+                "environmental": r.get("environmental"),
+                "economic": r.get("economic"),
+                "social": r.get("social"),
+                "technological": r.get("technological"),
+            },
+            dim_weights,
+            method="geometric",
+        ),
+        axis=1,
+    )
+
+    dim_wide["SUSTAIN_INDEX_ARITH"] = dim_wide.apply(
+        lambda r: corrected_sustain_index(
+            {
+                "environmental": r.get("environmental"),
+                "economic": r.get("economic"),
+                "social": r.get("social"),
+                "technological": r.get("technological"),
+            },
+            dim_weights,
+            method="arithmetic",
+        ),
+        axis=1,
+    )
+
+    return dim_long, dim_wide
+
+
+def build_normalized_comparison(norm_latest, reference_scenario, selected_scenarios, dim_sel, level_sel, flow_sel, tol):
+    df = _apply_common_filters(norm_latest, dim_sel, level_sel, flow_sel)
+    df = df[df["scenario_code"].isin([reference_scenario] + selected_scenarios)].copy()
+
+    index_cols = ["kpi_code", "kpi_name", "dimension", "decision_level", "flow", "unit"]
+
+    ref = (
+        df[df["scenario_code"] == reference_scenario][index_cols + ["normalized_value", "semaforo"]]
+        .rename(columns={
+            "normalized_value": "reference_score",
+            "semaforo": "reference_semaforo",
+        })
+        .copy()
+    )
+
+    detailed_frames = []
+    for sc in selected_scenarios:
+        comp = (
+            df[df["scenario_code"] == sc][index_cols + ["normalized_value", "semaforo"]]
+            .rename(columns={
+                "normalized_value": "scenario_score",
+                "semaforo": "scenario_semaforo",
+            })
+            .copy()
+        )
+
+        merged = ref.merge(comp, on=index_cols, how="outer")
+        merged["reference_scenario"] = reference_scenario
+        merged["scenario"] = sc
+        merged["delta_pts"] = merged.apply(
+            lambda r: _normalized_delta(r.get("reference_score"), r.get("scenario_score")),
+            axis=1,
+        )
+        merged["effect"] = merged["delta_pts"].apply(lambda x: _effect_from_normalized_delta(x, tol=tol))
+        detailed_frames.append(merged)
+
+    if not detailed_frames:
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    detailed = pd.concat(detailed_frames, ignore_index=True)
+
+    summary = (
+        detailed.groupby("scenario")
+        .apply(lambda g: pd.Series({
+            "Improved": int((g["effect"] == "Improved").sum()),
+            "Worse": int((g["effect"] == "Worse").sum()),
+            "Same": int((g["effect"] == "Same").sum()),
+            "Missing": int((g["effect"] == "Missing").sum()),
+            "Mean Δ (pts)": float(g["delta_pts"].dropna().mean()) if g["delta_pts"].notna().any() else np.nan,
+            "Median Δ (pts)": float(g["delta_pts"].dropna().median()) if g["delta_pts"].notna().any() else np.nan,
+            "Net score": int((g["effect"] == "Improved").sum()) - int((g["effect"] == "Worse").sum()),
+        }))
+        .reset_index()
+        .sort_values(["Net score", "Mean Δ (pts)"], ascending=False)
+    )
+
+    by_dim = (
+        detailed.groupby(["scenario", "dimension"])
+        .apply(lambda g: pd.Series({
+            "Improved": int((g["effect"] == "Improved").sum()),
+            "Worse": int((g["effect"] == "Worse").sum()),
+            "Same": int((g["effect"] == "Same").sum()),
+            "Mean Δ (pts)": float(g["delta_pts"].dropna().mean()) if g["delta_pts"].notna().any() else np.nan,
+        }))
+        .reset_index()
+    )
+
+    return detailed, summary, by_dim
+
+
+def build_global_kpi_weights(rules_df: pd.DataFrame, dim_weights: dict):
+    if rules_df.empty:
+        return pd.DataFrame()
+
+    out = rules_df[["kpi_code", "dimension", "weight"]].dropna().copy()
+    out["weight"] = out["weight"].astype(float)
+
+    out["local_weight_norm"] = out["weight"] / out.groupby("dimension")["weight"].transform("sum")
+    out["dimension_weight"] = out["dimension"].map(dim_weights).fillna(0.0)
+    out["global_weight"] = out["local_weight_norm"] * out["dimension_weight"]
+    return out[["kpi_code", "dimension", "local_weight_norm", "dimension_weight", "global_weight"]]
+
+
+def compute_wsm_scores(norm_latest: pd.DataFrame, global_weights: pd.DataFrame, scenario_list: list[str]):
+    if norm_latest.empty or global_weights.empty or not scenario_list:
+        return pd.DataFrame()
+
+    merged = (
+        norm_latest[norm_latest["scenario_code"].isin(scenario_list)]
+        .merge(global_weights[["kpi_code", "global_weight"]], on="kpi_code", how="inner")
+        .dropna(subset=["normalized_value", "global_weight"])
+        .copy()
+    )
+    if merged.empty:
+        return pd.DataFrame()
+
+    rows = []
+    for sc, g in merged.groupby("scenario_code"):
+        w = g["global_weight"].astype(float).to_numpy()
+        x = g["normalized_value"].astype(float).to_numpy()
+        if w.sum() <= 0:
+            continue
+        w = w / w.sum()
+        score = float(np.sum(w * x))
+        rows.append({
+            "scenario_code": sc,
+            "WSM_score": score,
+            "kpis_used_wsm": len(g),
+        })
+
+    return pd.DataFrame(rows)
+
+
+def compute_topsis_scores(norm_latest: pd.DataFrame, global_weights: pd.DataFrame, scenario_list: list[str]):
+    if norm_latest.empty or global_weights.empty or len(scenario_list) < 2:
+        return pd.DataFrame()
+
+    work = (
+        norm_latest[norm_latest["scenario_code"].isin(scenario_list)]
+        .merge(global_weights[["kpi_code", "global_weight"]], on="kpi_code", how="inner")
+        .copy()
+    )
+    if work.empty:
+        return pd.DataFrame()
+
+    matrix = work.pivot_table(index="scenario_code", columns="kpi_code", values="normalized_value", aggfunc="first")
+    matrix = matrix.reindex([s for s in scenario_list if s in matrix.index])
+
+    # usar solo KPI completos en todos los escenarios seleccionados
+    complete_cols = [c for c in matrix.columns if matrix[c].notna().all()]
+    if not complete_cols:
+        return pd.DataFrame()
+
+    X = matrix[complete_cols].astype(float).copy()
+    w = (
+        global_weights.drop_duplicates(subset=["kpi_code"])
+        .set_index("kpi_code")
+        .loc[complete_cols, "global_weight"]
+        .astype(float)
+    )
+    if w.sum() <= 0:
+        return pd.DataFrame()
+    w = w / w.sum()
+
+    denom = np.sqrt((X ** 2).sum(axis=0))
+    denom[denom == 0] = 1.0
+    R = X / denom
+    V = R * w
+
+    ideal_best = V.max(axis=0)
+    ideal_worst = V.min(axis=0)
+
+    d_pos = np.sqrt(((V - ideal_best) ** 2).sum(axis=1))
+    d_neg = np.sqrt(((V - ideal_worst) ** 2).sum(axis=1))
+    den = d_pos + d_neg
+
+    closeness = np.where(den > 0, (d_neg / den) * 100.0, np.nan)
+
+    return pd.DataFrame({
+        "scenario_code": X.index.tolist(),
+        "TOPSIS_score": closeness,
+        "kpis_used_topsis": len(complete_cols),
+    })
+
+
+def build_one_way_sensitivity(selected_dim_row: pd.Series):
+    if selected_dim_row is None or selected_dim_row.empty:
+        return pd.DataFrame()
+
+    dims = ["environmental", "economic", "social", "technological"]
+    dim_scores = {d: selected_dim_row.get(d, np.nan) for d in dims}
+
+    steps = np.round(np.arange(0.10, 0.71, 0.05), 2)
+    rows = []
+
+    for focus in dims:
+        others = [d for d in dims if d != focus]
+        for a in steps:
+            weights = {focus: float(a)}
+            rem = (1.0 - float(a)) / len(others)
+            for od in others:
+                weights[od] = rem
+
+            rows.append({
+                "focus_dimension": focus,
+                "focus_weight": float(a),
+                "SUSTAIN_INDEX_GEOM": corrected_sustain_index(dim_scores, weights, method="geometric"),
+                "SUSTAIN_INDEX_ARITH": corrected_sustain_index(dim_scores, weights, method="arithmetic"),
+            })
+
+    return pd.DataFrame(rows)
+
+
+def color_semaforo(val):
+    if val == "Green":
+        return "background-color: #d4edda; color: black"
+    if val == "Amber":
+        return "background-color: #fff3cd; color: black"
+    if val == "Red":
+        return "background-color: #f8d7da; color: black"
+    if val == "Need BASE":
+        return "background-color: #d1ecf1; color: black"
+    if val == "Missing":
+        return "background-color: #e2e3e5; color: black"
+    return ""
+
+
+# ============================================================================
+# Load normalized data
+# ============================================================================
+
+norm_df = load_normalized_results()
+rules_df = load_normalization_rules()
+
+if norm_df.empty:
+    st.warning("⚠️ No normalized KPI results found. Rebuild demo or rerun the full pipeline.")
     st.stop()
 
-if df_all.empty:
-    st.warning("⚠️ No KPI results found. Try rebuilding or check logs.")
+norm_latest = latest_norm_per_kpi_scenario(norm_df)
+
+if norm_latest.empty:
+    st.warning("⚠️ Normalized KPI table is empty after latest-value selection.")
     st.stop()
 
-latest = latest_per_kpi_scenario(df_all)
-
-# Sidebar filters
-dimensions = ["All"] + sorted(latest["dimension"].dropna().unique().tolist())
-decision_levels = ["All"] + sorted(latest["decision_level"].dropna().unique().tolist())
-flows = ["All"] + sorted(latest["flow"].dropna().unique().tolist())
-scenarios = sorted(latest["scenario_code"].dropna().unique().tolist())
+# Sidebar filters based on normalized data
+dimensions = ["All"] + sorted(norm_latest["dimension"].dropna().unique().tolist())
+decision_levels = ["All"] + sorted(norm_latest["decision_level"].dropna().unique().tolist())
+flows = ["All"] + sorted(norm_latest["flow"].dropna().unique().tolist())
+scenarios = sorted(norm_latest["scenario_code"].dropna().unique().tolist())
 
 sel_dim = st.sidebar.selectbox("Dimension", dimensions, index=0)
 sel_level = st.sidebar.selectbox("Decision level", decision_levels, index=0)
 sel_flow = st.sidebar.selectbox("Flow", flows, index=0)
-sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenarios, index=0)
+sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenarios, index=_default_base_index(scenarios))
 
-# Apply filters
-view = latest.copy()
-if sel_dim != "All":
-    view = view[view["dimension"] == sel_dim]
-if sel_level != "All":
-    view = view[view["decision_level"] == sel_level]
-if sel_flow != "All":
-    view = view[view["flow"] == sel_flow]
-view = view[view["scenario_code"] == sel_scenario]
+norm_view = _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
+norm_view = norm_view[norm_view["scenario_code"] == sel_scenario].copy()
 
 # ============================================================================
-# Section 1: Latest KPI Values
+# Section 1: Normalized KPI view (replaces raw KPI table)
 # ============================================================================
 
-st.subheader(f"Latest KPI values – Scenario: {sel_scenario}")
-st.caption("Most recent KPIResult per KPI for selected scenario.")
+st.subheader(f"Normalized KPI view – Scenario: {sel_scenario}")
+st.caption("All analytical comparisons in this dashboard use normalized KPI scores (0–100), not raw KPI values.")
 
-display_cols = ["kpi_code", "kpi_name", "dimension", "decision_level", "flow", "value", "unit"]
-st.dataframe(view[display_cols].sort_values("kpi_code"), use_container_width=True)
+show_cols = [
+    "kpi_code", "kpi_name", "dimension", "decision_level", "flow", "unit",
+    "raw_value", "normalized_value", "semaforo", "baseline_value",
+    "lower_ref", "upper_ref", "normalization_method"
+]
+show_cols = [c for c in show_cols if c in norm_view.columns]
 
-# ============================================================================
-# Section 2: Time Series Trend
-# ============================================================================
-
-st.markdown("### Trend time series (per KPI)")
-kpi_list = sorted(view["kpi_code"].unique().tolist())
-
-if not kpi_list:
-    st.info("No KPIs available under current filters.")
-else:
-    sel_kpi = st.selectbox("Select KPI for trend", kpi_list, index=0)
-    ts = df_all[
-        (df_all["scenario_code"] == sel_scenario) &
-        (df_all["kpi_code"] == sel_kpi)
-    ].copy()
-    ts = ts.sort_values("period_end").dropna(subset=["period_end"])
-
-    if ts.empty:
-        st.info("No time series data for selected KPI.")
-    else:
-        ts_plot = ts[["period_end", "value"]].rename(columns={"period_end": "timestamp"})
-        st.line_chart(ts_plot.set_index("timestamp"), use_container_width=True)
+styled_main = norm_view[show_cols].sort_values(["dimension", "kpi_code"]).style.map(
+    color_semaforo, subset=["semaforo"]
+)
+st.dataframe(styled_main, use_container_width=True)
 
 # ============================================================================
-# Section 3: VSM-C Diagnostics
+# Section 2: VSM-C Diagnostics (keep as separate diagnostic)
 # ============================================================================
 
 st.markdown("## VSM-C Diagnostics")
 st.caption("VSM-C Diagnostic (lead time, VA ratio, hotspots) and auto-generated Kaizen scenario.")
 
-# Try to run VSM-C if CSV exists
 if vsmc_main is not None and VSM_CSV is not None and VSM_CSV.exists():
     try:
         with st.spinner("Running VSM-C analysis..."):
@@ -492,339 +914,219 @@ else:
         st.dataframe(vv.sort_values("variable_name"), use_container_width=True)
 
 # ============================================================================
-# Section 4: Scenario Comparison (All vs BASE)
+# Section 3: Normalized scenario comparison vs reference
 # ============================================================================
 
 st.markdown('<div id="scenario-compare"></div>', unsafe_allow_html=True)
+st.markdown("## Normalized Scenario Comparison")
+st.caption("All scenario deviations are computed using normalized KPI scores, so directionality is already encoded.")
 
-st.markdown("## Scenario Comparison")
-st.caption("Compare multiple scenarios. BASE is reference for delta calculation.")
+base_like = [s for s in scenarios if "BASE" in s.upper()]
+ref_default = base_like[0] if base_like else scenarios[0]
 
-# Initialize session state for comparison scenarios
-if "compare_autoselect" not in st.session_state:
-    st.session_state.compare_autoselect = []
-
-if "scroll_to_compare" not in st.session_state:
-    st.session_state.scroll_to_compare = False
-
-# Check if we should scroll to this section
-if st.session_state.get("scroll_to_compare", False):
-    st.info("📍 Auto-selected imported scenarios below")
-    st.session_state.scroll_to_compare = False
-
-# Get autoselect list and filter to only available scenarios
-default_compare = st.session_state.get("compare_autoselect", [])
-compare_scenarios = st.multiselect(
-    "Select scenarios to compare",
-    options=scenarios,
-    default=[s for s in default_compare if s in scenarios],
-    key="compare_scenarios_selector"
+reference_scenario = st.selectbox(
+    "Reference scenario",
+    scenarios,
+    index=scenarios.index(ref_default),
+    key="reference_scenario_norm"
 )
 
-# only persist manual changes (don't always override autoselect)
-prev_autoselect = st.session_state.get("compare_autoselect", [])
-if compare_scenarios != prev_autoselect:
-    st.session_state["compare_default"] = compare_scenarios
-    st.session_state["compare_autoselect"] = []
-# Update session state whenever selection changes
-st.session_state.compare_autoselect = compare_scenarios
+default_compare = [s for s in scenarios if s != reference_scenario][:4]
+compare_scenarios = st.multiselect(
+    "Scenarios to compare against the reference",
+    options=[s for s in scenarios if s != reference_scenario],
+    default=default_compare,
+    key="compare_scenarios_norm"
+)
 
-cmp = latest.copy()
-if sel_dim != "All":
-    cmp = cmp[cmp["dimension"] == sel_dim]
-if sel_level != "All":
-    cmp = cmp[cmp["decision_level"] == sel_level]
-if sel_flow != "All":
-    cmp = cmp[cmp["flow"] == sel_flow]
-cmp = cmp[cmp["scenario_code"].isin(compare_scenarios)]
+same_tolerance = st.slider(
+    "Tolerance for 'Same' (normalized points)",
+    min_value=0.0,
+    max_value=5.0,
+    value=0.5,
+    step=0.1,
+)
 
-if cmp.empty:
-    st.info("No data available for selected comparison filters.")
+detailed_cmp, summary_cmp, by_dim_cmp = build_normalized_comparison(
+    norm_latest=norm_latest,
+    reference_scenario=reference_scenario,
+    selected_scenarios=compare_scenarios,
+    dim_sel=sel_dim,
+    level_sel=sel_level,
+    flow_sel=sel_flow,
+    tol=same_tolerance,
+)
+
+if detailed_cmp.empty:
+    st.info("No normalized comparison data available for the selected filters.")
 else:
-    pivot = cmp.pivot_table(
-        index=["kpi_code", "kpi_name", "unit", "is_benefit"],
-        columns="scenario_code",
-        values="value",
-        aggfunc="first",
-    ).reset_index()
+    st.markdown("### Summary: improved / worse / same (normalized KPI scores)")
+    st.dataframe(summary_cmp, use_container_width=True)
 
-    # Add delta columns vs BASE
-    if "BASE" in pivot.columns:
-        for sc in compare_scenarios:
-            if sc == "BASE" or sc not in pivot.columns:
-                continue
+    st.markdown("### Summary by dimension")
+    st.dataframe(by_dim_cmp.sort_values(["scenario", "dimension"]), use_container_width=True)
 
-            pivot[f"Δ {sc} vs BASE"] = pivot.apply(
-                lambda r: (float(r[sc]) - float(r["BASE"]))
-                if (pd.notna(r.get(sc)) and pd.notna(r.get("BASE")))
-                else None,
-                axis=1,
-            )
-            pivot[f"%Δ {sc} vs BASE"] = pivot.apply(
-                lambda r: _pct_delta(r.get("BASE"), r.get(sc)), axis=1
-            )
-            pivot[f"Effect {sc} vs BASE"] = pivot.apply(
-                lambda r: _effect_label(
-                    r.get(f"Δ {sc} vs BASE"),
-                    r.get("is_benefit")
-                ),
-                axis=1
-            )
+    st.markdown("### Detailed KPI effects (normalized)")
+    det_show = detailed_cmp[[
+        "scenario", "kpi_code", "kpi_name", "dimension",
+        "reference_score", "scenario_score", "delta_pts",
+        "reference_semaforo", "scenario_semaforo", "effect"
+    ]].sort_values(["scenario", "dimension", "kpi_code"])
+    st.dataframe(det_show, use_container_width=True)
 
-    st.subheader("Scenario comparison table")
-    st.dataframe(pivot, use_container_width=True)
+    st.markdown("### Top improvers / worsenings")
+    focus_scenario = st.selectbox(
+        "Scenario for top movers",
+        options=compare_scenarios,
+        key="focus_scenario_top_movers"
+    )
+    focus_df = detailed_cmp[detailed_cmp["scenario"] == focus_scenario].copy()
 
-    # All vs BASE Summary
-    if "BASE" in pivot.columns:
-        st.markdown("### Summary: All vs BASE")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.write("**Top improvements**")
+        top_imp = focus_df.sort_values("delta_pts", ascending=False).head(10)
+        st.dataframe(top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]], use_container_width=True)
 
-        base_col = "BASE"
-        meta_cols = {"kpi_code", "kpi_name", "unit", "is_benefit"}
-        derived_prefixes = ("Δ ", "%Δ ", "Effect ")
+    with col_b:
+        st.write("**Top worsenings**")
+        top_wrs = focus_df.sort_values("delta_pts", ascending=True).head(10)
+        st.dataframe(top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]], use_container_width=True)
 
-        scenario_cols = [
-            c for c in pivot.columns
-            if (c not in meta_cols) and (not str(c).startswith(derived_prefixes))
-        ]
-        scenario_cols = [c for c in scenario_cols if c in compare_scenarios]
+    st.markdown("### Traffic-light distribution by scenario")
+    traffic_df = (
+        _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
+        .query("scenario_code in @([reference_scenario] + compare_scenarios)")
+        .groupby(["scenario_code", "semaforo"])
+        .size()
+        .unstack(fill_value=0)
+        .reset_index()
+    )
+    st.dataframe(traffic_df, use_container_width=True)
 
-        summary_rows = []
-        long_rows = []
-
-        for sc in scenario_cols:
-            if sc == base_col:
-                continue
-
-            improved = worse = same = missing = 0
-
-            for _, r in pivot.iterrows():
-                base_val = r.get(base_col, None)
-                sc_val = r.get(sc, None)
-
-                if pd.isna(base_val) or pd.isna(sc_val):
-                    missing += 1
-                    effect = "Missing"
-                    delta = None
-                    pct = None
-                else:
-                    delta = float(sc_val) - float(base_val)
-                    pct = _pct_delta(float(base_val), float(sc_val))
-                    effect = _effect_label(delta, r.get("is_benefit", 0))
-
-                    if effect == "Improved":
-                        improved += 1
-                    elif effect == "Worse":
-                        worse += 1
-                    else:
-                        same += 1
-
-                long_rows.append({
-                    "scenario": sc,
-                    "kpi_code": r["kpi_code"],
-                    "kpi_name": r["kpi_name"],
-                    "unit": r.get("unit", ""),
-                    "BASE": base_val,
-                    sc: sc_val,
-                    "delta": delta,
-                    "pct_delta": pct,
-                    "effect": effect,
-                })
-
-            total_valid = improved + worse + same
-            improved_pct = (improved / total_valid * 100.0) if total_valid > 0 else None
-
-            summary_rows.append({
-                "Scenario": sc,
-                "Improved": improved,
-                "Worse": worse,
-                "Same": same,
-                "Missing": missing,
-                "Improved (%)": improved_pct,
-                "Net score": improved - worse,
-            })
-
-        df_summary = pd.DataFrame(summary_rows).sort_values(
-            ["Net score", "Improved"], ascending=False
-        )
-
-        st.dataframe(df_summary, use_container_width=True)
-
-        for _, r in df_summary.iterrows():
-            st.write(
-                f"**{r['Scenario']}**: ✅ {int(r['Improved'])} | "
-                f"❌ {int(r['Worse'])} | ➖ {int(r['Same'])} | ⚠️ {int(r['Missing'])}"
-            )
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.download_button(
-                "📥 Download summary (CSV)",
-                df_summary.to_csv(index=False).encode("utf-8"),
-                file_name="all_vs_base_summary.csv",
-                mime="text/csv",
-            )
-
-        with col2:
-            df_long = pd.DataFrame(long_rows)
-            st.download_button(
-                "📥 Download detailed (CSV)",
-                df_long.to_csv(index=False).encode("utf-8"),
-                file_name="all_vs_base_kpi_detail.csv",
-                mime="text/csv",
-            )
-
-        with st.expander("📋 Show KPI-by-KPI detailed effects"):
-            df_long = pd.DataFrame(long_rows)
-            df_long["effect_order"] = df_long["effect"].map({
-                "Improved": 0,
-                "Worse": 1,
-                "Same": 2,
-                "Missing": 3
-            }).fillna(9)
-            df_long = df_long.sort_values(["scenario", "effect_order", "kpi_code"])
-
-            st.dataframe(
-                df_long[[
-                    "scenario", "kpi_code", "kpi_name",
-                    "BASE", "delta", "pct_delta", "effect"
-                ]],
-                use_container_width=True
-            )
+    st.download_button(
+        "📥 Download normalized comparison summary (CSV)",
+        summary_cmp.to_csv(index=False).encode("utf-8"),
+        file_name="normalized_comparison_summary.csv",
+        mime="text/csv",
+    )
+    st.download_button(
+        "📥 Download normalized comparison detail (CSV)",
+        det_show.to_csv(index=False).encode("utf-8"),
+        file_name="normalized_comparison_detail.csv",
+        mime="text/csv",
+    )
 
 # ============================================================================
-# Section 5: Composite Indices & Normalized KPIs
+# Section 4: Composite indices, corrected Sustain Index, sensitivity and MCDA
 # ============================================================================
 
-st.markdown("## Composite Indices & Normalized KPIs")
+st.markdown("## Composite Indices, Sensitivity & MCDA")
+st.caption(
+    "Dimension indices are weighted averages of normalized KPI scores within each dimension. "
+    "The corrected SUSTAIN_INDEX is the weighted geometric mean of the four dimension indices."
+)
 
-@st.cache_data(ttl=30)
-def load_normalized_and_composites():
-    norm_df = pd.read_sql(
-        """
-        SELECT
-            n.scenario_id,
-            s.code AS scenario_code,
-            k.code AS kpi_code,
-            k.name AS kpi_name,
-            k.dimension,
-            k.unit,
-            n.raw_value,
-            n.normalized_value,
-            n.semaforo,
-            n.lower_ref,
-            n.upper_ref,
-            n.baseline_value,
-            n.normalization_method,
-            n.period_end
-        FROM sc_kpi_normalized_result n
-        JOIN sc_kpi k ON k.id = n.kpi_id
-        JOIN sc_scenario s ON s.id = n.scenario_id
-        """,
-        engine,
-    )
+st.markdown("### Dimension weights for global sustainability analysis")
+wcol1, wcol2, wcol3, wcol4 = st.columns(4)
 
-    comp_df = pd.read_sql(
-        """
-        SELECT
-            s.code AS scenario_code,
-            k.code AS kpi_code,
-            k.name AS kpi_name,
-            r.value,
-            r.period_end
-        FROM sc_kpi_result r
-        JOIN sc_kpi k ON k.id = r.kpi_id
-        JOIN sc_scenario s ON s.id = r.scenario_id
-        WHERE k.code IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
-        """,
-        engine,
-    )
+w_env_raw = wcol1.slider("Environmental", 0.0, 100.0, 25.0, 1.0)
+w_eco_raw = wcol2.slider("Economic", 0.0, 100.0, 25.0, 1.0)
+w_soc_raw = wcol3.slider("Social", 0.0, 100.0, 25.0, 1.0)
+w_tech_raw = wcol4.slider("Technological", 0.0, 100.0, 25.0, 1.0)
 
-    return norm_df, comp_df
+dim_weights = normalize_dim_weights({
+    "environmental": w_env_raw,
+    "economic": w_eco_raw,
+    "social": w_soc_raw,
+    "technological": w_tech_raw,
+})
 
+st.write(
+    pd.DataFrame({
+        "dimension": list(dim_weights.keys()),
+        "normalized_weight": list(dim_weights.values()),
+    })
+)
 
-norm_df, comp_df = load_normalized_and_composites()
+dim_long_df, dim_wide_df = compute_dimension_indices(norm_latest, rules_df, dim_weights)
 
-if norm_df.empty:
-    st.info("No normalized KPI results found yet. Run normalization and composite indices first.")
+if dim_wide_df.empty:
+    st.info("No composite/dimension indices could be computed from normalized KPI results.")
 else:
-    available_scenarios = sorted(norm_df["scenario_code"].dropna().unique().tolist())
-    sel_norm_scenario = st.selectbox(
-        "Scenario for normalized KPI analysis",
-        available_scenarios,
-        key="sel_norm_scenario"
+    st.markdown("### Corrected composite index cards")
+    selected_dim_row = dim_wide_df[dim_wide_df["scenario_code"] == sel_scenario]
+    if selected_dim_row.empty:
+        selected_dim_row = dim_wide_df.iloc[[0]]
+
+    r = selected_dim_row.iloc[0]
+
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1.metric("ENV_INDEX", f"{r.get('environmental', np.nan):.1f}" if pd.notna(r.get("environmental")) else "—")
+    c2.metric("ECO_INDEX", f"{r.get('economic', np.nan):.1f}" if pd.notna(r.get("economic")) else "—")
+    c3.metric("SOC_INDEX", f"{r.get('social', np.nan):.1f}" if pd.notna(r.get("social")) else "—")
+    c4.metric("TECH_INDEX", f"{r.get('technological', np.nan):.1f}" if pd.notna(r.get("technological")) else "—")
+    c5.metric("SUSTAIN_INDEX", f"{r.get('SUSTAIN_INDEX_GEOM', np.nan):.1f}" if pd.notna(r.get("SUSTAIN_INDEX_GEOM")) else "—")
+    c6.metric("Arithmetic alt.", f"{r.get('SUSTAIN_INDEX_ARITH', np.nan):.1f}" if pd.notna(r.get("SUSTAIN_INDEX_ARITH")) else "—")
+
+    st.markdown("### Dimension indices by scenario")
+    dim_show = dim_wide_df[[
+        "scenario_code", "environmental", "economic", "social", "technological",
+        "SUSTAIN_INDEX_GEOM", "SUSTAIN_INDEX_ARITH"
+    ]].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
+    st.dataframe(dim_show, use_container_width=True)
+
+    st.markdown("### Corrected Sustain Index ranking")
+    st.bar_chart(dim_show.set_index("scenario_code")["SUSTAIN_INDEX_GEOM"])
+
+    st.markdown("### Sensitivity analysis for selected scenario")
+    sens_df = build_one_way_sensitivity(r)
+    if not sens_df.empty:
+        geom_chart = sens_df.pivot(index="focus_weight", columns="focus_dimension", values="SUSTAIN_INDEX_GEOM")
+        arith_chart = sens_df.pivot(index="focus_weight", columns="focus_dimension", values="SUSTAIN_INDEX_ARITH")
+
+        st.write("**One-way sensitivity (geometric Sustain Index)**")
+        st.line_chart(geom_chart)
+
+        st.write("**One-way sensitivity (arithmetic alternative)**")
+        st.line_chart(arith_chart)
+
+        with st.expander("📋 Show sensitivity table"):
+            st.dataframe(sens_df, use_container_width=True)
+
+    st.markdown("### MCDA (normalized KPI scores)")
+    st.caption(
+        "WSM uses the normalized KPI scores and the rule weights. "
+        "TOPSIS is computed on the subset of KPI that are complete across the selected scenarios."
     )
 
-    # ---- Composite index cards ----
-    st.markdown("### Composite index cards")
-    comp_s = comp_df[comp_df["scenario_code"] == sel_norm_scenario].copy()
-    if not comp_s.empty:
-        comp_s["period_end"] = pd.to_datetime(comp_s["period_end"], errors="coerce")
-        comp_s = comp_s.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+    default_mcda = [reference_scenario] + compare_scenarios if compare_scenarios else [reference_scenario]
+    mcda_scenarios = st.multiselect(
+        "Scenarios for MCDA ranking",
+        options=scenarios,
+        default=[s for s in default_mcda if s in scenarios],
+        key="mcda_scenarios"
+    )
 
-        comp_order = ["ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"]
-        comp_s["ord"] = comp_s["kpi_code"].apply(lambda x: comp_order.index(x) if x in comp_order else 999)
-        comp_s = comp_s.sort_values("ord")
+    global_weights = build_global_kpi_weights(rules_df, dim_weights)
+    wsm_df = compute_wsm_scores(norm_latest, global_weights, mcda_scenarios)
+    topsis_df = compute_topsis_scores(norm_latest, global_weights, mcda_scenarios)
 
-        cols = st.columns(min(5, len(comp_s)))
-        for i, (_, r) in enumerate(comp_s.iterrows()):
-            cols[i].metric(r["kpi_code"], f"{r['value']:.1f}")
+    mcda_df = pd.merge(wsm_df, topsis_df, on="scenario_code", how="outer")
+    if not mcda_df.empty:
+        mcda_df["Rank_WSM"] = mcda_df["WSM_score"].rank(ascending=False, method="dense")
+        if "TOPSIS_score" in mcda_df.columns:
+            mcda_df["Rank_TOPSIS"] = mcda_df["TOPSIS_score"].rank(ascending=False, method="dense")
+        mcda_df = mcda_df.sort_values(["Rank_WSM", "scenario_code"])
 
-        st.markdown("### Composite indices (bar chart)")
-        st.bar_chart(comp_s.set_index("kpi_code")["value"])
+        st.dataframe(mcda_df, use_container_width=True)
+
+        if "WSM_score" in mcda_df.columns:
+            st.write("**WSM ranking**")
+            st.bar_chart(mcda_df.set_index("scenario_code")["WSM_score"])
+
+        if "TOPSIS_score" in mcda_df.columns:
+            st.write("**TOPSIS ranking**")
+            st.bar_chart(mcda_df.set_index("scenario_code")["TOPSIS_score"])
     else:
-        st.warning("No composite indices found for this scenario.")
-
-    # ---- BASE vs scenario comparison ----
-    st.markdown("### BASE vs selected scenario (composite indices)")
-    comp_base = comp_df[comp_df["scenario_code"] == "BASE"].copy()
-    if not comp_base.empty and not comp_s.empty:
-        comp_base["period_end"] = pd.to_datetime(comp_base["period_end"], errors="coerce")
-        comp_base = comp_base.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
-        cmp = comp_s[["kpi_code", "value"]].rename(columns={"value": sel_norm_scenario}).merge(
-            comp_base[["kpi_code", "value"]].rename(columns={"value": "BASE"}),
-            on="kpi_code",
-            how="left"
-        )
-        cmp["delta_vs_BASE"] = cmp[sel_norm_scenario] - cmp["BASE"]
-        st.dataframe(cmp, use_container_width=True)
-
-    # ---- Raw KPI + normalized table ----
-    st.markdown("### KPI table: raw + normalized + traffic light")
-
-    nv = norm_df[norm_df["scenario_code"] == sel_norm_scenario].copy()
-    nv["period_end"] = pd.to_datetime(nv["period_end"], errors="coerce")
-    nv = nv.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
-
-    def color_semaforo(val):
-        if val == "Green":
-            return "background-color: #d4edda; color: black"
-        if val == "Amber":
-            return "background-color: #fff3cd; color: black"
-        if val == "Red":
-            return "background-color: #f8d7da; color: black"
-        return ""
-
-    display_cols = [
-        "kpi_code", "kpi_name", "dimension", "unit",
-        "raw_value", "normalized_value", "semaforo",
-        "baseline_value", "lower_ref", "upper_ref", "normalization_method"
-    ]
-    display_cols = [c for c in display_cols if c in nv.columns]
-
-    styled = nv[display_cols].sort_values(["dimension", "kpi_code"]).style.map(
-        color_semaforo, subset=["semaforo"]
-    )
-    st.dataframe(styled, use_container_width=True)
-
-    # ---- Traffic light summary ----
-    st.markdown("### Traffic light summary")
-    sem_summary = nv["semaforo"].value_counts(dropna=False).rename_axis("semaforo").reset_index(name="count")
-    st.dataframe(sem_summary, use_container_width=True)
-
-    # ---- Bars by dimension (normalized average) ----
-    st.markdown("### Average normalized score by dimension")
-    dim_avg = nv.groupby("dimension", as_index=False)["normalized_value"].mean().sort_values("normalized_value", ascending=False)
-    st.bar_chart(dim_avg.set_index("dimension")["normalized_value"])
-
-
-# ============================================================================
+        st.info("MCDA ranking could not be computed with the current scenario selection.")
