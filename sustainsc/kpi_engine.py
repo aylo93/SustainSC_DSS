@@ -169,6 +169,36 @@ def compute_total_ghg_tco2e_from_factors(session: Session, scenario_id: Optional
     return total_kg / 1000.0
 
 
+def compute_activity_ghg_tco2e_from_factors(
+    session: Session,
+    activity_names: List[str],
+    scenario_id: Optional[int]
+) -> Optional[float]:
+    """
+    Computes tCO2e only for selected MRV activity variables.
+    Factor value assumed: kgCO2e per unit of measurement.
+    Return tCO2e.
+    """
+    q = session.query(Measurement)
+    if scenario_id is not None:
+        q = q.filter(Measurement.scenario_id == scenario_id)
+    q = q.filter(Measurement.variable_name.in_(activity_names))
+
+    total_kg = 0.0
+    used_any = False
+
+    for m in q.all():
+        ef = select_valid_emission_factor(session, m.variable_name, m.timestamp)
+        if ef is None:
+            continue
+        used_any = True
+        total_kg += float(m.value) * float(ef.value)
+
+    if not used_any:
+        return None
+    return total_kg / 1000.0
+
+
 # -----------------------------
 # KPI Context
 # -----------------------------
@@ -488,20 +518,141 @@ def analytics_supported_decisions(ctx: Ctx) -> Optional[float]:
     return clamp_0_100(safe_div(supported, total) * 100.0)
 
 
+def waste_generation_intensity_fu(ctx: Ctx) -> Optional[float]:
+    v = ctx.direct("waste_generation_intensity_fu")
+    if v is not None:
+        return v
+    waste = ctx.pick_sum("waste_generated_t")
+    output = ctx.pick_sum("output_qty_fu")
+    if waste is None or output is None:
+        return None
+    return safe_div(waste, output)
+
+
+def service_level(ctx: Ctx) -> Optional[float]:
+    v = ctx.direct("service_level")
+    if v is not None:
+        return clamp_0_100(v * 100.0 if v <= 1.5 else v)
+
+    # Direct measurements commonly used
+    v = ctx.pick_latest(
+        "service_level_pct",
+        "service_level",
+        "fill_rate",
+        "service_level_rate"
+    )
+    if v is not None:
+        return clamp_0_100(v * 100.0 if v <= 1.5 else v)
+
+    # Derived from fulfilled / total
+    fulfilled = ctx.pick_sum(
+        "orders_fulfilled",
+        "deliveries_fulfilled",
+        "fulfilled_qty"
+    )
+    total = ctx.pick_sum(
+        "orders_total",
+        "deliveries_total",
+        "demand_qty_total"
+    )
+    if fulfilled is not None and total is not None:
+        return clamp_0_100(safe_div(fulfilled, total) * 100.0)
+
+    # Derived from on-time / total
+    ontime = ctx.pick_sum(
+        "orders_on_time",
+        "deliveries_on_time"
+    )
+    if ontime is not None and total is not None:
+        return clamp_0_100(safe_div(ontime, total) * 100.0)
+
+    return None
+
+
+def transport_ghg_intensity_fu(ctx: Ctx) -> Optional[float]:
+    v = ctx.direct("transport_ghg_intensity_fu")
+    if v is not None:
+        return v
+
+    # 1) Direct transport emissions if already provided
+    transport_t = ctx.pick_sum(
+        "transport_ghg_total_tco2e",
+        "transport_emissions_tco2e",
+        "transport_ghg_tco2e"
+    )
+
+    # 2) If not direct, try factor-based calculation from transport activity
+    if transport_t is None:
+        transport_t = compute_activity_ghg_tco2e_from_factors(
+            ctx.session,
+            ["transport_work_tkm"],
+            ctx.scenario_id,
+        )
+
+    # 3) If still none, try transport-specific diesel if available
+    if transport_t is None:
+        transport_t = compute_activity_ghg_tco2e_from_factors(
+            ctx.session,
+            ["transport_diesel_kwh"],
+            ctx.scenario_id,
+        )
+
+    output = ctx.pick_sum("output_qty_fu")
+    if transport_t is None or output is None:
+        return None
+
+    # tCO2e -> kgCO2e/FU
+    return safe_div(transport_t * 1000.0, output)
+
+
+def average_lead_time(ctx: Ctx) -> Optional[float]:
+    v = ctx.direct("average_lead_time")
+    if v is not None:
+        return float(v)
+
+    # Direct average values
+    v = ctx.pick_latest(
+        "average_lead_time_days",
+        "lead_time_days",
+        "lead_time_avg_days",
+        "order_cycle_time_days"
+    )
+    if v is not None:
+        return float(v)
+
+    # Derived from total lead time / number of orders
+    total_lt = ctx.pick_sum(
+        "lead_time_total_days",
+        "order_lead_time_total_days"
+    )
+    n = ctx.pick_sum(
+        "orders_total",
+        "shipments_total"
+    )
+    if total_lt is not None and n is not None:
+        return safe_div(total_lt, n)
+
+    return None
+
+
 FORMULAS: Dict[str, Callable[[Ctx], Optional[float]]] = {
     "ghg_total_s1s2": ghg_total_s1s2,
     "ghg_intensity_fu": ghg_intensity_fu,
     "energy_intensity_fu": energy_intensity_fu,
     "renewable_energy_share": renewable_energy_share,
     "waste_recovery_rate": waste_recovery_rate,
+    "waste_generation_intensity_fu": waste_generation_intensity_fu,
     "water_intensity_fu": water_intensity_fu,
     "circularity_ratio": circularity_ratio,
+    "transport_ghg_intensity_fu": transport_ghg_intensity_fu,
     "cost_per_fu": cost_per_fu,
     "energy_cost_share": energy_cost_share,
     "oee": oee,
     "rosi": rosi,
     "maintenance_cost_per_hour": maintenance_cost_per_hour,
     "logistics_cost_per_tkm": logistics_cost_per_tkm,
+    "service_level": service_level,
+    "average_lead_time": average_lead_time,
     "ltifr": ltifr,
     "training_hours_per_employee": training_hours_per_employee,
     "suggestions_per_employee": suggestions_per_employee,

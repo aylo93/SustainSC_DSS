@@ -1,0 +1,34 @@
+kpi_code,context_id,dimension,weight,direction,norm_method,lower_ref,upper_ref,green_threshold,amber_threshold,baseline_required,notes
+E1,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,15,80,50,1,15% reduction target vs BASE
+E2,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,15,80,50,1,15% reduction target vs BASE
+E3,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,12,80,50,1,12% improvement target
+E4,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,10,50,80,50,0,Renewable share
+E5,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,30,85,80,50,0,Waste recovery
+E6,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Waste intensity reduction
+E7,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Water intensity reduction
+E8,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,15,60,80,50,0,Circularity ratio
+E9,aggregates_ton,environmental,0.05,lower_better,relative_vs_base_pct,0,15,80,50,1,Transport GHG intensity reduction
+
+EC1,aggregates_ton,economic,0.18,lower_better,relative_vs_base_pct,0,10,80,50,1,Cost/FU reduction
+EC2,aggregates_ton,economic,0.10,lower_better,relative_vs_base_pct,0,8,80,50,1,Energy cost share reduction
+EC3,aggregates_ton,economic,0.18,higher_better,absolute_continuous,55,90,80,50,0,OEE
+EC4,aggregates_ton,economic,0.10,higher_better,absolute_continuous,0,25,80,50,0,ROSI
+EC5,aggregates_ton,economic,0.12,lower_better,relative_vs_base_pct,0,10,80,50,1,Maintenance cost/hour reduction
+EC6,aggregates_ton,economic,0.12,lower_better,relative_vs_base_pct,0,10,80,50,1,Logistics cost/tkm reduction
+EC7,aggregates_ton,economic,0.10,higher_better,absolute_continuous,70,98,80,50,0,Service level
+EC8,aggregates_ton,economic,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Average lead time reduction
+
+S1,aggregates_ton,social,0.18,lower_better,relative_vs_base_pct,0,20,80,50,1,LTIFR reduction
+S2,aggregates_ton,social,0.15,higher_better,absolute_continuous,4,20,80,50,0,Training hours
+S3,aggregates_ton,social,0.15,higher_better,absolute_continuous,0.1,1.5,80,50,0,Suggestions per employee
+S4,aggregates_ton,social,0.12,lower_better,relative_vs_base_pct,0,20,80,50,1,Community incidents reduction
+S5,aggregates_ton,social,0.15,higher_better,absolute_continuous,60,100,80,50,0,Health checks coverage
+S6,aggregates_ton,social,0.25,higher_better,absolute_continuous,40,90,80,50,0,Customer acceptance index
+
+T1,aggregates_ton,technological,0.15,higher_better,absolute_continuous,30,95,80,50,0,Digitalization
+T2,aggregates_ton,technological,0.10,higher_better,absolute_continuous,20,90,80,50,0,IoT connectivity
+T3,aggregates_ton,technological,0.18,higher_better,absolute_continuous,40,100,80,50,0,MRV coverage
+T4,aggregates_ton,technological,0.14,higher_better,absolute_continuous,20,95,80,50,0,DPP coverage
+T5,aggregates_ton,technological,0.18,higher_better,absolute_continuous,50,100,80,50,0,Data quality
+T6,aggregates_ton,technological,0.10,higher_better,absolute_continuous,1,5,80,50,0,OT-IT integration
+T7,aggregates_ton,technological,0.15,higher_better,absolute_continuous,20,90,80,50,0,Analytics-supported decisions

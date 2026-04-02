@@ -1,0 +1,7 @@
+{
+  "context_id": "aggregates_ton",
+  "industry": "aggregates",
+  "functional_unit": "ton",
+  "system_boundary": "extraction_processing_transport",
+  "notes": "Sustainable aggregates supply chain case"
+}

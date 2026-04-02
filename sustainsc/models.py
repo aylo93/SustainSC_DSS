@@ -161,6 +161,27 @@ class KPIResult(Base):
     facility = relationship("Facility", back_populates="kpi_results")
 
 
+class KPINormalizedResult(Base):
+    __tablename__ = "sc_kpi_normalized_result"
+    id = Column(Integer, primary_key=True)
+
+    kpi_id = Column(Integer, ForeignKey("sc_kpi.id"), nullable=False)
+    scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+
+    period_end = Column(DateTime, nullable=True)
+
+    raw_value = Column(Float, nullable=True)
+    normalized_value = Column(Float, nullable=True)   # 0..100
+    semaforo = Column(String(20), nullable=True)      # Green / Amber / Red / Missing / Need BASE
+
+    lower_ref = Column(Float, nullable=True)
+    upper_ref = Column(Float, nullable=True)
+    baseline_value = Column(Float, nullable=True)
+
+    normalization_method = Column(String(100), nullable=True)
+    notes = Column(Text, nullable=True)
+
+
 class EmissionFactor(Base):
     __tablename__ = "sc_emission_factor"
     id = Column(Integer, primary_key=True)

@@ -720,6 +720,142 @@ else:
             )
 
 # ============================================================================
+# Section 5: Composite Indices & Normalized KPIs
+# ============================================================================
+
+st.markdown("## Composite Indices & Normalized KPIs")
+
+@st.cache_data(ttl=30)
+def load_normalized_and_composites():
+    norm_df = pd.read_sql(
+        """
+        SELECT
+            n.scenario_id,
+            s.code AS scenario_code,
+            k.code AS kpi_code,
+            k.name AS kpi_name,
+            k.dimension,
+            k.unit,
+            n.raw_value,
+            n.normalized_value,
+            n.semaforo,
+            n.lower_ref,
+            n.upper_ref,
+            n.baseline_value,
+            n.normalization_method,
+            n.period_end
+        FROM sc_kpi_normalized_result n
+        JOIN sc_kpi k ON k.id = n.kpi_id
+        JOIN sc_scenario s ON s.id = n.scenario_id
+        """,
+        engine,
+    )
+
+    comp_df = pd.read_sql(
+        """
+        SELECT
+            s.code AS scenario_code,
+            k.code AS kpi_code,
+            k.name AS kpi_name,
+            r.value,
+            r.period_end
+        FROM sc_kpi_result r
+        JOIN sc_kpi k ON k.id = r.kpi_id
+        JOIN sc_scenario s ON s.id = r.scenario_id
+        WHERE k.code IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+        """,
+        engine,
+    )
+
+    return norm_df, comp_df
+
+
+norm_df, comp_df = load_normalized_and_composites()
+
+if norm_df.empty:
+    st.info("No normalized KPI results found yet. Run normalization and composite indices first.")
+else:
+    available_scenarios = sorted(norm_df["scenario_code"].dropna().unique().tolist())
+    sel_norm_scenario = st.selectbox(
+        "Scenario for normalized KPI analysis",
+        available_scenarios,
+        key="sel_norm_scenario"
+    )
+
+    # ---- Cards de índices compuestos ----
+    st.markdown("### Composite index cards")
+    comp_s = comp_df[comp_df["scenario_code"] == sel_norm_scenario].copy()
+    if not comp_s.empty:
+        comp_s["period_end"] = pd.to_datetime(comp_s["period_end"], errors="coerce")
+        comp_s = comp_s.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+
+        comp_order = ["ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"]
+        comp_s["ord"] = comp_s["kpi_code"].apply(lambda x: comp_order.index(x) if x in comp_order else 999)
+        comp_s = comp_s.sort_values("ord")
+
+        cols = st.columns(min(5, len(comp_s)))
+        for i, (_, r) in enumerate(comp_s.iterrows()):
+            cols[i].metric(r["kpi_code"], f"{r['value']:.1f}")
+
+        st.markdown("### Composite indices (bar chart)")
+        st.bar_chart(comp_s.set_index("kpi_code")["value"])
+    else:
+        st.warning("No composite indices found for this scenario.")
+
+    # ---- Comparación BASE vs escenario ----
+    st.markdown("### BASE vs selected scenario (composite indices)")
+    comp_base = comp_df[comp_df["scenario_code"] == "BASE"].copy()
+    if not comp_base.empty and not comp_s.empty:
+        comp_base["period_end"] = pd.to_datetime(comp_base["period_end"], errors="coerce")
+        comp_base = comp_base.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+        cmp = comp_s[["kpi_code", "value"]].rename(columns={"value": sel_norm_scenario}).merge(
+            comp_base[["kpi_code", "value"]].rename(columns={"value": "BASE"}),
+            on="kpi_code",
+            how="left"
+        )
+        cmp["delta_vs_BASE"] = cmp[sel_norm_scenario] - cmp["BASE"]
+        st.dataframe(cmp, use_container_width=True)
+
+    # ---- Tabla KPI real + normalizado ----
+    st.markdown("### KPI table: raw + normalized + semáforo")
+
+    nv = norm_df[norm_df["scenario_code"] == sel_norm_scenario].copy()
+    nv["period_end"] = pd.to_datetime(nv["period_end"], errors="coerce")
+    nv = nv.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
+
+    def color_semaforo(val):
+        if val == "Green":
+            return "background-color: #d4edda; color: black"
+        if val == "Amber":
+            return "background-color: #fff3cd; color: black"
+        if val == "Red":
+            return "background-color: #f8d7da; color: black"
+        return ""
+
+    display_cols = [
+        "kpi_code", "kpi_name", "dimension", "unit",
+        "raw_value", "normalized_value", "semaforo",
+        "baseline_value", "lower_ref", "upper_ref", "normalization_method"
+    ]
+    display_cols = [c for c in display_cols if c in nv.columns]
+
+    styled = nv[display_cols].sort_values(["dimension", "kpi_code"]).style.map(
+        color_semaforo, subset=["semaforo"]
+    )
+    st.dataframe(styled, use_container_width=True)
+
+    # ---- Resumen semáforo ----
+    st.markdown("### Semáforo summary")
+    sem_summary = nv["semaforo"].value_counts(dropna=False).rename_axis("semaforo").reset_index(name="count")
+    st.dataframe(sem_summary, use_container_width=True)
+
+    # ---- Barras por dimensión (promedio normalizado) ----
+    st.markdown("### Average normalized score by dimension")
+    dim_avg = nv.groupby("dimension", as_index=False)["normalized_value"].mean().sort_values("normalized_value", ascending=False)
+    st.bar_chart(dim_avg.set_index("dimension")["normalized_value"])
+
+
+# ============================================================================
 # Section 5: KPI Benchmark (Semáforo)
 # ============================================================================
 
