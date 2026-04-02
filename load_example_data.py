@@ -9,7 +9,7 @@ from sustainsc.config import SessionLocal
 from sustainsc.models import Scenario, EmissionFactor, CostFactor, KPI, Measurement
 
 
-BASE_DIR = Path(_file_).parent
+BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 
 SCENARIOS_CSV = DATA_DIR / "scenarios.csv"
@@ -394,5 +394,5 @@ def main() -> None:
         session.close()
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
