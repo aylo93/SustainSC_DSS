@@ -4,452 +4,102 @@ import os
 import tempfile
 from pathlib import Path
 
-# En Streamlit Cloud existe /mount/src
-if os.path.exists("/mount/src"):
-    os.environ["SUSTAINSC_DB_URL"] = "sqlite:////tmp/sustainsc.db"
-
 import numpy as np
 import pandas as pd
 import streamlit as st
 from sqlalchemy import text
 
-# ============================================================================
-# 0) Imports from sustainsc (antes de DB_URL setup para evitar duplicados)
-# ============================================================================
+# -----------------------------------------------------------------------------
+# DB URL
+# -----------------------------------------------------------------------------
 
-from sustainsc.anylogistix_adapter import import_anylogistix_csv
-from sustainsc.sim_export_adapter import read_any_file, normalize_any_export, upsert_measurements
-from sustainsc.kpi_engine import run_full_pipeline
+if os.path.exists("/mount/src"):
+    os.environ["SUSTAINSC_DB_URL"] = "sqlite:////tmp/sustainsc.db"
 
-# ============================================================================
-# 1) Set DB URL BEFORE importing other sustainsc modules
-# ============================================================================
 
 def _default_db_url() -> str:
-    """Get appropriate DB URL for environment (local vs Cloud)"""
     if os.getenv("SUSTAINSC_DB_URL"):
         return os.environ["SUSTAINSC_DB_URL"]
 
-    # Streamlit Community Cloud
     if Path("/mount/src").exists() or os.getenv("STREAMLIT_SERVER_HEADLESS") == "true":
         return "sqlite:////tmp/sustainsc.db"
 
-    # Local development (Windows/Mac/Linux)
     db_path = Path(tempfile.gettempdir()) / "sustainsc.db"
     return f"sqlite:///{db_path.as_posix()}"
 
+
 os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 
-# ============================================================================
-# 2) Bootstrap everything (imports inside to ensure DB_URL is set)
-# ============================================================================
+# -----------------------------------------------------------------------------
+# sustainsc imports
+# -----------------------------------------------------------------------------
+
+from sustainsc.config import engine, SessionLocal
+from sustainsc.kpi_engine import run_full_pipeline
+from sustainsc.models import Measurement, Scenario
+
+
+# -----------------------------------------------------------------------------
+# Constants
+# -----------------------------------------------------------------------------
+
+COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
+
+
+# -----------------------------------------------------------------------------
+# Bootstrap
+# -----------------------------------------------------------------------------
 
 @st.cache_resource(show_spinner=False)
-def bootstrap_everything():
+def bootstrap_everything() -> bool:
+    """
+    Seed demo data only if DB is empty.
+    Recompute full pipeline only if KPI results / normalized results are missing.
+    Prevents reloading demo data on every rerun after user imports measurements.
+    """
     try:
-        from load_example_data import main as load_example_data_main
-        from sustainsc.kpi_engine import run_full_pipeline
+        def _count(table_name: str) -> int:
+            with engine.connect() as con:
+                return int(con.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar() or 0)
 
-        load_example_data_main()
-        run_full_pipeline(debug_missing=True)
+        kpi_count = _count("sc_kpi")
+        scenario_count = _count("sc_scenario")
+        measurement_count = _count("sc_measurement")
+        raw_count = _count("sc_kpi_result")
+        norm_count = _count("sc_kpi_normalized_result")
+
+        if kpi_count == 0 or scenario_count == 0 or measurement_count == 0:
+            from load_example_data import main as load_example_data_main
+            load_example_data_main()
+
+        raw_count = _count("sc_kpi_result")
+        norm_count = _count("sc_kpi_normalized_result")
+
+        if raw_count == 0 or norm_count == 0:
+            run_full_pipeline(debug_missing=True)
+
         return True
     except Exception as e:
         print(f"[BOOTSTRAP ERROR] {e}")
         return False
 
-# ============================================================================
-# 3) Data utilities & helpers
-# ============================================================================
 
-def _pct_delta(base, other):
-    """Calculate percentage change"""
-    try:
-        if base is None or pd.isna(base) or float(base) == 0:
-            return None
-        return (float(other) - float(base)) / float(base) * 100.0
-    except Exception:
-        return None
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
 
-def _effect_label(delta, is_benefit):
-    """Label effect direction"""
-    if delta is None or pd.isna(delta):
-        return "Missing"
-    is_benefit = int(is_benefit) if not pd.isna(is_benefit) else 0
-    if float(delta) == 0:
-        return "Same"
-    if is_benefit == 1:
-        return "Improved" if float(delta) > 0 else "Worse"
-    else:
-        return "Improved" if float(delta) < 0 else "Worse"
-
-@st.cache_data(ttl=5)
-def load_kpi_data():
-    """Load KPI metadata + results + scenarios (cached 5s)"""
-    from sustainsc.config import engine
-    
-    kpi_df = pd.read_sql(
-        "SELECT id as kpi_id, code as kpi_code, name as kpi_name, dimension, decision_level, flow, unit, is_benefit "
-        "FROM sc_kpi ORDER BY code",
-        engine
-    )
-
-    res_df = pd.read_sql(
-        "SELECT id as result_id, kpi_id, scenario_id, period_end, value "
-        "FROM sc_kpi_result ORDER BY period_end",
-        engine
-    )
-
-    sc_df = pd.read_sql(
-        "SELECT id as scenario_id, code as scenario_code, name as scenario_name "
-        "FROM sc_scenario ORDER BY id",
-        engine
-    )
-
-    df = res_df.merge(kpi_df, on="kpi_id", how="left").merge(sc_df, on="scenario_id", how="left")
-    df["scenario_code"] = df["scenario_code"].fillna("NONE")
-    df["scenario_name"] = df["scenario_name"].fillna("NoScenario")
-    df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
-    return df, kpi_df, sc_df
-
-def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
-    """Get latest result per (KPI, scenario) pair"""
-    df2 = df.dropna(subset=["kpi_code"]).sort_values("period_end")
-    return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
-
-COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
-
-def exclude_composites(df: pd.DataFrame) -> pd.DataFrame:
-    if df.empty or "kpi_code" not in df.columns:
-        return df.copy()
-    return df[~df["kpi_code"].isin(COMPOSITE_CODES)].copy()
-
-def latest_norm_for_scenario(norm_df: pd.DataFrame, scenario_code: str) -> pd.DataFrame:
-    if norm_df.empty:
-        return pd.DataFrame()
-
-    nn = norm_df[norm_df["scenario_code"] == scenario_code].copy()
-    if nn.empty:
-        return nn
-
-    nn["period_end"] = pd.to_datetime(nn["period_end"], errors="coerce")
-    nn = nn.sort_values("period_end").groupby("kpi_code", as_index=False).tail(1)
-    nn = exclude_composites(nn)
-
-    keep = ["kpi_code", "normalized_value", "semaforo", "baseline_value", "normalization_method"]
-    keep = [c for c in keep if c in nn.columns]
-    return nn[keep].copy()
-
-@st.cache_data(ttl=5)
-def load_vsm_measurements():
-    """Load VSM-C measurements (cached 5s)"""
-    from sustainsc.config import engine
-    
-    q = """
-    SELECT m.variable_name, m.value, m.unit, m.timestamp, s.code as scenario_code
-    FROM sc_measurement m
-    LEFT JOIN sc_scenario s ON s.id = m.scenario_id
-    WHERE m.variable_name LIKE 'vsm_%'
-    """
-    dfv = pd.read_sql(q, engine)
-    dfv["timestamp"] = pd.to_datetime(dfv["timestamp"], errors="coerce")
-    dfv["scenario_code"] = dfv["scenario_code"].fillna("NONE")
-    return dfv
-
-def list_scenarios_by_prefix(prefixes=("ALX_", "SIM_", "VSMC_", "MILP_")):
-    with engine.connect() as con:
-        rows = con.execute(text("SELECT code FROM sc_scenario ORDER BY code")).fetchall()
-    codes = [r[0] for r in rows]
-    picked = [c for c in codes if any(c.startswith(p) for p in prefixes)]
-    return picked
-
-# ============================================================================
-# 4) Streamlit App UI
-# ============================================================================
-
-st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
-st.title("SustainSCM DSS – KPI Dashboard")
-
-# Bootstrap
-if not bootstrap_everything():
-    st.error("❌ Failed to bootstrap database")
-    st.stop()
-
-st.success("✅ Database initialized")
-
-# Import engine after bootstrap
-from sustainsc.config import engine, SessionLocal
-try:
-    from sustainsc.vsmc import main as vsmc_main
-except ImportError:
-    vsmc_main = None
-
-VSM_CSV = Path(__file__).parent / "data" / "vsm_steps.csv"
-
-# ============================================================================
-# Import Data (AnyLogistix / AnyLogic) - SINGLE unified sidebar section
-# ============================================================================
-import io
-import tempfile
-from pathlib import Path
-
-st.sidebar.subheader("📥 Import Data")
-
-with st.sidebar.expander("AnyLogistix / AnyLogic Simulation Results", expanded=False):
-    tab_alx, tab_export = st.tabs(["AnyLogistix CSV (long)", "Export (.xlsx/.csv)"])
-
-    # ------------------------------------------------------------------------
-    # TAB 1: AnyLogistix long CSV importer
-    # ------------------------------------------------------------------------
-    with tab_alx:
-        st.write("Upload a CSV (long format recommended).")
-        st.caption(
-            "Required columns: scenario_code, variable_name, value. "
-            "Optional: timestamp, unit, source_system, comment."
-        )
-
-        up_alx = st.file_uploader(
-            "CSV file",
-            type=["csv"],
-            key="anylogistix_uploader_long",
-        )
-
-        prefix = st.text_input(
-            "Scenario prefix (optional)",
-            value="ALX_",
-            key="alx_prefix",
-        )
-
-        recalc_alx = st.checkbox(
-            "Recalculate KPIs after import",
-            value=True,
-            key="alx_recalc",
-        )
-
-        if up_alx is not None:
-            # Preview robust (doesn't consume the stream)
-            try:
-                data = up_alx.getvalue()
-                df_preview = pd.read_csv(io.BytesIO(data))
-                st.write("Preview (first 10 rows):")
-                st.dataframe(df_preview.head(10), use_container_width=True)
-            except Exception as e:
-                st.error(f"Could not preview CSV: {e}")
-
-            if st.button("Import into DB", type="primary", key="alx_import_btn"):
-                try:
-                    # 1) Save upload to temp file (Cloud-friendly)
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
-                        tmp.write(up_alx.getvalue())
-                        tmp_path = Path(tmp.name)
-
-                    # 2) Import (creates/updates scenarios + measurements)
-                    with st.spinner("Importing AnyLogistix data..."):
-                        stats = import_anylogistix_csv(tmp_path, scenario_prefix=prefix)
-
-                    # 3) Recalc KPIs if requested
-                    if recalc_alx:
-                        with st.spinner("Recalculating KPIs..."):
-                            run_full_pipeline(debug_missing=False)
-
-                    # 4) Clear caches so filters/scenario lists refresh
-                    try:
-                        st.cache_data.clear()
-                    except Exception:
-                        pass
-                    try:
-                        st.cache_resource.clear()
-                    except Exception:
-                        pass
-
-                    # 5) Auto-select imported scenarios in comparison section
-                    if hasattr(stats, 'scenario_codes') and stats.scenario_codes:
-                        st.session_state["compare_autoselect"] = ["BASE"] + list(stats.scenario_codes)
-                        st.session_state["scroll_to_compare"] = True
-
-                    st.success(
-                        f"✅ Imported OK | Scenarios: {stats.scenarios_touched} "
-                        f"| Measurements: {stats.measurements_written}"
-                    )
-                    st.success("Imported. Go to [Scenario comparison](#scenario-compare) section (scroll down) to compare vs BASE.")
-                    st.rerun()
-
-                except FileNotFoundError as e:
-                    st.error(f"❌ File error: {e}")
-                except Exception as e:
-                    st.error("❌ Import failed")
-                    st.exception(e)
-
-    # ------------------------------------------------------------------------
-    # TAB 2: AnyLogistix/AnyLogic export importer (.xlsx/.csv "raw" exports)
-    # ------------------------------------------------------------------------
-    with tab_export:
-        st.caption("Upload exported simulation results file (raw format).")
-
-        uploaded = st.file_uploader(
-            "Upload .xlsx or .csv (exported results)",
-            type=["xlsx", "xls", "csv"],
-            key="sim_export_uploader",
-        )
-
-        default_code = st.text_input(
-            "Default scenario_code (if file doesn't include one)",
-            value="SIM_ALX",
-            key="sim_default_code",
-        )
-
-        source_label = st.text_input(
-            "source_system label",
-            value="AnyLogistix/AnyLogic",
-            key="sim_source_label",
-        )
-st.markdown("---")
-st.caption("Quick actions")
-
-if st.button("🆚 Compare imported scenarios vs BASE", key="btn_compare_vs_base"):
-    candidates = list_scenarios_by_prefix(prefixes=("ALX_", "SIM_", "VSMC_", "MILP_"))
-    if not candidates:
-        st.warning("No imported scenarios found (ALX_/SIM_/VSMC_/MILP_). Import data or rebuild demo first.")
-    else:
-        st.session_state["compare_scenarios_default"] = ["BASE"] + candidates[:4]
-        st.success(f"Loaded {len(candidates)} scenario(s) for comparison.")
-        st.rerun()
-
-
-        if uploaded is not None:
-            if st.button("Import → write MRV → recompute KPIs", key="sim_import_btn", type="primary"):
-                try:
-                    # 1) Save upload to temp file
-                    suffix = "." + uploaded.name.split(".")[-1].lower()
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-                        tmp.write(uploaded.getbuffer())
-                        tmp_path = Path(tmp.name)
-
-                    # 2) Read + normalize → MRV format
-                    with st.spinner("Reading file..."):
-                        df_raw = read_any_file(tmp_path)
-
-                    with st.spinner("Normalizing to MRV format..."):
-                        df_mrv = normalize_any_export(
-                            df_raw,
-                            default_scenario_code=default_code,
-                            source_system=source_label,
-                        )
-
-                    # 3) Write to DB + recompute KPIs
-                    with st.spinner("Writing measurements to database..."):
-                        session = SessionLocal()
-                        try:
-                            written = upsert_measurements(session, df_mrv)
-                        finally:
-                            session.close()
-
-                    with st.spinner("Recalculating KPIs..."):
-                        run_full_pipeline(debug_missing=False)
-
-                    # 4) Clear caches
-                    try:
-                        st.cache_data.clear()
-                    except Exception:
-                        pass
-                    try:
-                        st.cache_resource.clear()
-                    except Exception:
-                        pass
-
-                    # 5) Auto-select imported scenarios in comparison section
-                    # Extract unique scenario codes from the imported data
-                    imported_codes = sorted(df_mrv["scenario_code"].unique().tolist())
-                    if imported_codes:
-                        st.session_state["compare_autoselect"] = ["BASE"] + imported_codes
-                        st.session_state["scroll_to_compare"] = True
-
-                    st.success(f"✅ Imported {written} measurements. KPIs recalculated.")
-                    st.success("Imported. Go to [Scenario comparison](#scenario-compare) section (scroll down) to compare vs BASE.")
-                    st.rerun()
-
-                except FileNotFoundError as e:
-                    st.error(f"❌ File not found: {e}")
-                except Exception as e:
-                    st.error("❌ Import failed")
-                    st.exception(e)
-
-# ----------------------------------------------------------------------------
-# Continue with the rest of your sidebar
-# ----------------------------------------------------------------------------
-st.sidebar.header("Controls")
-
-if st.sidebar.button("🔄 Rebuild demo (full)"):
-    from load_example_data import main as load_example_data_main
-    from sustainsc.kpi_engine import run_full_pipeline
-
-    load_example_data_main()
-    run_full_pipeline(debug_missing=True)
-
-    st.cache_data.clear()
-    st.cache_resource.clear()
-    st.rerun()
-
-# ============================================================================
-# Load normalized KPI results + rules
-# ============================================================================
-
-@st.cache_data(ttl=30)
-def load_normalized_results():
-    from sustainsc.config import engine
-
-    q = """
-    SELECT
-        n.scenario_id,
-        s.code AS scenario_code,
-        k.id AS kpi_id,
-        k.code AS kpi_code,
-        k.name AS kpi_name,
-        k.dimension,
-        k.decision_level,
-        k.flow,
-        k.unit,
-        n.raw_value,
-        n.normalized_value,
-        n.semaforo,
-        n.lower_ref,
-        n.upper_ref,
-        n.baseline_value,
-        n.normalization_method,
-        n.notes,
-        n.period_end
-    FROM sc_kpi_normalized_result n
-    JOIN sc_kpi k ON k.id = n.kpi_id
-    JOIN sc_scenario s ON s.id = n.scenario_id
-    """
-    df = pd.read_sql(q, engine)
-    if not df.empty:
-        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
-        df["scenario_code"] = df["scenario_code"].fillna("NONE")
-        df["dimension"] = df["dimension"].fillna("unknown")
-        df["decision_level"] = df["decision_level"].fillna("unknown")
-        df["flow"] = df["flow"].fillna("unknown")
-    return df
-
-
-@st.cache_data(ttl=30)
-def load_normalization_rules():
-    path = Path(__file__).parent / "data" / "kpi_normalization_rules.csv"
-    if not path.exists():
-        return pd.DataFrame()
-
-    rules = pd.read_csv(path)
-    rules.columns = [c.strip().lower() for c in rules.columns]
-    rules["kpi_code"] = rules["kpi_code"].astype(str).str.strip()
-    rules["dimension"] = rules["dimension"].astype(str).str.strip()
-    rules["weight"] = pd.to_numeric(rules["weight"], errors="coerce")
-    return rules
-
-
-def latest_norm_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
-    if df.empty:
-        return df.copy()
-    df2 = df.dropna(subset=["kpi_code", "scenario_code"]).sort_values("period_end")
-    return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
+def color_semaforo(val):
+    if val == "Green":
+        return "background-color: #d4edda; color: black"
+    if val == "Amber":
+        return "background-color: #fff3cd; color: black"
+    if val == "Red":
+        return "background-color: #f8d7da; color: black"
+    if val == "Need BASE":
+        return "background-color: #d1ecf1; color: black"
+    if val == "Missing":
+        return "background-color: #e2e3e5; color: black"
+    return ""
 
 
 def _default_base_index(options):
@@ -463,11 +113,11 @@ def _default_base_index(options):
 
 def _apply_common_filters(df, dim_sel, level_sel, flow_sel):
     out = df.copy()
-    if dim_sel != "All":
+    if dim_sel != "All" and "dimension" in out.columns:
         out = out[out["dimension"] == dim_sel]
-    if level_sel != "All":
+    if level_sel != "All" and "decision_level" in out.columns:
         out = out[out["decision_level"] == level_sel]
-    if flow_sel != "All":
+    if flow_sel != "All" and "flow" in out.columns:
         out = out[out["flow"] == flow_sel]
     return out
 
@@ -523,9 +173,138 @@ def corrected_sustain_index(dim_scores: dict, dim_weights: dict, method: str = "
     if method == "arithmetic":
         return float(np.sum(ws * vals))
 
-    # geometric (corrected)
     return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
 
+
+# -----------------------------------------------------------------------------
+# Data loading
+# -----------------------------------------------------------------------------
+
+@st.cache_data(ttl=30)
+def load_kpi_catalog():
+    q = """
+    SELECT
+        id AS kpi_id,
+        code AS kpi_code,
+        name AS kpi_name,
+        dimension,
+        decision_level,
+        flow,
+        unit
+    FROM sc_kpi
+    WHERE code NOT IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+    ORDER BY code
+    """
+    df = pd.read_sql(q, engine)
+    if not df.empty:
+        df["dimension"] = df["dimension"].fillna("unknown")
+        df["decision_level"] = df["decision_level"].fillna("unknown")
+        df["flow"] = df["flow"].fillna("unknown")
+    return df
+
+
+@st.cache_data(ttl=30)
+def load_raw_kpi_results():
+    q = """
+    SELECT
+        s.code AS scenario_code,
+        k.code AS kpi_code,
+        r.value AS raw_value,
+        r.period_end
+    FROM sc_kpi_result r
+    JOIN sc_kpi k ON k.id = r.kpi_id
+    JOIN sc_scenario s ON s.id = r.scenario_id
+    WHERE k.code NOT IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+    """
+    df = pd.read_sql(q, engine)
+    if not df.empty:
+        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
+        df["scenario_code"] = df["scenario_code"].fillna("NONE")
+    return df
+
+
+@st.cache_data(ttl=30)
+def load_normalized_results():
+    q = """
+    SELECT
+        n.scenario_id,
+        s.code AS scenario_code,
+        k.id AS kpi_id,
+        k.code AS kpi_code,
+        k.name AS kpi_name,
+        k.dimension,
+        k.decision_level,
+        k.flow,
+        k.unit,
+        n.raw_value,
+        n.normalized_value,
+        n.semaforo,
+        n.lower_ref,
+        n.upper_ref,
+        n.baseline_value,
+        n.normalization_method,
+        n.notes,
+        n.period_end
+    FROM sc_kpi_normalized_result n
+    JOIN sc_kpi k ON k.id = n.kpi_id
+    JOIN sc_scenario s ON s.id = n.scenario_id
+    WHERE k.code NOT IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+    """
+    df = pd.read_sql(q, engine)
+    if not df.empty:
+        df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
+        df["scenario_code"] = df["scenario_code"].fillna("NONE")
+        df["dimension"] = df["dimension"].fillna("unknown")
+        df["decision_level"] = df["decision_level"].fillna("unknown")
+        df["flow"] = df["flow"].fillna("unknown")
+    return df
+
+
+@st.cache_data(ttl=30)
+def load_normalization_rules():
+    path = Path(__file__).parent / "data" / "kpi_normalization_rules.csv"
+    if not path.exists():
+        return pd.DataFrame()
+
+    rules = pd.read_csv(path)
+    rules.columns = [c.strip().lower() for c in rules.columns]
+    rules["kpi_code"] = rules["kpi_code"].astype(str).str.strip()
+    rules["dimension"] = rules["dimension"].astype(str).str.strip()
+    rules["weight"] = pd.to_numeric(rules["weight"], errors="coerce")
+    return rules
+
+
+def latest_per_kpi_scenario(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df.copy()
+    df2 = df.dropna(subset=["scenario_code", "kpi_code"]).sort_values("period_end")
+    return df2.groupby(["scenario_code", "kpi_code"], as_index=False).tail(1)
+
+
+def build_raw_plus_normalized_table(
+    catalog_df: pd.DataFrame,
+    raw_latest: pd.DataFrame,
+    norm_latest: pd.DataFrame,
+    scenario_code: str,
+    dim_sel: str,
+    level_sel: str,
+    flow_sel: str,
+):
+    base_catalog = _apply_common_filters(catalog_df, dim_sel, level_sel, flow_sel).copy()
+
+    raw_s = raw_latest[raw_latest["scenario_code"] == scenario_code][["kpi_code", "raw_value"]].copy()
+    norm_s = norm_latest[norm_latest["scenario_code"] == scenario_code][[
+        "kpi_code", "normalized_value", "semaforo", "baseline_value",
+        "lower_ref", "upper_ref", "normalization_method"
+    ]].copy()
+
+    out = base_catalog.merge(raw_s, on="kpi_code", how="left").merge(norm_s, on="kpi_code", how="left")
+    return out.sort_values(["dimension", "kpi_code"])
+
+
+# -----------------------------------------------------------------------------
+# Composite indices, MCDA, sensitivity
+# -----------------------------------------------------------------------------
 
 def compute_dimension_indices(norm_latest: pd.DataFrame, rules_df: pd.DataFrame, dim_weights: dict):
     if norm_latest.empty or rules_df.empty:
@@ -644,7 +423,7 @@ def build_normalized_comparison(norm_latest, reference_scenario, selected_scenar
     detailed = pd.concat(detailed_frames, ignore_index=True)
 
     summary = (
-        detailed.groupby("scenario")
+        detailed.groupby("scenario", group_keys=False)
         .apply(lambda g: pd.Series({
             "Improved": int((g["effect"] == "Improved").sum()),
             "Worse": int((g["effect"] == "Worse").sum()),
@@ -659,7 +438,7 @@ def build_normalized_comparison(norm_latest, reference_scenario, selected_scenar
     )
 
     by_dim = (
-        detailed.groupby(["scenario", "dimension"])
+        detailed.groupby(["scenario", "dimension"], group_keys=False)
         .apply(lambda g: pd.Series({
             "Improved": int((g["effect"] == "Improved").sum()),
             "Worse": int((g["effect"] == "Worse").sum()),
@@ -678,7 +457,6 @@ def build_global_kpi_weights(rules_df: pd.DataFrame, dim_weights: dict):
 
     out = rules_df[["kpi_code", "dimension", "weight"]].dropna().copy()
     out["weight"] = out["weight"].astype(float)
-
     out["local_weight_norm"] = out["weight"] / out.groupby("dimension")["weight"].transform("sum")
     out["dimension_weight"] = out["dimension"].map(dim_weights).fillna(0.0)
     out["global_weight"] = out["local_weight_norm"] * out["dimension_weight"]
@@ -730,7 +508,6 @@ def compute_topsis_scores(norm_latest: pd.DataFrame, global_weights: pd.DataFram
     matrix = work.pivot_table(index="scenario_code", columns="kpi_code", values="normalized_value", aggfunc="first")
     matrix = matrix.reindex([s for s in scenario_list if s in matrix.index])
 
-    # usar solo KPI completos en todos los escenarios seleccionados
     complete_cols = [c for c in matrix.columns if matrix[c].notna().all()]
     if not complete_cols:
         return pd.DataFrame()
@@ -795,146 +572,275 @@ def build_one_way_sensitivity(selected_dim_row: pd.Series):
     return pd.DataFrame(rows)
 
 
-def color_semaforo(val):
-    if val == "Green":
-        return "background-color: #d4edda; color: black"
-    if val == "Amber":
-        return "background-color: #fff3cd; color: black"
-    if val == "Red":
-        return "background-color: #f8d7da; color: black"
-    if val == "Need BASE":
-        return "background-color: #d1ecf1; color: black"
-    if val == "Missing":
-        return "background-color: #e2e3e5; color: black"
-    return ""
+# -----------------------------------------------------------------------------
+# Measurements import
+# -----------------------------------------------------------------------------
+
+def normalize_measurements_upload(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    out.columns = [str(c).strip().lower() for c in out.columns]
+
+    required = ["scenario_code", "variable_name", "value", "timestamp"]
+    missing = [c for c in required if c not in out.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+    if "unit" not in out.columns:
+        out["unit"] = ""
+
+    if "source_system" not in out.columns:
+        out["source_system"] = "uploaded_measurements_csv"
+
+    if "comment" not in out.columns:
+        out["comment"] = ""
+
+    out["scenario_code"] = out["scenario_code"].astype(str).str.strip()
+    out["variable_name"] = out["variable_name"].astype(str).str.strip()
+    out["unit"] = out["unit"].fillna("").astype(str).str.strip()
+    out["source_system"] = out["source_system"].fillna("uploaded_measurements_csv").astype(str).str.strip()
+    out["comment"] = out["comment"].fillna("").astype(str).str.strip()
+
+    out["value"] = pd.to_numeric(out["value"], errors="coerce")
+    out["timestamp"] = pd.to_datetime(out["timestamp"], errors="coerce")
+
+    bad_value = out["value"].isna().sum()
+    bad_ts = out["timestamp"].isna().sum()
+
+    if bad_value > 0:
+        raise ValueError(f"'value' contains {bad_value} invalid numeric rows.")
+    if bad_ts > 0:
+        raise ValueError(f"'timestamp' contains {bad_ts} invalid datetime rows.")
+
+    out = out[out["scenario_code"] != ""].copy()
+    out = out[out["variable_name"] != ""].copy()
+
+    return out
 
 
-# ============================================================================
-# Load normalized data
-# ============================================================================
+def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool = True):
+    session = SessionLocal()
+    try:
+        sc_map = {s.code: s.id for s in session.query(Scenario).all()}
 
+        uploaded_codes = sorted(df["scenario_code"].dropna().astype(str).str.strip().unique().tolist())
+        for scode in uploaded_codes:
+            if scode not in sc_map:
+                sc = Scenario(
+                    code=scode,
+                    name=scode,
+                    description="auto-created from uploaded measurements",
+                    notes="created by dashboard import",
+                )
+                session.add(sc)
+                session.flush()
+                sc_map[scode] = sc.id
+
+        if replace_uploaded_scenarios and uploaded_codes:
+            ids_to_clear = [sc_map[c] for c in uploaded_codes if c in sc_map]
+            if ids_to_clear:
+                session.query(Measurement).filter(Measurement.scenario_id.in_(ids_to_clear)).delete(
+                    synchronize_session=False
+                )
+                session.flush()
+
+        written = 0
+        for _, row in df.iterrows():
+            session.add(
+                Measurement(
+                    scenario_id=sc_map[row["scenario_code"]],
+                    variable_name=str(row["variable_name"]).strip(),
+                    value=float(row["value"]),
+                    unit=str(row["unit"]).strip(),
+                    timestamp=pd.Timestamp(row["timestamp"]).to_pydatetime(),
+                    source_system=str(row["source_system"]).strip(),
+                    comment=str(row["comment"]).strip(),
+                    product_id=None,
+                    facility_id=None,
+                    process_id=None,
+                    transport_leg_id=None,
+                )
+            )
+            written += 1
+
+        session.commit()
+        return written, uploaded_codes
+    finally:
+        session.close()
+
+
+# -----------------------------------------------------------------------------
+# App UI
+# -----------------------------------------------------------------------------
+
+st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
+st.title("SustainSCM DSS – KPI Dashboard")
+
+if not bootstrap_everything():
+    st.error("❌ Failed to bootstrap database")
+    st.stop()
+
+st.success("✅ Database ready")
+
+# -----------------------------------------------------------------------------
+# Sidebar: Import measurements
+# -----------------------------------------------------------------------------
+
+st.sidebar.subheader("📥 Import measurements")
+
+with st.sidebar.expander("Import measurements (CSV)", expanded=False):
+    st.write("Upload a CSV of raw measurements.")
+    st.caption(
+        "Required columns: scenario_code, variable_name, value, timestamp. "
+        "Optional: unit, source_system, comment."
+    )
+
+    uploaded_measurements = st.file_uploader(
+        "Measurements CSV",
+        type=["csv"],
+        key="measurements_csv_uploader",
+    )
+
+    replace_uploaded_scenarios = st.checkbox(
+        "Replace existing measurements for uploaded scenarios",
+        value=True,
+        key="replace_uploaded_scenarios",
+    )
+
+    if uploaded_measurements is not None:
+        try:
+            preview_df = pd.read_csv(uploaded_measurements)
+            st.write("Preview (first 10 rows):")
+            st.dataframe(preview_df.head(10), use_container_width=True)
+            uploaded_measurements.seek(0)
+        except Exception as e:
+            st.error(f"Could not preview CSV: {e}")
+
+        if st.button("Import measurements and run full pipeline", type="primary", key="btn_import_measurements"):
+            try:
+                with st.spinner("Reading measurements CSV..."):
+                    df_upload = pd.read_csv(uploaded_measurements)
+
+                with st.spinner("Validating measurements..."):
+                    df_upload = normalize_measurements_upload(df_upload)
+
+                with st.spinner("Writing measurements to database..."):
+                    written, imported_codes = write_measurements_to_db(
+                        df_upload,
+                        replace_uploaded_scenarios=replace_uploaded_scenarios,
+                    )
+
+                with st.spinner("Running KPI engine, normalization, composite indices and comparisons..."):
+                    run_full_pipeline(debug_missing=False)
+
+                st.cache_data.clear()
+                st.cache_resource.clear()
+
+                st.success(
+                    f"✅ Imported {written} measurements for {len(imported_codes)} scenario(s): "
+                    + ", ".join(imported_codes)
+                )
+                st.rerun()
+
+            except Exception as e:
+                st.error("❌ Import failed")
+                st.exception(e)
+
+st.sidebar.header("Controls")
+
+if st.sidebar.button("🔄 Rebuild demo (full)"):
+    from load_example_data import main as load_example_data_main
+
+    load_example_data_main()
+    run_full_pipeline(debug_missing=True)
+
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    st.rerun()
+
+# -----------------------------------------------------------------------------
+# Load all data
+# -----------------------------------------------------------------------------
+
+catalog_df = load_kpi_catalog()
+raw_df = load_raw_kpi_results()
 norm_df = load_normalized_results()
 rules_df = load_normalization_rules()
 
+if catalog_df.empty:
+    st.warning("⚠️ KPI catalog is empty.")
+    st.stop()
+
 if norm_df.empty:
-    st.warning("⚠️ No normalized KPI results found. Rebuild demo or rerun the full pipeline.")
+    st.warning("⚠️ No normalized KPI results found. Rebuild demo or import measurements and run the full pipeline.")
     st.stop()
 
-norm_latest = latest_norm_per_kpi_scenario(norm_df)
+raw_latest = latest_per_kpi_scenario(raw_df)
+norm_latest = latest_per_kpi_scenario(norm_df)
 
-if norm_latest.empty:
-    st.warning("⚠️ Normalized KPI table is empty after latest-value selection.")
-    st.stop()
-
-# Sidebar filters based on normalized data
-dimensions = ["All"] + sorted(norm_latest["dimension"].dropna().unique().tolist())
-decision_levels = ["All"] + sorted(norm_latest["decision_level"].dropna().unique().tolist())
-flows = ["All"] + sorted(norm_latest["flow"].dropna().unique().tolist())
-scenarios = sorted(norm_latest["scenario_code"].dropna().unique().tolist())
+# Sidebar filters from KPI catalog
+dimensions = ["All"] + sorted(catalog_df["dimension"].dropna().unique().tolist())
+decision_levels = ["All"] + sorted(catalog_df["decision_level"].dropna().unique().tolist())
+flows = ["All"] + sorted(catalog_df["flow"].dropna().unique().tolist())
+scenario_options = sorted(norm_latest["scenario_code"].dropna().unique().tolist())
 
 sel_dim = st.sidebar.selectbox("Dimension", dimensions, index=0)
 sel_level = st.sidebar.selectbox("Decision level", decision_levels, index=0)
 sel_flow = st.sidebar.selectbox("Flow", flows, index=0)
-sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenarios, index=_default_base_index(scenarios))
+sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenario_options, index=_default_base_index(scenario_options))
 
-norm_view = _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
-norm_view = norm_view[norm_view["scenario_code"] == sel_scenario].copy()
+# -----------------------------------------------------------------------------
+# Section 1: Raw KPI values + normalized interpretation
+# -----------------------------------------------------------------------------
 
-# ============================================================================
-# Section 1: Normalized KPI view (replaces raw KPI table)
-# ============================================================================
+st.subheader(f"Raw KPI values + normalized interpretation – Scenario: {sel_scenario}")
+st.caption(
+    "This table displays the raw KPI values for technical interpretation and, alongside them, "
+    "the normalized score and traffic-light classification. Comparative analyses below use normalized scores."
+)
 
-st.subheader(f"Normalized KPI view – Scenario: {sel_scenario}")
-st.caption("All analytical comparisons in this dashboard use normalized KPI scores (0–100), not raw KPI values.")
+raw_plus = build_raw_plus_normalized_table(
+    catalog_df=catalog_df,
+    raw_latest=raw_latest,
+    norm_latest=norm_latest,
+    scenario_code=sel_scenario,
+    dim_sel=sel_dim,
+    level_sel=sel_level,
+    flow_sel=sel_flow,
+)
 
 show_cols = [
     "kpi_code", "kpi_name", "dimension", "decision_level", "flow", "unit",
     "raw_value", "normalized_value", "semaforo", "baseline_value",
     "lower_ref", "upper_ref", "normalization_method"
 ]
-show_cols = [c for c in show_cols if c in norm_view.columns]
+show_cols = [c for c in show_cols if c in raw_plus.columns]
 
-styled_main = norm_view[show_cols].sort_values(["dimension", "kpi_code"]).style.map(
-    color_semaforo, subset=["semaforo"]
-)
+styled_main = raw_plus[show_cols].style.map(color_semaforo, subset=["semaforo"])
 st.dataframe(styled_main, use_container_width=True)
+st.caption(f"Rows shown: {len(raw_plus)} KPI base items.")
 
-# ============================================================================
-# Section 2: VSM-C Diagnostics (keep as separate diagnostic)
-# ============================================================================
-
-st.markdown("## VSM-C Diagnostics")
-st.caption("VSM-C Diagnostic (lead time, VA ratio, hotspots) and auto-generated Kaizen scenario.")
-
-if vsmc_main is not None and VSM_CSV is not None and VSM_CSV.exists():
-    try:
-        with st.spinner("Running VSM-C analysis..."):
-            vsmc_main(kaizen=True, base_code="BASE", new_code="VSMC_KAIZEN_01")
-    except Exception as e:
-        st.warning(f"⚠️ VSM-C skipped: {e}")
-
-vsm_df = load_vsm_measurements()
-
-if vsm_df.empty:
-    st.info("No VSM-C data found yet.")
-else:
-    vsm_scenarios = sorted(vsm_df["scenario_code"].unique().tolist())
-    default_idx = vsm_scenarios.index(sel_scenario) if sel_scenario in vsm_scenarios else 0
-    sel_vsm = st.selectbox("Scenario for VSM-C view", vsm_scenarios, index=default_idx)
-
-    vv = vsm_df[vsm_df["scenario_code"] == sel_vsm].copy()
-    if vv["timestamp"].notna().any():
-        latest_ts = vv["timestamp"].max()
-        vv = vv[vv["timestamp"] == latest_ts]
-
-    def _get(var):
-        r = vv[vv["variable_name"] == var]
-        return None if r.empty else float(r.iloc[0]["value"])
-
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Lead time (min)", f"{_get('vsm_total_lead_time_min'):.1f}" if _get("vsm_total_lead_time_min") is not None else "—")
-    col2.metric("Cycle time (min)", f"{_get('vsm_total_cycle_time_min'):.1f}" if _get("vsm_total_cycle_time_min") is not None else "—")
-    col3.metric("Wait time (min)", f"{_get('vsm_total_wait_time_min'):.1f}" if _get("vsm_total_wait_time_min") is not None else "—")
-    col4.metric("VA ratio (%)", f"{_get('vsm_va_ratio_pct'):.1f}" if _get("vsm_va_ratio_pct") is not None else "—")
-
-    col5, col6, col7 = st.columns(3)
-    col5.metric("Total VSM emissions (tCO2e)", f"{_get('vsm_total_emissions_tco2e'):.3f}" if _get("vsm_total_emissions_tco2e") is not None else "—")
-    col6.metric("Emissions intensity (kgCO2e/ton)", f"{_get('vsm_emissions_intensity_kg_per_ton'):.2f}" if _get("vsm_emissions_intensity_kg_per_ton") is not None else "—")
-    col7.metric("Total VSM energy cost (EUR)", f"{_get('vsm_total_cost_eur'):.0f}" if _get("vsm_total_cost_eur") is not None else "—")
-
-    steps = vv[vv["variable_name"].str.startswith("vsm_step_emissions_tco2e::", na=False)].copy()
-    if not steps.empty:
-        steps["step_code"] = steps["variable_name"].str.split("::").str[1].fillna("UNKNOWN")
-        steps = steps[["step_code", "value"]].groupby("step_code", as_index=False)["value"].sum()
-        steps = steps.sort_values("value", ascending=False)
-        st.markdown("### CO₂ Hotspots by Step (tCO2e)")
-        st.bar_chart(steps.set_index("step_code")["value"])
-
-    with st.expander("📋 Show raw VSM-C measurements (vsm_*)"):
-        st.dataframe(vv.sort_values("variable_name"), use_container_width=True)
-
-# ============================================================================
-# Section 3: Normalized scenario comparison vs reference
-# ============================================================================
+# -----------------------------------------------------------------------------
+# Section 2: Normalized scenario comparison vs reference
+# -----------------------------------------------------------------------------
 
 st.markdown('<div id="scenario-compare"></div>', unsafe_allow_html=True)
 st.markdown("## Normalized Scenario Comparison")
 st.caption("All scenario deviations are computed using normalized KPI scores, so directionality is already encoded.")
 
-base_like = [s for s in scenarios if "BASE" in s.upper()]
-ref_default = base_like[0] if base_like else scenarios[0]
+base_like = [s for s in scenario_options if "BASE" in s.upper()]
+ref_default = base_like[0] if base_like else scenario_options[0]
 
 reference_scenario = st.selectbox(
     "Reference scenario",
-    scenarios,
-    index=scenarios.index(ref_default),
+    scenario_options,
+    index=scenario_options.index(ref_default),
     key="reference_scenario_norm"
 )
 
-default_compare = [s for s in scenarios if s != reference_scenario][:4]
+default_compare = [s for s in scenario_options if s != reference_scenario][:4]
 compare_scenarios = st.multiselect(
     "Scenarios to compare against the reference",
-    options=[s for s in scenarios if s != reference_scenario],
+    options=[s for s in scenario_options if s != reference_scenario],
     default=default_compare,
     key="compare_scenarios_norm"
 )
@@ -960,49 +866,72 @@ detailed_cmp, summary_cmp, by_dim_cmp = build_normalized_comparison(
 if detailed_cmp.empty:
     st.info("No normalized comparison data available for the selected filters.")
 else:
-    st.markdown("### Summary: improved / worse / same (normalized KPI scores)")
+    st.markdown("### Summary: improved / worse / same")
     st.dataframe(summary_cmp, use_container_width=True)
 
     st.markdown("### Summary by dimension")
     st.dataframe(by_dim_cmp.sort_values(["scenario", "dimension"]), use_container_width=True)
 
     st.markdown("### Detailed KPI effects (normalized)")
-    det_show = detailed_cmp[[
-        "scenario", "kpi_code", "kpi_name", "dimension",
-        "reference_score", "scenario_score", "delta_pts",
-        "reference_semaforo", "scenario_semaforo", "effect"
-    ]].sort_values(["scenario", "dimension", "kpi_code"])
+    det_show = detailed_cmp[
+        [
+            "scenario", "kpi_code", "kpi_name", "dimension",
+            "reference_score", "scenario_score", "delta_pts",
+            "reference_semaforo", "scenario_semaforo", "effect"
+        ]
+    ].sort_values(["scenario", "dimension", "kpi_code"])
     st.dataframe(det_show, use_container_width=True)
 
-    st.markdown("### Top improvers / worsenings")
-    focus_scenario = st.selectbox(
-        "Scenario for top movers",
-        options=compare_scenarios,
-        key="focus_scenario_top_movers"
-    )
-    focus_df = detailed_cmp[detailed_cmp["scenario"] == focus_scenario].copy()
+    if compare_scenarios:
+        st.markdown("### Top improvers / worsenings")
+        focus_scenario = st.selectbox(
+            "Scenario for top movers",
+            options=compare_scenarios,
+            key="focus_scenario_top_movers"
+        )
+        focus_df = detailed_cmp[detailed_cmp["scenario"] == focus_scenario].copy()
 
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.write("**Top improvements**")
-        top_imp = focus_df.sort_values("delta_pts", ascending=False).head(10)
-        st.dataframe(top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]], use_container_width=True)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.write("**Top improvements**")
+            top_imp = focus_df.sort_values("delta_pts", ascending=False).head(10)
+            st.dataframe(
+                top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
+                use_container_width=True,
+            )
 
-    with col_b:
-        st.write("**Top worsenings**")
-        top_wrs = focus_df.sort_values("delta_pts", ascending=True).head(10)
-        st.dataframe(top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]], use_container_width=True)
+        with col_b:
+            st.write("**Top worsenings**")
+            top_wrs = focus_df.sort_values("delta_pts", ascending=True).head(10)
+            st.dataframe(
+                top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
+                use_container_width=True,
+            )
 
     st.markdown("### Traffic-light distribution by scenario")
-    traffic_df = (
-        _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
-        .query("scenario_code in @([reference_scenario] + compare_scenarios)")
-        .groupby(["scenario_code", "semaforo"])
-        .size()
-        .unstack(fill_value=0)
-        .reset_index()
-    )
-    st.dataframe(traffic_df, use_container_width=True)
+    selected_for_traffic = [reference_scenario] + compare_scenarios
+    traffic_base = _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
+    traffic_base = traffic_base[traffic_base["scenario_code"].isin(selected_for_traffic)].copy()
+
+    if traffic_base.empty:
+        st.info("No traffic-light data available for selected scenarios.")
+    else:
+        traffic_df = (
+            traffic_base.groupby(["scenario_code", "semaforo"])
+            .size()
+            .unstack(fill_value=0)
+            .reset_index()
+        )
+
+        for col in ["Green", "Amber", "Red", "Need BASE", "Missing"]:
+            if col not in traffic_df.columns:
+                traffic_df[col] = 0
+
+        traffic_df = traffic_df[
+            ["scenario_code", "Green", "Amber", "Red", "Need BASE", "Missing"]
+        ].sort_values("scenario_code")
+
+        st.dataframe(traffic_df, use_container_width=True)
 
     st.download_button(
         "📥 Download normalized comparison summary (CSV)",
@@ -1010,6 +939,7 @@ else:
         file_name="normalized_comparison_summary.csv",
         mime="text/csv",
     )
+
     st.download_button(
         "📥 Download normalized comparison detail (CSV)",
         det_show.to_csv(index=False).encode("utf-8"),
@@ -1017,9 +947,9 @@ else:
         mime="text/csv",
     )
 
-# ============================================================================
-# Section 4: Composite indices, corrected Sustain Index, sensitivity and MCDA
-# ============================================================================
+# -----------------------------------------------------------------------------
+# Section 3: Composite indices, sensitivity and MCDA
+# -----------------------------------------------------------------------------
 
 st.markdown("## Composite Indices, Sensitivity & MCDA")
 st.caption(
@@ -1054,7 +984,7 @@ dim_long_df, dim_wide_df = compute_dimension_indices(norm_latest, rules_df, dim_
 if dim_wide_df.empty:
     st.info("No composite/dimension indices could be computed from normalized KPI results.")
 else:
-    st.markdown("### Corrected composite index cards")
+    st.markdown("### Composite index cards")
     selected_dim_row = dim_wide_df[dim_wide_df["scenario_code"] == sel_scenario]
     if selected_dim_row.empty:
         selected_dim_row = dim_wide_df.iloc[[0]]
@@ -1070,10 +1000,12 @@ else:
     c6.metric("Arithmetic alt.", f"{r.get('SUSTAIN_INDEX_ARITH', np.nan):.1f}" if pd.notna(r.get("SUSTAIN_INDEX_ARITH")) else "—")
 
     st.markdown("### Dimension indices by scenario")
-    dim_show = dim_wide_df[[
-        "scenario_code", "environmental", "economic", "social", "technological",
-        "SUSTAIN_INDEX_GEOM", "SUSTAIN_INDEX_ARITH"
-    ]].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
+    dim_show = dim_wide_df[
+        [
+            "scenario_code", "environmental", "economic", "social", "technological",
+            "SUSTAIN_INDEX_GEOM", "SUSTAIN_INDEX_ARITH"
+        ]
+    ].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
     st.dataframe(dim_show, use_container_width=True)
 
     st.markdown("### Corrected Sustain Index ranking")
@@ -1091,7 +1023,7 @@ else:
         st.write("**One-way sensitivity (arithmetic alternative)**")
         st.line_chart(arith_chart)
 
-        with st.expander("📋 Show sensitivity table"):
+        with st.expander("Show sensitivity table"):
             st.dataframe(sens_df, use_container_width=True)
 
     st.markdown("### MCDA (normalized KPI scores)")
@@ -1103,8 +1035,8 @@ else:
     default_mcda = [reference_scenario] + compare_scenarios if compare_scenarios else [reference_scenario]
     mcda_scenarios = st.multiselect(
         "Scenarios for MCDA ranking",
-        options=scenarios,
-        default=[s for s in default_mcda if s in scenarios],
+        options=scenario_options,
+        default=[s for s in default_mcda if s in scenario_options],
         key="mcda_scenarios"
     )
 
