@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
+import traceback
 from sqlalchemy import text
 
 # -----------------------------------------------------------------------------
@@ -34,7 +35,7 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # sustainsc imports
 # -----------------------------------------------------------------------------
 
-from sustainsc.config import engine, SessionLocal
+from sustainsc.config import engine, SessionLocal, Base
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario
 
@@ -50,38 +51,51 @@ COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN
 # Bootstrap
 # -----------------------------------------------------------------------------
 
+def ensure_schema():
+    """
+    Ensure all tables exist before any SELECT COUNT(*) calls.
+    """
+    Base.metadata.create_all(bind=engine)
+
+
+def _safe_count(table_name: str) -> int:
+    with engine.connect() as con:
+        return int(con.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar() or 0)
+
+
 @st.cache_resource(show_spinner=False)
-def bootstrap_everything() -> bool:
-    """
-    Seed demo data only if DB is empty.
-    Recompute full pipeline only if KPI results / normalized results are missing.
-    Prevents reloading demo data on every rerun after user imports measurements.
-    """
+def bootstrap_everything():
     try:
-        def _count(table_name: str) -> int:
-            with engine.connect() as con:
-                return int(con.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar() or 0)
+        # 1) Always create schema first
+        ensure_schema()
 
-        kpi_count = _count("sc_kpi")
-        scenario_count = _count("sc_scenario")
-        measurement_count = _count("sc_measurement")
-        raw_count = _count("sc_kpi_result")
-        norm_count = _count("sc_kpi_normalized_result")
+        # 2) Import loader only after schema exists
+        from load_example_data import main as load_example_data_main
 
+        kpi_count = _safe_count("sc_kpi")
+        scenario_count = _safe_count("sc_scenario")
+        measurement_count = _safe_count("sc_measurement")
+        raw_count = _safe_count("sc_kpi_result")
+        norm_count = _safe_count("sc_kpi_normalized_result")
+
+        # 3) Seed demo data only if core tables are empty
         if kpi_count == 0 or scenario_count == 0 or measurement_count == 0:
-            from load_example_data import main as load_example_data_main
             load_example_data_main()
+            ensure_schema()
 
-        raw_count = _count("sc_kpi_result")
-        norm_count = _count("sc_kpi_normalized_result")
+        # 4) Re-check after loading
+        raw_count = _safe_count("sc_kpi_result")
+        norm_count = _safe_count("sc_kpi_normalized_result")
 
+        # 5) Compute pipeline only if KPI outputs are missing
         if raw_count == 0 or norm_count == 0:
             run_full_pipeline(debug_missing=True)
 
-        return True
+        return True, None
+
     except Exception as e:
-        print(f"[BOOTSTRAP ERROR] {e}")
-        return False
+        traceback.print_exc()
+        return False, f"{type(e).__name__}: {e}"
 
 
 # -----------------------------------------------------------------------------
@@ -675,8 +689,9 @@ def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool 
 st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
 st.title("SustainSCM DSS – KPI Dashboard")
 
-if not bootstrap_everything():
-    st.error("❌ Failed to bootstrap database")
+boot_ok, boot_msg = bootstrap_everything()
+if not boot_ok:
+    st.error(f"❌ Failed to bootstrap database: {boot_msg}")
     st.stop()
 
 st.success("✅ Database ready")
