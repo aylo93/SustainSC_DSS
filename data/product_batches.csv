@@ -1,0 +1,7 @@
+batch_code,product_code,product_name,scenario_code,origin_facility_code,facility_name,production_date,quantity,unit,status,notes
+BARIAY_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,BARIAY,Bariay,2025-07-15T08:00:00,320,t,produced,Batch produced under BASE scenario at Bariay
+BARIAY_4_8_2025_07_001,AGG_4_8,Aggregate 4-8 mm,BASE,BARIAY,Bariay,2025-07-15T10:30:00,280,t,produced,Batch produced under BASE scenario at Bariay
+CALICHES_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,LOS_CALICHES,Los Caliches,2025-07-17T09:00:00,300,t,produced,Batch produced under BASE scenario at Los Caliches
+PILON_20_40_2025_07_001,AGG_20_40,Aggregate 20-40 mm,BASE,PILON,Pilón,2025-07-18T07:45:00,260,t,produced,Batch produced under BASE scenario at Pilón
+BARIAY_0_4_2025_07_RES001,AGG_0_4,Aggregate 0-4 mm,LOW_CARBON_ENERGY_MIX,BARIAY,Bariay,2025-07-20T08:15:00,315,t,produced,Renewable-energy scenario batch
+BARIAY_4_8_2025_07_EFF001,AGG_4_8,Aggregate 4-8 mm,EFFICIENCY_DIGITAL,BARIAY,Bariay,2025-07-22T11:00:00,290,t,produced,Efficiency and digitalization scenario batch

@@ -1,0 +1,28 @@
+batch_code,event_type,timestamp,facility_code,process_code,transport_leg_code,quantity,unit,source_system,comment
+BARIAY_0_4_2025_07_001,produced,2025-07-15T08:00:00,BARIAY,CRUSHING,,320,t,mrv_manual,Batch produced after crushing and screening
+BARIAY_0_4_2025_07_001,quality_checked,2025-07-15T09:00:00,BARIAY,SCREENING,,320,t,quality_log,Particle size verified against target range
+BARIAY_0_4_2025_07_001,stocked,2025-07-15T09:30:00,BARIAY,STOCKPILE,,320,t,plant_log,Batch moved to stockpile
+BARIAY_0_4_2025_07_001,loaded,2025-07-16T07:30:00,BARIAY,DISPATCH,,160,t,dispatch_log,First truck loading completed
+BARIAY_0_4_2025_07_001,shipped,2025-07-16T08:00:00,BARIAY,,BARIAY_TO_HOLGUIN_CITY,160,t,tms,Shipment departed to Holguín city customer
+BARIAY_0_4_2025_07_001,delivered,2025-07-16T10:15:00,HOLGUIN_CITY,,BARIAY_TO_HOLGUIN_CITY,160,t,tms,Shipment delivered to customer site
+
+BARIAY_4_8_2025_07_001,produced,2025-07-15T10:30:00,BARIAY,CRUSHING,,280,t,mrv_manual,Batch produced after secondary crushing
+BARIAY_4_8_2025_07_001,quality_checked,2025-07-15T11:20:00,BARIAY,SCREENING,,280,t,quality_log,Granulometry verified
+BARIAY_4_8_2025_07_001,stocked,2025-07-15T11:45:00,BARIAY,STOCKPILE,,280,t,plant_log,Batch stored
+BARIAY_4_8_2025_07_001,shipped,2025-07-16T09:00:00,BARIAY,,BARIAY_TO_MOA,280,t,tms,Shipment departed to Moa corridor
+
+CALICHES_0_4_2025_07_001,produced,2025-07-17T09:00:00,LOS_CALICHES,CRUSHING,,300,t,mrv_manual,Batch produced at Los Caliches
+CALICHES_0_4_2025_07_001,quality_checked,2025-07-17T09:40:00,LOS_CALICHES,SCREENING,,300,t,quality_log,Quality check completed
+CALICHES_0_4_2025_07_001,shipped,2025-07-18T07:50:00,LOS_CALICHES,,CALICHES_TO_HOLGUIN_CITY,300,t,tms,Shipment sent to Holguín demand zone
+
+PILON_20_40_2025_07_001,produced,2025-07-18T07:45:00,PILON,CRUSHING,,260,t,mrv_manual,Coarse aggregate batch produced
+PILON_20_40_2025_07_001,quality_checked,2025-07-18T08:20:00,PILON,SCREENING,,260,t,quality_log,Coarse fraction validated
+PILON_20_40_2025_07_001,shipped,2025-07-19T06:50:00,PILON,,PILON_TO_SOUTH,260,t,tms,Shipment dispatched to southern zone
+
+BARIAY_0_4_2025_07_RES001,produced,2025-07-20T08:15:00,BARIAY,CRUSHING,,315,t,mrv_manual,Low-carbon energy scenario production batch
+BARIAY_0_4_2025_07_RES001,quality_checked,2025-07-20T09:05:00,BARIAY,SCREENING,,315,t,quality_log,Quality verified
+BARIAY_0_4_2025_07_RES001,shipped,2025-07-21T08:10:00,BARIAY,,BARIAY_TO_HOLGUIN_CITY,315,t,tms,Scenario shipment to customer
+
+BARIAY_4_8_2025_07_EFF001,produced,2025-07-22T11:00:00,BARIAY,CRUSHING,,290,t,mrv_manual,Efficiency and digitalization scenario batch
+BARIAY_4_8_2025_07_EFF001,quality_checked,2025-07-22T11:35:00,BARIAY,SCREENING,,290,t,quality_log,Digital quality registration completed
+BARIAY_4_8_2025_07_EFF001,shipped,2025-07-23T07:40:00,BARIAY,,BARIAY_TO_HOLGUIN_CITY,290,t,tms,Digitally tracked shipment
