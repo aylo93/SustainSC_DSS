@@ -920,9 +920,14 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
         load_example_data_main()
         seed_dpp_demo_main()
 
-        base_dir = Path(__file__).parent
+        base_dir = Path(_file_).parent
         batches_csv = base_dir / "data" / "product_batches.csv"
         events_csv = base_dir / "data" / "traceability_events.csv"
+
+        st.write(f"Looking for batches CSV at: {batches_csv}")
+        st.write(f"Looking for events CSV at: {events_csv}")
+        st.write(f"product_batches.csv exists: {batches_csv.exists()}")
+        st.write(f"traceability_events.csv exists: {events_csv.exists()}")
 
         batches_loaded = 0
         events_loaded = 0
@@ -940,7 +945,6 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
 
         st.success(
             f"Rebuild completed successfully. "
-            f"DPP demo batch loaded. "
             f"Product batches loaded: {batches_loaded}. "
             f"Traceability events loaded: {events_loaded}."
         )
