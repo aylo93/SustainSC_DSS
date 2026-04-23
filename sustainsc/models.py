@@ -204,3 +204,53 @@ class CostFactor(Base):
     valid_from = Column(DateTime, nullable=True)
     valid_to = Column(DateTime, nullable=True)
     source = Column(String(255), nullable=True)
+
+
+# ---------- Minimal DPP-ready MVP extension ----------
+
+class ProductBatch(Base):
+    __tablename__ = "sc_product_batch"
+    id = Column(Integer, primary_key=True)
+
+    batch_code = Column(String(120), unique=True, nullable=False)
+
+    product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=False)
+    scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+    origin_facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+
+    production_date = Column(DateTime, nullable=True)
+    quantity = Column(Float, nullable=True)
+    unit = Column(String(50), nullable=True)
+
+    status = Column(String(50), nullable=True)   # produced / in_stock / shipped / delivered
+    notes = Column(Text, nullable=True)
+
+    product = relationship("Product")
+    scenario = relationship("Scenario")
+    origin_facility = relationship("Facility")
+
+
+class TraceabilityEvent(Base):
+    __tablename__ = "sc_traceability_event"
+    id = Column(Integer, primary_key=True)
+
+    batch_id = Column(Integer, ForeignKey("sc_product_batch.id"), nullable=False)
+    event_type = Column(String(80), nullable=False)
+    # examples: produced, quality_checked, loaded, shipped, delivered
+
+    timestamp = Column(DateTime, nullable=False)
+
+    facility_id = Column(Integer, ForeignKey("sc_facility.id"), nullable=True)
+    process_id = Column(Integer, ForeignKey("sc_process.id"), nullable=True)
+    transport_leg_id = Column(Integer, ForeignKey("sc_transport_leg.id"), nullable=True)
+
+    quantity = Column(Float, nullable=True)
+    unit = Column(String(50), nullable=True)
+
+    source_system = Column(String(100), nullable=True)
+    comment = Column(Text, nullable=True)
+
+    batch = relationship("ProductBatch")
+    facility = relationship("Facility")
+    process = relationship("Process")
+    transport_leg = relationship("TransportLeg")

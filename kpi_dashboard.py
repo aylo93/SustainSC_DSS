@@ -36,6 +36,7 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # -----------------------------------------------------------------------------
 
 from sustainsc.config import engine, SessionLocal, Base
+from sustainsc.dpp_service import build_dpp_passport, dpp_passport_to_json
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario
 
@@ -695,6 +696,31 @@ if not boot_ok:
     st.stop()
 
 st.success("✅ Database ready")
+
+st.markdown("## DPP-ready passport demo")
+st.caption("Minimal prototype view for batch-level traceability and machine-readable passport export.")
+
+batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
+
+if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
+    session = SessionLocal()
+    try:
+        passport = build_dpp_passport(session, batch_code)
+    except Exception as e:
+        st.error(f"Could not generate passport: {e}")
+        passport = None
+    finally:
+        session.close()
+
+    if passport:
+        st.json(passport)
+
+        st.download_button(
+            "Download DPP JSON",
+            dpp_passport_to_json(passport).encode("utf-8"),
+            file_name=f"{batch_code}_dpp.json",
+            mime="application/json",
+        )
 
 # -----------------------------------------------------------------------------
 # Sidebar: Import measurements
