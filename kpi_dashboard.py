@@ -794,23 +794,33 @@ st.success("✅ Database ready")
 st.markdown("## DPP-ready passport demo")
 st.caption("Minimal prototype view for batch-level traceability and machine-readable passport export.")
 
-batch_session = SessionLocal()
-available_batches = []
+# --- load available batch codes from DB ---
+session = SessionLocal()
 try:
-    available_batches = [b.batch_code for b in batch_session.query(ProductBatch).order_by(ProductBatch.batch_code).all()]
+    batch_rows = session.query(ProductBatch.batch_code).order_by(ProductBatch.batch_code).all()
+    available_batches = [r[0] for r in batch_rows]
 finally:
-    batch_session.close()
+    session.close()
 
-st.markdown("### Available batch codes")
-if available_batches:
-    st.write(", ".join(available_batches))
-else:
-    st.info("No product batches available in the database.")
+st.write(f"Available batches in DB: {len(available_batches)}")
 
 if available_batches:
-    batch_code = st.selectbox("Batch code", options=available_batches, key="dpp_batch_code")
+    st.dataframe(
+        pd.DataFrame({"batch_code": available_batches}),
+        use_container_width=True
+    )
+    batch_code = st.selectbox(
+        "Batch code",
+        options=available_batches,
+        key="dpp_batch_code"
+    )
 else:
-    batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
+    st.warning("No product batches available in the database.")
+    batch_code = st.text_input(
+        "Batch code",
+        value="BATCH_DEMO_001",
+        key="dpp_batch_code"
+    )
 
 if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
     session = SessionLocal()
@@ -900,16 +910,44 @@ with st.sidebar.expander("Import measurements (CSV)", expanded=False):
 st.sidebar.header("Controls")
 
 if st.sidebar.button("🔄 Rebuild demo (full)"):
+    from pathlib import Path
     from load_example_data import main as load_example_data_main
     from seed_dpp_demo import main as seed_dpp_demo_main
+    from load_product_batches import load_product_batches_file
+    from load_traceability_events import load_traceability_events_file
 
-    load_example_data_main()
-    seed_dpp_demo_main()
-    run_full_pipeline(debug_missing=True)
+    try:
+        load_example_data_main()
+        seed_dpp_demo_main()
 
-    st.cache_data.clear()
-    st.cache_resource.clear()
-    st.rerun()
+        base_dir = Path(__file__).parent
+        batches_csv = base_dir / "data" / "product_batches.csv"
+        events_csv = base_dir / "data" / "traceability_events.csv"
+
+        batches_loaded = 0
+        events_loaded = 0
+
+        if batches_csv.exists():
+            batches_loaded = load_product_batches_file(batches_csv)
+
+        if events_csv.exists():
+            events_loaded = load_traceability_events_file(events_csv)
+
+        run_full_pipeline(debug_missing=True)
+
+        st.cache_data.clear()
+        st.cache_resource.clear()
+
+        st.success(
+            f"Rebuild completed successfully. "
+            f"DPP demo batch loaded. "
+            f"Product batches loaded: {batches_loaded}. "
+            f"Traceability events loaded: {events_loaded}."
+        )
+        st.rerun()
+
+    except Exception as e:
+        st.error(f"Rebuild failed: {e}")
 
 # -----------------------------------------------------------------------------
 # Load all data
