@@ -197,6 +197,94 @@ def corrected_sustain_index(dim_scores: dict, dim_weights: dict, method: str = "
     return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
 
 
+def _semaforo_badge(val: str) -> str:
+    mapping = {
+        "Green": "🟢 Green",
+        "Amber": "🟠 Amber",
+        "Red": "🔴 Red",
+        "Need BASE": "🔵 Need BASE",
+        "Missing": "⚪ Missing",
+    }
+    return mapping.get(val, str(val) if val is not None else "")
+
+
+def render_dpp_passport(passport: dict):
+    import pandas as pd
+    import streamlit as st
+
+    identity = passport.get("product_identity", {}) or {}
+    events = passport.get("traceability_events", []) or []
+    raw_kpis = passport.get("raw_kpis", []) or []
+    norm_kpis = passport.get("normalized_kpis", []) or []
+
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["Passport summary", "Traceability events", "KPI summary", "Raw JSON"]
+    )
+
+    with tab1:
+        st.markdown("### Product identity")
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Product code", identity.get("product_code", "—"))
+        c2.metric("Batch code", identity.get("batch_code", "—"))
+        c3.metric("Scenario", identity.get("scenario_code", "—"))
+        c4.metric("Status", identity.get("status", "—"))
+
+        c5, c6, c7, c8 = st.columns(4)
+        c5.metric("Origin facility", identity.get("origin_facility", "—"))
+        c6.metric("Quantity", f"{identity.get('quantity', '—')} {identity.get('unit', '')}".strip())
+        c7.metric("Production date", identity.get("production_date", "—"))
+        c8.metric("Passport type", passport.get("passport_type", "—"))
+
+        st.markdown("*Product name*")
+        st.write(identity.get("product_name", "—"))
+
+        st.markdown("*Notes*")
+        st.write(identity.get("notes", "—") or "—")
+
+    with tab2:
+        st.markdown("### Traceability event history")
+        if events:
+            events_df = pd.DataFrame(events)
+            wanted = [
+                "timestamp", "event_type", "facility", "process",
+                "transport_leg", "quantity", "unit", "source_system", "comment"
+            ]
+            wanted = [c for c in wanted if c in events_df.columns]
+            st.dataframe(events_df[wanted], use_container_width=True)
+        else:
+            st.info("No traceability events found for this batch.")
+
+    with tab3:
+        st.markdown("### Normalized KPI")
+        if norm_kpis:
+            norm_df = pd.DataFrame(norm_kpis)
+            if "semaforo" in norm_df.columns:
+                norm_df["status"] = norm_df["semaforo"].apply(_semaforo_badge)
+
+            wanted = [
+                "kpi_code", "kpi_name", "raw_value",
+                "normalized_value", "status", "period_end"
+            ]
+            wanted = [c for c in wanted if c in norm_df.columns]
+            st.dataframe(norm_df[wanted], use_container_width=True)
+        else:
+            st.info("No normalized KPI found for this passport.")
+
+        st.markdown("### Raw KPI")
+        if raw_kpis:
+            raw_df = pd.DataFrame(raw_kpis)
+            wanted = ["kpi_code", "kpi_name", "value", "period_end"]
+            wanted = [c for c in wanted if c in raw_df.columns]
+            st.dataframe(raw_df[wanted], use_container_width=True)
+        else:
+            st.info("No raw KPI linked to this batch/product-scenario combination yet.")
+
+    with tab4:
+        st.markdown("### Raw passport JSON")
+        st.json(passport)
+
+
 # -----------------------------------------------------------------------------
 # Data loading
 # -----------------------------------------------------------------------------
@@ -710,16 +798,17 @@ batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_
 
 if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
     session = SessionLocal()
+    passport = None
     try:
         passport = build_dpp_passport(session, batch_code)
     except Exception as e:
         st.error(f"Could not generate passport: {e}")
-        passport = None
     finally:
         session.close()
 
     if passport:
-        st.json(passport)
+        st.success("DPP-ready passport generated successfully.")
+        render_dpp_passport(passport)
 
         st.download_button(
             "Download DPP JSON",
