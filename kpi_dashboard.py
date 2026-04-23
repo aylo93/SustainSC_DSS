@@ -802,25 +802,11 @@ try:
 finally:
     session.close()
 
-st.write(f"Available batches in DB: {len(available_batches)}")
-
 if available_batches:
-    st.dataframe(
-        pd.DataFrame({"batch_code": available_batches}),
-        use_container_width=True
-    )
-    batch_code = st.selectbox(
-        "Batch code",
-        options=available_batches,
-        key="dpp_batch_code"
-    )
+    batch_code = st.selectbox("Batch code", options=available_batches, key="dpp_batch_code")
 else:
     st.warning("No product batches available in the database.")
-    batch_code = st.text_input(
-        "Batch code",
-        value="BATCH_DEMO_001",
-        key="dpp_batch_code"
-    )
+    batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
 
 if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
     session = SessionLocal()
@@ -954,10 +940,6 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
     except Exception as e:
         st.error(f"Rebuild failed: {e}")
 
-debug_info = st.session_state.get("rebuild_dpp_debug")
-if debug_info:
-    st.sidebar.markdown("### DPP rebuild debug")
-    st.sidebar.write(debug_info)
 
 # -----------------------------------------------------------------------------
 # Load all data
