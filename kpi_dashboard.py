@@ -920,7 +920,7 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
         load_example_data_main()
         seed_dpp_demo_main()
 
-        base_dir = Path(_file_).parent
+        base_dir = Path(__file__).parent
         batches_csv = base_dir / "data" / "product_batches.csv"
         events_csv = base_dir / "data" / "traceability_events.csv"
 
