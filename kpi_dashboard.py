@@ -67,11 +67,10 @@ def _safe_count(table_name: str) -> int:
 @st.cache_resource(show_spinner=False)
 def bootstrap_everything():
     try:
-        # 1) Always create schema first
         ensure_schema()
 
-        # 2) Import loader only after schema exists
         from load_example_data import main as load_example_data_main
+        from seed_dpp_demo import main as seed_dpp_demo_main
 
         kpi_count = _safe_count("sc_kpi")
         scenario_count = _safe_count("sc_scenario")
@@ -79,16 +78,23 @@ def bootstrap_everything():
         raw_count = _safe_count("sc_kpi_result")
         norm_count = _safe_count("sc_kpi_normalized_result")
 
-        # 3) Seed demo data only if core tables are empty
         if kpi_count == 0 or scenario_count == 0 or measurement_count == 0:
             load_example_data_main()
             ensure_schema()
 
-        # 4) Re-check after loading
+        # ---- DPP demo seed ----
+        try:
+            batch_count = _safe_count("sc_product_batch")
+        except Exception:
+            batch_count = 0
+
+        if batch_count == 0:
+            seed_dpp_demo_main()
+            ensure_schema()
+
         raw_count = _safe_count("sc_kpi_result")
         norm_count = _safe_count("sc_kpi_normalized_result")
 
-        # 5) Compute pipeline only if KPI outputs are missing
         if raw_count == 0 or norm_count == 0:
             run_full_pipeline(debug_missing=True)
 
@@ -790,8 +796,10 @@ st.sidebar.header("Controls")
 
 if st.sidebar.button("🔄 Rebuild demo (full)"):
     from load_example_data import main as load_example_data_main
+    from seed_dpp_demo import main as seed_dpp_demo_main
 
     load_example_data_main()
+    seed_dpp_demo_main()
     run_full_pipeline(debug_missing=True)
 
     st.cache_data.clear()
