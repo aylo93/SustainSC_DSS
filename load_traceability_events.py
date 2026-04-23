@@ -1,4 +1,4 @@
-from _future_ import annotations
+from __future__ import annotations
 
 import sys
 from pathlib import Path
@@ -50,18 +50,14 @@ def get_or_create_transport_leg(session, code: str):
     return obj
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python load_traceability_events.py data/traceability_events.csv")
-        sys.exit(1)
-
-    path = Path(sys.argv[1])
+def load_traceability_events_file(path: str | Path) -> int:
+    path = Path(path)
     df = read_csv(path)
 
     required = ["batch_code", "event_type", "timestamp"]
     missing = [c for c in required if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        raise ValueError(f"Missing required columns in traceability_events.csv: {missing}")
 
     if "facility_code" not in df.columns:
         df["facility_code"] = None
@@ -147,10 +143,19 @@ def main():
             written += 1
 
         session.commit()
-        print(f"Loaded/updated {written} traceability events from {path.name}")
+        return written
     finally:
         session.close()
 
 
-if _name_ == "_main_":
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python load_traceability_events.py data/traceability_events.csv")
+        sys.exit(1)
+
+    written = load_traceability_events_file(sys.argv[1])
+    print(f"Loaded/updated {written} traceability events from {sys.argv[1]}")
+
+
+if __name__ == "__main__":
     main()

@@ -44,18 +44,14 @@ def get_or_create_facility(session, code: str, name: str | None = None):
     return obj
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python load_product_batches.py data/product_batches.csv")
-        sys.exit(1)
-
-    path = Path(sys.argv[1])
+def load_product_batches_file(path: str | Path) -> int:
+    path = Path(path)
     df = read_csv(path)
 
     required = ["batch_code", "product_code"]
     missing = [c for c in required if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        raise ValueError(f"Missing required columns in product_batches.csv: {missing}")
 
     if "scenario_code" not in df.columns:
         df["scenario_code"] = "BASE"
@@ -134,9 +130,18 @@ def main():
             written += 1
 
         session.commit()
-        print(f"Loaded/updated {written} product batches from {path.name}")
+        return written
     finally:
         session.close()
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python load_product_batches.py data/product_batches.csv")
+        sys.exit(1)
+
+    written = load_product_batches_file(sys.argv[1])
+    print(f"Loaded/updated {written} product batches from {sys.argv[1]}")
 
 
 if _name_ == "_main_":

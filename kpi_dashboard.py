@@ -38,7 +38,7 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 from sustainsc.config import engine, SessionLocal, Base
 from sustainsc.dpp_service import build_dpp_passport, dpp_passport_to_json
 from sustainsc.kpi_engine import run_full_pipeline
-from sustainsc.models import Measurement, Scenario
+from sustainsc.models import Measurement, Scenario, ProductBatch
 
 
 # -----------------------------------------------------------------------------
@@ -794,7 +794,23 @@ st.success("✅ Database ready")
 st.markdown("## DPP-ready passport demo")
 st.caption("Minimal prototype view for batch-level traceability and machine-readable passport export.")
 
-batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
+batch_session = SessionLocal()
+available_batches = []
+try:
+    available_batches = [b.batch_code for b in batch_session.query(ProductBatch).order_by(ProductBatch.batch_code).all()]
+finally:
+    batch_session.close()
+
+st.markdown("### Available batch codes")
+if available_batches:
+    st.write(", ".join(available_batches))
+else:
+    st.info("No product batches available in the database.")
+
+if available_batches:
+    batch_code = st.selectbox("Batch code", options=available_batches, key="dpp_batch_code")
+else:
+    batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
 
 if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
     session = SessionLocal()
