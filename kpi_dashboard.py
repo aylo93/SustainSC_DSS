@@ -924,34 +924,40 @@ if st.sidebar.button("🔄 Rebuild demo (full)"):
         batches_csv = base_dir / "data" / "product_batches.csv"
         events_csv = base_dir / "data" / "traceability_events.csv"
 
-        st.write(f"Looking for batches CSV at: {batches_csv}")
-        st.write(f"Looking for events CSV at: {events_csv}")
-        st.write(f"product_batches.csv exists: {batches_csv.exists()}")
-        st.write(f"traceability_events.csv exists: {events_csv.exists()}")
-
         batches_loaded = 0
         events_loaded = 0
 
-        if batches_csv.exists():
+        batches_exists = batches_csv.exists()
+        events_exists = events_csv.exists()
+
+        if batches_exists:
             batches_loaded = load_product_batches_file(batches_csv)
 
-        if events_csv.exists():
+        if events_exists:
             events_loaded = load_traceability_events_file(events_csv)
 
         run_full_pipeline(debug_missing=True)
 
+        st.session_state["rebuild_dpp_debug"] = {
+            "batches_csv_path": str(batches_csv),
+            "events_csv_path": str(events_csv),
+            "batches_exists": batches_exists,
+            "events_exists": events_exists,
+            "batches_loaded": batches_loaded,
+            "events_loaded": events_loaded,
+        }
+
         st.cache_data.clear()
         st.cache_resource.clear()
-
-        st.success(
-            f"Rebuild completed successfully. "
-            f"Product batches loaded: {batches_loaded}. "
-            f"Traceability events loaded: {events_loaded}."
-        )
         st.rerun()
 
     except Exception as e:
         st.error(f"Rebuild failed: {e}")
+
+debug_info = st.session_state.get("rebuild_dpp_debug")
+if debug_info:
+    st.sidebar.markdown("### DPP rebuild debug")
+    st.sidebar.write(debug_info)
 
 # -----------------------------------------------------------------------------
 # Load all data
