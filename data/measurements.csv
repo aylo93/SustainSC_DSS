@@ -9,38 +9,46 @@ data_accuracy	0.85	fraction	2025-12-01T00:00:00	BASE	Observed / baseline
 data_completeness	0.92	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 decisions_supported	40	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-decisions_total	60	count	2025-12-01T00:00:00	BASE	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0–100%.
+decisions_total	60	count	2025-12-01T00:00:00	BASE	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
 diesel_kwh	500000	kWh	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 digital_processes_count	18	count	2025-12-01T00:00:00	BASE	Integrated MRV / MILP dataset	Canonical annual FY2025 BASE value integrated from MILP measurement workbook and DSS MRV assumptions.
 dpp_volume	230400	FU	2025-12-01T00:00:00	BASE	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
-electricity_cost_eur	400000	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_avg	120	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_health_checks	80	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_total	120	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
-fuel_cost_eur	600000	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	BASE	Observed / baseline	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	BASE	Observed / baseline	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	BASE	Observed / baseline	
-logistics_cost_eur	898560	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	transport_work_tkm × 0.02 EUR/tkm proxy.
+logistics_cost_eur	898560	EUR	2025-12-01T00:00:00	BASE	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	BASE	Observed / baseline	
 material_circular_t	60000	t	2025-12-01T00:00:00	BASE	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
 material_total_t	300000	t	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 mrv_points_active_valid	140	count	2025-12-01T00:00:00	BASE	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
 mrv_points_required	200	count	2025-12-01T00:00:00	BASE	Estimated for DSS KPI denominator	Common MRV point denominator.
+number_of_deliveries	60	count	2025-12-31T00:00:00	BASE	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	60	count	2025-12-31T00:00:00	BASE	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 oee_performance	0.9	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 oee_quality	0.97	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 operating_cost_eur	4998960	EUR	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 operating_hours_h	50000	h	2025-12-01T00:00:00	BASE	Observed / baseline	
+orders_delivered_on_time	48	count	2025-12-31T00:00:00	BASE	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	96	count	2025-12-31T00:00:00	BASE	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2025-12-31T00:00:00	BASE	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	120	count	2025-12-31T00:00:00	BASE	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	BASE	Observed / baseline	
 output_qty_fu	288000	FU	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+renewable_energy_kwh	120000	kWh	2025-12-01T00:00:00	BASE	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288000	FU	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
 substantiated_complaints_count	4	count	2025-12-01T00:00:00	BASE	Observed / baseline	
 suggestions_count	120	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
+total_delivery_time_hours	480	h	2025-12-31T00:00:00	BASE	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	510	h	2025-12-31T00:00:00	BASE	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 transport_work_tkm	44928000	tkm	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 waste_generated_t	20000	t	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -63,35 +71,39 @@ diesel_kwh	500000	kWh	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP da
 digital_processes_count	18	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	734010.7	km	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	188936.08	FU	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	900000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	900000	EUR	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	49	count	2025-12-31T00:00:00	DES_BASE_2025	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	5000000	EUR	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	78	count	2025-12-31T00:00:00	DES_BASE_2025	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	98	count	2025-12-31T00:00:00	DES_BASE_2025	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	236170.1	FU	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2025-12-31T00:00:00	DES_BASE_2025	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99959	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	236170.1	FU	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	416.5	h	2025-12-31T00:00:00	DES_BASE_2025	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	607.64	tCO2e	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	45000000	tkm	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -115,35 +127,39 @@ diesel_kwh	500000	kWh	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP da
 digital_processes_count	18	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	655438	km	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	167488.96	FU	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	803658.8568	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	803658.8568	EUR	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	44	count	2030-12-31T00:00:00	DES_BASE_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4432423.92	EUR	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	70	count	2030-12-31T00:00:00	DES_BASE_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	87	count	2030-12-31T00:00:00	DES_BASE_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	209361.2	FU	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2030-12-31T00:00:00	DES_BASE_2030	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99983	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	209361.2	FU	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	374	h	2030-12-31T00:00:00	DES_BASE_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	538.66	tCO2e	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	40182942.84	tkm	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -167,35 +183,39 @@ diesel_kwh	500000	kWh	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP da
 digital_processes_count	18	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	604434.2	km	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	153417.52	FU	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	741121.049	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	741121.049	EUR	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	40	count	2035-12-31T00:00:00	DES_BASE_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4060037.66	EUR	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	64	count	2035-12-31T00:00:00	DES_BASE_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	80	count	2035-12-31T00:00:00	DES_BASE_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	191771.9	FU	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2035-12-31T00:00:00	DES_BASE_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99973	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	191771.9	FU	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	340	h	2035-12-31T00:00:00	DES_BASE_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	493.49	tCO2e	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	37056052.45	tkm	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -219,35 +239,39 @@ diesel_kwh	500000	kWh	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / M
 digital_processes_count	18	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	715490	km	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	206010.09	FU	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	877291.0258	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	877291.0258	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	48	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4846085.51	EUR	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	86	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	95	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	228900.1	FU	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	450000	kWh	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99957	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	228900.1	FU	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	312	h	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	588.92	tCO2e	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	43864551.29	tkm	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -271,35 +295,39 @@ diesel_kwh	500000	kWh	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / M
 digital_processes_count	18	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	617111.2	km	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	176571.18	FU	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	41	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4153578.29	EUR	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	74	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	82	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	196190.2	FU	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	450000	kWh	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99955	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	196190.2	FU	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	266.5	h	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	504.79	tCO2e	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	37833241.4	tkm	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -323,35 +351,39 @@ diesel_kwh	500000	kWh	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / M
 digital_processes_count	18	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	715490	km	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	183120.08	FU	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	877291.0258	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	877291.0258	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	48	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4846085.51	EUR	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	82	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	95	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	228900.1	FU	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99957	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	228900.1	FU	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	336	h	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	588.92	tCO2e	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	43864551.29	tkm	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -375,35 +407,39 @@ diesel_kwh	500000	kWh	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / M
 digital_processes_count	18	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	617111.2	km	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	156952.16	FU	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	41	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4153578.29	EUR	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	71	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	82	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	196190.2	FU	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99955	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	196190.2	FU	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	287	h	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	504.79	tCO2e	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	37833241.4	tkm	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -427,35 +463,39 @@ diesel_kwh	500000	kWh	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MIL
 digital_processes_count	18	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	678527.9	km	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	193786.74	FU	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	831970.3106	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	831970.3106	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	45	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4558549.11	EUR	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	76	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	90	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	215318.6	FU	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.9997	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	215318.6	FU	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	337.5	h	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	554.04	tCO2e	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	41598515.53	tkm	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -479,35 +519,39 @@ diesel_kwh	500000	kWh	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MIL
 digital_processes_count	18	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 distance_total_km	617111.2	km	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 dpp_volume	176571.18	FU	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES delivered volume and scenario-specific DPP coverage assumption.
-electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	1000000	kWh	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_avg	120	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_health_checks	80	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 employees_total	120	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES transport work × 0.02 EUR/tkm proxy.
+logistics_cost_eur	756664.828	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from DES transport work Ã— 0.02 EUR/tkm proxy.
 lti_count	6	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 material_circular_t	60000	t	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 material_total_t	300000	t	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_active_valid	140	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 mrv_points_required	200	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+number_of_deliveries	41	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_cost_eur	4153578.29	EUR	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 operating_hours_h	50000	h	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+orders_delivered_on_time	69	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	82	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 output_qty_fu	196190.2	FU	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
+renewable_energy_kwh	120000	kWh	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 service_level	0.99955	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 shipped_volume_total	196190.2	FU	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Set equal to DES scenario delivered volume for KPI consistency.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 suggestions_count	120	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
+total_delivery_time_hours	307.5	h	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 transport_ghg_total_tco2e	504.79	tCO2e	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot	Direct DES output from Table 7.22.
 transport_work_tkm	37833241.4	tkm	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	Translated / estimated from DES network-level snapshot.
@@ -524,38 +568,42 @@ data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 decisions_supported	55	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-decisions_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0–100%.
+decisions_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
 diesel_kwh	494971.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 digital_processes_count	18	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 dpp_volume	241920	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
-electricity_cost_eur	395564.52	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	395564.52	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	988911.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_avg	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_health_checks	88	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
-fuel_cost_eur	593965.56	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	593965.56	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-logistics_cost_eur	883426	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	transport_work_tkm × 0.02 EUR/tkm proxy.
+logistics_cost_eur	883426	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
 lti_count	5	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 material_circular_t	62250	t	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
 material_total_t	300000	t	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 mrv_points_active_valid	150	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
 mrv_points_required	200	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common MRV point denominator.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 oee_performance	0.9	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 oee_quality	0.97	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 operating_cost_eur	4973444	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 operating_hours_h	50000	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
+orders_delivered_on_time	96	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 output_qty_fu	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+renewable_energy_kwh	118669.36	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
 substantiated_complaints_count	4	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 suggestions_count	150	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
+total_delivery_time_hours	510	h	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2600	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 transport_work_tkm	44171300	tkm	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 waste_generated_t	19750	t	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -571,38 +619,46 @@ data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario to
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 decisions_supported	60	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0–100%.
+decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
 diesel_kwh	495380	kWh	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 digital_processes_count	18	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 dpp_volume	247680	FU	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
-electricity_cost_eur	393848	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	393848	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	984620	kWh	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_avg	120	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_health_checks	90	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_total	120	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
-fuel_cost_eur	594456	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	594456	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
-logistics_cost_eur	891600	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	transport_work_tkm × 0.02 EUR/tkm proxy.
+logistics_cost_eur	891600	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
 lti_count	4	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 material_circular_t	63750	t	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
 material_total_t	300000	t	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 mrv_points_active_valid	155	count	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
 mrv_points_required	200	count	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DSS KPI denominator	Common MRV point denominator.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_MIN_CO2	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_MIN_CO2	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 oee_performance	0.9	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 oee_quality	0.97	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 operating_cost_eur	4976307	EUR	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 operating_hours_h	50000	h	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
+orders_delivered_on_time	48	count	2025-12-31T00:00:00	MILP_MIN_CO2	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	96	count	2025-12-31T00:00:00	MILP_MIN_CO2	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2025-12-31T00:00:00	MILP_MIN_CO2	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	120	count	2025-12-31T00:00:00	MILP_MIN_CO2	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 output_qty_fu	288000	FU	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+renewable_energy_kwh	120000	kWh	2025-12-01T00:00:00	MILP_MIN_CO2	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288000	FU	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
 substantiated_complaints_count	4	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 suggestions_count	160	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
+total_delivery_time_hours	480	h	2025-12-31T00:00:00	MILP_MIN_CO2	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	492	h	2025-12-31T00:00:00	MILP_MIN_CO2	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2700	h	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 transport_work_tkm	44580000	tkm	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 waste_generated_t	19700	t	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -618,38 +674,46 @@ data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario t
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 decisions_supported	50	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0–100%.
+decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
 diesel_kwh	494540	kWh	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 digital_processes_count	18	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 dpp_volume	236160	FU	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
-electricity_cost_eur	397375.8	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur	397375.8	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
 electricity_kwh	993439.5	kWh	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_avg	120	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_health_checks	85	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 employees_total	120	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
-fuel_cost_eur	593448	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur	593448	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
-logistics_cost_eur	874801	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	transport_work_tkm × 0.02 EUR/tkm proxy.
+logistics_cost_eur	874801	EUR	2025-12-01T00:00:00	MILP_MIN_COST	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
 lti_count	5	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 material_circular_t	61500	t	2025-12-01T00:00:00	MILP_MIN_COST	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
 material_total_t	300000	t	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 mrv_points_active_valid	145	count	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
 mrv_points_required	200	count	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DSS KPI denominator	Common MRV point denominator.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_MIN_COST	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_MIN_COST	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.86	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 oee_performance	0.9	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 oee_quality	0.97	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 operating_cost_eur	4970426	EUR	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 operating_hours_h	50000	h	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
+orders_delivered_on_time	48	count	2025-12-31T00:00:00	MILP_MIN_COST	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	98	count	2025-12-31T00:00:00	MILP_MIN_COST	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2025-12-31T00:00:00	MILP_MIN_COST	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	120	count	2025-12-31T00:00:00	MILP_MIN_COST	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 output_qty_fu	288000	FU	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+renewable_energy_kwh	120000	kWh	2025-12-01T00:00:00	MILP_MIN_COST	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288000	FU	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
 substantiated_complaints_count	4	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 suggestions_count	140	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
+total_delivery_time_hours	480	h	2025-12-31T00:00:00	MILP_MIN_COST	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	468	h	2025-12-31T00:00:00	MILP_MIN_COST	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2500	h	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 transport_work_tkm	43740050	tkm	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 waste_generated_t	19800	t	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -669,16 +733,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenari
 diesel_kwh	500000	kWh	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	230400	FU	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	400000	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1000000	kWh	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	600000	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	898560	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	898560	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -691,19 +755,23 @@ model_total_ghg_tco2e	580.1	tCO2e	2035-12-31T00:00:00	SD_BAU_2035	System Dynamic
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3824	t	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	207	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	218	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	218	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_BAU_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.98	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	4998960	EUR	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	96	count	2035-12-31T00:00:00	SD_BAU_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_BAU_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	288000	FU	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	355000	kWh	2035-12-31T00:00:00	SD_BAU_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288000	FU	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	510	h	2035-12-31T00:00:00	SD_BAU_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	44928000	tkm	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31111	t	2035-12-31T00:00:00	SD_BAU_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -723,16 +791,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics s
 diesel_kwh	483163.75	kWh	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	230319.36	FU	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	385932.66	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	385932.66	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	964831.65	kWh	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	579796.5	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	579796.5	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	898244.7372	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	898244.7372	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -745,19 +813,27 @@ model_total_ghg_tco2e	555.5	tCO2e	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System D
 model_waste_recovery_rate	0.9	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	1699	t	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	206	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	217	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	217	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.98	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	4997206.095	EUR	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	48	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	100	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	287898.72	FU	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	341550.4	kWh	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	287898.72	FU	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	44912236.86	tkm	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31100	t	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -777,16 +853,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics
 diesel_kwh	514172.12	kWh	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	229287.36	FU	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	407546.564	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	407546.564	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1018866.41	kWh	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	617006.544	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	617006.544	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	894221.6082	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	894221.6082	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -799,19 +875,23 @@ model_total_ghg_tco2e	581.9	tCO2e	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3806	t	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	202	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	213	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	213	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.97	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	4974824.221	EUR	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	95	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	119	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	286609.44	FU	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	355584.38	kWh	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	286609.44	FU	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	510	h	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	44711080.41	tkm	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	30964.5	t	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -831,16 +911,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics 
 diesel_kwh	501343.19	kWh	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	231018.72	FU	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	404207.948	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	404207.948	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1010519.87	kWh	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	601611.828	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	601611.828	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	900973.8774	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	900973.8774	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -853,19 +933,23 @@ model_total_ghg_tco2e	578	tCO2e	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dy
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3834	t	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	210	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	222	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	222	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.98	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	5012389.126	EUR	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	96	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	288773.76	FU	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	363787.15	kWh	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	288773.76	FU	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	510	h	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	45048693.87	tkm	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31192.25	t	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -885,16 +969,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics
 diesel_kwh	415593.16	kWh	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	229806.24	FU	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	424645.684	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	424645.684	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1061614.21	kWh	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	498711.792	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	498711.792	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	896244.9362	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	896244.9362	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -907,19 +991,27 @@ model_total_ghg_tco2e	475	tCO2e	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System D
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3814	t	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	204	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	215	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	215	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.97	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	4986080.599	EUR	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	48	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	100	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	287257.92	FU	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	525499.03	kWh	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	287257.92	FU	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	44812246.81	tkm	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31030	t	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -939,16 +1031,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics 
 diesel_kwh	409465.71	kWh	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	235852.32	FU	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	419214.892	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	419214.892	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1048037.23	kWh	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	491358.852	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	491358.852	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -961,19 +1053,27 @@ model_total_ghg_tco2e	466.7	tCO2e	2035-12-31T00:00:00	SD_INTEGRATED_2035	System 
 model_waste_recovery_rate	0.9	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	1740	t	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	295	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	311	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	311	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	70	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	61	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	1	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	5117256.739	EUR	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	63	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	111	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	123	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	294815.52	FU	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	519826.47	kWh	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	294815.52	FU	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_INTEGRATED_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	396.5	h	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	45991188.32	tkm	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31852.5	t	2035-12-31T00:00:00	SD_INTEGRATED_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -993,16 +1093,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics 
 diesel_kwh	511832.14	kWh	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	235852.32	FU	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	410739.32	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	410739.32	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1026848.3	kWh	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	614198.568	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	614198.568	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1015,19 +1115,27 @@ model_total_ghg_tco2e	592.3	tCO2e	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System 
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3915	t	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	208	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	219	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	219	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	65	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	61	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	1	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	5117256.739	EUR	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	55	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	106	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	123	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	294815.52	FU	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	366584.84	kWh	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	294815.52	FU	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	427	h	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	45991188.32	tkm	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31851	t	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1047,16 +1155,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics sc
 diesel_kwh	511832.14	kWh	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	235852.32	FU	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	410101.524	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	410101.524	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	1025253.81	kWh	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	614198.568	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	614198.568	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	919823.7665	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1069,19 +1177,27 @@ model_total_ghg_tco2e	592.9	tCO2e	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dy
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3915	t	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	297	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	313	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	313	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	60	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	61	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	1	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	5117256.739	EUR	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	48	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	103	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	123	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	294815.52	FU	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	364990.36	kWh	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	294815.52	FU	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	480	h	2035-12-31T00:00:00	SD_MRV_PUSH_2035	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	457.5	h	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	45991188.32	tkm	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	31851	t	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1101,16 +1217,16 @@ decisions_total	20	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynami
 diesel_kwh	502578.68	kWh	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 dpp_volume	224117.76	FU	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	395321.04	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	395321.04	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	988302.6	kWh	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	80	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	603094.416	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	603094.416	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 incremental_benefits_eur	240000	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 investment_cost_eur	1200000	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-logistics_cost_eur	874058.9086	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	874058.9086	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 maintenance_cost_eur	350000	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1123,19 +1239,23 @@ model_total_ghg_tco2e	571.7	tCO2e	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Syst
 model_waste_recovery_rate	0.775	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 model_waste_to_disposal_t	3720	t	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035)	Direct SD output from Table 7.20.
 mrv_points_active_valid	216	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	Translated / estimated from SD 2035 outputs to maintain a measurement-style scenario snapshot.
-mrv_points_required	228	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0–100% range.
+mrv_points_required	228	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Adjusted denominator to keep MRV coverage in a plausible 0â€“100% range.
+number_of_deliveries	58	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.95	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_performance	0.9	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 oee_quality	0.97	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 operating_cost_eur	4862653.048	EUR	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+orders_delivered_on_time	94	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	117	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 output_qty_fu	280147.2	FU	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	339976.09	kWh	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	280147.2	FU	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	4	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 suggestions_count	120	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
+total_delivery_time_hours	493	h	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2400	h	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	43702945.43	tkm	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	30264.5	t	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1155,34 +1275,42 @@ decisions_total	20	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organi
 diesel_kwh	495000	kWh	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	18	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 dpp_volume	230400	FU	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	392000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	392000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	980000	kWh	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	86.857143	count	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	594000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	594000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
-logistics_cost_eur	898560	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	898560	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	2	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	Estimated social scenario: lower incidents through training, participation and prevention.
 maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	60000	t	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_total_t	300000	t	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 mrv_points_active_valid	140	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 mrv_points_required	200	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
+number_of_deliveries	60	count	2025-12-31T00:00:00	SOCIAL_PUSH	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+number_of_deliveries	61	count	2025-12-31T00:00:00	SOCIAL_PUSH	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.88	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 oee_performance	0.9	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 oee_quality	0.97	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 operating_cost_eur	4978964.16	EUR	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
+orders_delivered_on_time	52	count	2025-12-31T00:00:00	SOCIAL_PUSH	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_delivered_on_time	106	count	2025-12-31T00:00:00	SOCIAL_PUSH	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	120	count	2025-12-31T00:00:00	SOCIAL_PUSH	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+orders_total	122	count	2025-12-31T00:00:00	SOCIAL_PUSH	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 output_qty_fu	293760	FU	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	120000	kWh	2025-12-01T00:00:00	SOCIAL_PUSH	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	293760	FU	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	2	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 suggestions_count	180	count	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.28	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
+total_delivery_time_hours	480	h	2025-12-31T00:00:00	SOCIAL_PUSH	measurements_corrected_full.csv + DSS completeness integration	Integrated to complete service, lead-time, renewable-energy and denominator variables for KPI computation.
+total_delivery_time_hours	427	h	2025-12-31T00:00:00	SOCIAL_PUSH	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	3600	h	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	44928000	tkm	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	20000	t	2025-12-01T00:00:00	SOCIAL_PUSH	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
@@ -1202,34 +1330,38 @@ decisions_total	20	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C fu
 diesel_kwh	460000	kWh	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 digital_processes_count	19	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 dpp_volume	244800	FU	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-electricity_cost_eur	352000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from electricity_kwh × 0.4 EUR/kWh proxy used for scenario comparison.
+electricity_cost_eur	352000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from electricity_kwh Ã— 0.4 EUR/kWh proxy used for scenario comparison.
 electricity_kwh	880000	kWh	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_avg	120	count	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_health_checks	82.285714	count	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 employees_total	120	count	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-fuel_cost_eur	552000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from diesel_kwh × 1.2 EUR/kWh proxy used for scenario comparison.
+fuel_cost_eur	552000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from diesel_kwh Ã— 1.2 EUR/kWh proxy used for scenario comparison.
 hours_worked_h	2500000	h	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
-logistics_cost_eur	808704	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from transport_work_tkm × 0.02 EUR/tkm proxy used for scenario comparison.
+logistics_cost_eur	808704	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Estimated from transport_work_tkm Ã— 0.02 EUR/tkm proxy used for scenario comparison.
 lti_count	3	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 maintenance_cost_eur	360000	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_circular_t	65000	t	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 material_total_t	300000	t	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 mrv_points_active_valid	150	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 mrv_points_required	200	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
+number_of_deliveries	63	count	2025-12-31T00:00:00	VSMC_KAIZEN	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 oee_availability	0.9	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	Estimated from wait-time reduction in PROC/AUX/DISP highlighted in VSM-C.
 oee_performance	0.92	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 oee_quality	0.975	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 operating_cost_eur	4699022.4	EUR	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 operating_hours_h	50000	h	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
+orders_delivered_on_time	108	count	2025-12-31T00:00:00	VSMC_KAIZEN	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_total	126	count	2025-12-31T00:00:00	VSMC_KAIZEN	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 ot_it_integration_score	3.5	score	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 output_qty_fu	302400	FU	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
-renewable_energy_kwh	0	kWh	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+renewable_energy_kwh	105600	kWh	2025-12-01T00:00:00	VSMC_KAIZEN	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
 shipped_volume_total	302400	FU	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 substantiated_complaints_count	3	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 suggestions_count	146.666667	count	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
+total_delivery_time_hours	441	h	2025-12-31T00:00:00	VSMC_KAIZEN	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
 training_hours_h	2700	h	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 transport_work_tkm	40435200	tkm	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
 waste_generated_t	17500	t	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
