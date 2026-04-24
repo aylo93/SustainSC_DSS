@@ -1,7 +1,12 @@
 # sustainsc/normalization.py
-# Normalization module for SustainSC DSS
-# Normalizes raw KPI values to 0-100 scale and determines semaforo status
-# FIXED: implements BASE lookup for relative_vs_base_pct and clears old normalized results.
+# SustainSC DSS - KPI normalization module
+# Final version:
+# - Implements BASE lookup for relative_vs_base_pct
+# - Clears old normalized results before recalculation
+# - Uses centered relative normalization:
+#     BASE-equivalent performance = neutral score (50)
+#     improvement vs BASE -> 50 to 100
+#     deterioration vs BASE -> 50 to 0
 
 from __future__ import annotations
 
@@ -14,12 +19,15 @@ from .config import SessionLocal
 from .models import KPIResult, KPINormalizedResult, KPI, Scenario
 
 
+COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
+
+
 def load_normalization_rules() -> pd.DataFrame:
     """Load KPI normalization rules from CSV file."""
     try:
         df = pd.read_csv("data/kpi_normalization_rules.csv")
     except FileNotFoundError:
-        print("WARNING: kpi_normalization_rules.csv not found. Normalization skipped.")
+        print("WARNING: data/kpi_normalization_rules.csv not found. Normalization skipped.")
         return pd.DataFrame()
 
     df.columns = [str(c).strip().lower() for c in df.columns]
@@ -29,8 +37,12 @@ def load_normalization_rules() -> pd.DataFrame:
             df[col] = df[col].astype(str).str.strip()
 
     for col in [
-        "weight", "lower_ref", "upper_ref", "green_threshold",
-        "amber_threshold", "baseline_required"
+        "weight",
+        "lower_ref",
+        "upper_ref",
+        "green_threshold",
+        "amber_threshold",
+        "baseline_required",
     ]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
@@ -53,6 +65,14 @@ def _clamp_0_100(x: Optional[float]) -> Optional[float]:
 
 
 def _get_base_scenario(session: Session, preferred_code: str = "BASE") -> Optional[Scenario]:
+    """
+    Find the reference BASE scenario.
+
+    Priority:
+    1. Exact preferred_code
+    2. Exact BASE
+    3. Any scenario containing BASE
+    """
     sc = session.query(Scenario).filter(Scenario.code == preferred_code).first()
     if sc:
         return sc
@@ -72,10 +92,16 @@ def _get_base_scenario(session: Session, preferred_code: str = "BASE") -> Option
 def _get_baseline_value(
     session: Session,
     kpi_id: int,
-    result_period_end,
     base_scenario_id: Optional[int],
+    result_period_end=None,
     same_period: bool = False,
 ) -> Optional[float]:
+    """
+    Retrieve BASE KPI value for the same KPI.
+
+    By default, this does not require the same period_end because the DSS compares
+    2025/2030/2035 scenario outputs against one BASE reference.
+    """
     if base_scenario_id is None:
         return None
 
@@ -91,11 +117,57 @@ def _get_baseline_value(
     return float(base_result.value) if base_result else None
 
 
+def _centered_relative_score(
+    raw_value: float,
+    baseline_value: float,
+    direction: str,
+    lower_ref: float,
+    upper_ref: float,
+) -> Optional[float]:
+    """
+    Centered relative normalization.
+
+    Interpretation:
+    - raw == BASE -> 50
+    - better than BASE -> 50..100
+    - worse than BASE -> 50..0
+
+    upper_ref defines the % improvement/deterioration band depending on direction.
+    lower_ref is also supported, but if it is 0, the function mirrors upper_ref.
+    """
+    if baseline_value == 0:
+        if raw_value == 0:
+            return 50.0
+        return 100.0 if direction == "higher_better" and raw_value > 0 else 0.0
+
+    pct_change = ((raw_value - baseline_value) / baseline_value) * 100.0
+
+    # Avoid division by zero in old rule tables where lower_ref may be 0
+    improvement_band = abs(upper_ref) if abs(upper_ref) > 1e-9 else 10.0
+    deterioration_band = abs(lower_ref) if abs(lower_ref) > 1e-9 else improvement_band
+
+    if abs(pct_change) < 1e-12:
+        return 50.0
+
+    if direction == "higher_better":
+        if pct_change > 0:
+            return 50.0 + min(50.0, (pct_change / improvement_band) * 50.0)
+        return 50.0 - min(50.0, (abs(pct_change) / deterioration_band) * 50.0)
+
+    # lower_better
+    if pct_change < 0:
+        return 50.0 + min(50.0, (abs(pct_change) / improvement_band) * 50.0)
+    return 50.0 - min(50.0, (pct_change / deterioration_band) * 50.0)
+
+
 def normalize_value(
     raw_value: float,
     rule: pd.Series,
     baseline_value: Optional[float] = None,
 ) -> Tuple[Optional[float], str]:
+    """
+    Normalize a raw KPI value to a 0-100 score and assign traffic-light status.
+    """
     if pd.isna(raw_value):
         return None, "Missing"
 
@@ -113,15 +185,13 @@ def normalize_value(
     green_threshold = 80.0 if pd.isna(green_threshold) else float(green_threshold)
     amber_threshold = 50.0 if pd.isna(amber_threshold) else float(amber_threshold)
 
-    normalized = None
-    semaforo = "Missing"
-
     try:
         raw_value = float(raw_value)
 
         if norm_method == "absolute_continuous":
             if upper_ref == lower_ref:
                 normalized = 100.0 if raw_value == upper_ref else 0.0
+
             elif direction == "higher_better":
                 if raw_value <= lower_ref:
                     normalized = 0.0
@@ -129,7 +199,8 @@ def normalize_value(
                     normalized = 100.0
                 else:
                     normalized = ((raw_value - lower_ref) / (upper_ref - lower_ref)) * 100.0
-            else:
+
+            else:  # lower_better
                 if raw_value >= upper_ref:
                     normalized = 0.0
                 elif raw_value <= lower_ref:
@@ -144,27 +215,13 @@ def normalize_value(
             if baseline_value is None:
                 return None, "Need BASE"
 
-            baseline_value = float(baseline_value)
-
-            if baseline_value == 0:
-                normalized = 100.0 if raw_value == 0 else 0.0
-            else:
-                pct_change = ((raw_value - baseline_value) / baseline_value) * 100.0
-
-                if direction == "higher_better":
-                    if pct_change >= upper_ref:
-                        normalized = 100.0
-                    elif pct_change <= lower_ref:
-                        normalized = 0.0
-                    else:
-                        normalized = ((pct_change - lower_ref) / (upper_ref - lower_ref)) * 100.0
-                else:
-                    if pct_change <= lower_ref:
-                        normalized = 100.0
-                    elif pct_change >= upper_ref:
-                        normalized = 0.0
-                    else:
-                        normalized = ((upper_ref - pct_change) / (upper_ref - lower_ref)) * 100.0
+            normalized = _centered_relative_score(
+                raw_value=raw_value,
+                baseline_value=float(baseline_value),
+                direction=direction,
+                lower_ref=lower_ref,
+                upper_ref=upper_ref,
+            )
 
         else:
             print(f"WARNING: Unknown norm_method '{norm_method}' for KPI {rule.get('kpi_code')}.")
@@ -172,19 +229,21 @@ def normalize_value(
 
         normalized = _clamp_0_100(normalized)
 
-        if normalized is not None:
-            if normalized >= green_threshold:
-                semaforo = "Green"
-            elif normalized >= amber_threshold:
-                semaforo = "Amber"
-            else:
-                semaforo = "Red"
+        if normalized is None:
+            return None, "Missing"
+
+        if normalized >= green_threshold:
+            semaforo = "Green"
+        elif normalized >= amber_threshold:
+            semaforo = "Amber"
+        else:
+            semaforo = "Red"
+
+        return normalized, semaforo
 
     except Exception as e:
         print(f"Error normalizing KPI {rule.get('kpi_code')}: {e}")
-        semaforo = "Error"
-
-    return normalized, semaforo
+        return None, "Error"
 
 
 def run_normalization(
@@ -193,6 +252,22 @@ def run_normalization(
     clear_existing: bool = True,
     same_period_baseline: bool = False,
 ):
+    """
+    Run KPI normalization.
+
+    Parameters
+    ----------
+    context_id:
+        Context id from kpi_normalization_rules.csv. If it is not found, the
+        function falls back to the first available context.
+    base_scenario_code:
+        Scenario code used as reference for relative normalization.
+    clear_existing:
+        Delete old normalized results before recalculating.
+    same_period_baseline:
+        If True, the BASE result must have the same period_end as the scenario.
+        Keep False for comparing 2030/2035 scenarios against the BASE reference.
+    """
     print(f"Starting KPI normalization for context: {context_id}...")
 
     rules_df = load_normalization_rules()
@@ -201,24 +276,24 @@ def run_normalization(
         return
 
     if "context_id" not in rules_df.columns:
-        print("WARNING: context_id column not found in normalization rules. Using all rules.")
+        print("WARNING: context_id column not found. Using all normalization rules.")
         context_rules = rules_df.copy()
     else:
         context_rules = rules_df[rules_df["context_id"].astype(str).str.strip() == context_id].copy()
 
         if context_rules.empty:
             available = sorted(rules_df["context_id"].dropna().astype(str).str.strip().unique().tolist())
-            print(f"WARNING: No normalization rules found for context '{context_id}'. Available contexts: {available}")
+            print(f"WARNING: No rules found for context '{context_id}'. Available contexts: {available}")
             if available:
-                fallback = available[0]
-                print(f"Using fallback context: {fallback}")
-                context_rules = rules_df[rules_df["context_id"].astype(str).str.strip() == fallback].copy()
+                fallback_context = available[0]
+                print(f"Using fallback context: {fallback_context}")
+                context_rules = rules_df[
+                    rules_df["context_id"].astype(str).str.strip() == fallback_context
+                ].copy()
 
     if context_rules.empty:
         print("No applicable normalization rules found. Skipping normalization.")
         return
-
-    print(f"Found {len(context_rules)} normalization rules.")
 
     with SessionLocal() as session:
         try:
@@ -230,14 +305,14 @@ def run_normalization(
             base_scenario_id = base_scenario.id if base_scenario else None
 
             if base_scenario:
-                print(f"Using BASE scenario for relative normalization: {base_scenario.code} (id={base_scenario.id})")
+                print(f"Using BASE scenario: {base_scenario.code} (id={base_scenario.id})")
             else:
-                print("WARNING: No BASE scenario found. Relative normalization will return Need BASE.")
+                print("WARNING: No BASE scenario found. Relative KPIs will show Need BASE.")
 
             kpi_results = (
                 session.query(KPIResult)
                 .join(KPI, KPI.id == KPIResult.kpi_id)
-                .filter(~KPI.code.in_(["ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"]))
+                .filter(~KPI.code.in_(list(COMPOSITE_CODES)))
                 .all()
             )
 
@@ -252,7 +327,10 @@ def run_normalization(
                 if not kpi_code:
                     continue
 
-                rule_df = context_rules[context_rules["kpi_code"].astype(str).str.strip() == str(kpi_code).strip()]
+                rule_df = context_rules[
+                    context_rules["kpi_code"].astype(str).str.strip() == str(kpi_code).strip()
+                ]
+
                 if rule_df.empty:
                     continue
 
@@ -265,8 +343,8 @@ def run_normalization(
                     baseline_value = _get_baseline_value(
                         session=session,
                         kpi_id=result.kpi_id,
-                        result_period_end=result.period_end,
                         base_scenario_id=base_scenario_id,
+                        result_period_end=result.period_end,
                         same_period=same_period_baseline,
                     )
 
@@ -276,24 +354,26 @@ def run_normalization(
                     baseline_value=baseline_value,
                 )
 
-                normalized_result = KPINormalizedResult(
-                    kpi_id=result.kpi_id,
-                    scenario_id=result.scenario_id,
-                    period_end=result.period_end,
-                    raw_value=result.value,
-                    normalized_value=normalized_value,
-                    semaforo=semaforo,
-                    lower_ref=rule.get("lower_ref"),
-                    upper_ref=rule.get("upper_ref"),
-                    baseline_value=baseline_value,
-                    normalization_method=rule.get("norm_method"),
-                    notes=(
-                        f"Normalized using {rule.get('norm_method')} method for context {context_id}; "
-                        f"BASE={base_scenario.code if base_scenario else None}"
-                    ),
+                session.add(
+                    KPINormalizedResult(
+                        kpi_id=result.kpi_id,
+                        scenario_id=result.scenario_id,
+                        period_end=result.period_end,
+                        raw_value=result.value,
+                        normalized_value=normalized_value,
+                        semaforo=semaforo,
+                        lower_ref=rule.get("lower_ref"),
+                        upper_ref=rule.get("upper_ref"),
+                        baseline_value=baseline_value,
+                        normalization_method=rule.get("norm_method"),
+                        notes=(
+                            f"Normalized using {rule.get('norm_method')} for context {context_id}; "
+                            f"BASE={base_scenario.code if base_scenario else None}; "
+                            f"centered_relative=True"
+                        ),
+                    )
                 )
 
-                session.add(normalized_result)
                 normalized_count += 1
 
             session.commit()
