@@ -10,12 +10,12 @@ community_incidents_total	7	count	2025-12-31T00:00:00	BASE	Final 100% KPI compat
 contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 core_processes_total	24	count	2025-12-01T00:00:00	BASE	Integrated MRV / MILP dataset	Canonical annual FY2025 BASE value integrated from MILP measurement workbook and DSS MRV assumptions.
 cost_per_fu	17.3575	EUR/FU	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 data_accuracy	0.85	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 data_completeness	0.92	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	BASE	Observed / baseline	
-data_quality_index	0.883333	index(0-100)	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 decisions_supported_by_analytics	40	count	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2025-12-01T00:00:00	BASE	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
@@ -115,12 +115,12 @@ community_incidents_total	7	count	2025-12-31T00:00:00	DES_BASE_2025	Final 100% K
 contract_renewal_rate	0.75	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2025-12-31T00:00:00	DES_BASE_2025	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2025-12-31T00:00:00	DES_BASE_2025	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2025-12-31T00:00:00	DES_BASE_2025	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -223,12 +223,12 @@ community_incidents_total	7	count	2030-12-31T00:00:00	DES_BASE_2030	Final 100% K
 contract_renewal_rate	0.75	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2030-12-31T00:00:00	DES_BASE_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2030-12-31T00:00:00	DES_BASE_2030	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2030-12-31T00:00:00	DES_BASE_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -331,12 +331,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	DES_BASE_2035	Final 100% K
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	DES_BASE_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2035-12-31T00:00:00	DES_BASE_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2035-12-31T00:00:00	DES_BASE_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -439,12 +439,12 @@ community_incidents_total	7	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 
 contract_renewal_rate	0.75	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2030-12-31T00:00:00	DES_INTEGRATED_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -547,12 +547,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	DES_INTEGRATED_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -655,12 +655,12 @@ community_incidents_total	7	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 
 contract_renewal_rate	0.75	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -763,12 +763,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -871,12 +871,12 @@ community_incidents_total	7	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 10
 contract_renewal_rate	0.75	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2030-12-31T00:00:00	DES_MRV_PUSH_2030	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -979,12 +979,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 10
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 core_processes_total	24	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 cost_per_fu	21.171181	EUR/FU	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	DES_MRV_PUSH_2035	DES / AnyLogistix snapshot translated to measurement-style scenario	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	40	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
 decisions_supported_by_analytics	40	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
@@ -1087,12 +1087,12 @@ community_incidents_total	6	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100%
 contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 core_processes_total	24	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 cost_per_fu	17.268903	EUR/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-data_quality_index	0.883333	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	55	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 decisions_supported_by_analytics	55	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
@@ -1192,12 +1192,12 @@ community_incidents_total	6	count	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KP
 contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 core_processes_total	24	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 cost_per_fu	17.278844	EUR/FU	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_MIN_CO2	MILP/LP scenario totals from report	
-data_quality_index	0.883333	index(0-100)	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	60	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 decisions_supported_by_analytics	60	count	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_CO2	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
@@ -1297,12 +1297,12 @@ community_incidents_total	7	count	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% K
 contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 core_processes_total	24	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 cost_per_fu	17.258424	EUR/FU	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
 data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_MIN_COST	MILP/LP scenario totals from report	
-data_quality_index	0.883333	index(0-100)	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	50	count	2025-12-01T00:00:00	MILP_MIN_COST	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 decisions_supported_by_analytics	50	count	2025-12-31T00:00:00	MILP_MIN_COST	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	60	count	2025-12-01T00:00:00	MILP_MIN_COST	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
@@ -1402,12 +1402,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.3575	EUR/FU	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_BAU_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_BAU_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -1514,12 +1514,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 10
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357514	EUR/FU	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -1626,12 +1626,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357503	EUR/FU	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -1738,12 +1738,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 1
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357495	EUR/FU	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -1850,12 +1850,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357504	EUR/FU	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -1962,12 +1962,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 1
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357488	EUR/FU	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -2074,12 +2074,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 1
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357488	EUR/FU	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -2186,12 +2186,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357488	EUR/FU	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -2298,12 +2298,12 @@ community_incidents_total	7	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Fina
 contract_renewal_rate	0.75	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 core_processes_total	24	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 cost_per_fu	17.357493	EUR/FU	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.55	index(0-100)	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	55.00000000000001	index(0-100)	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.68	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_accuracy	0.85	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_completeness	0.92	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 data_consistency	0.88	fraction	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
-data_quality_index	0.883333	index(0-100)	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	88.33330000000001	index(0-100)	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	14	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
 decisions_supported_by_analytics	14	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	System Dynamics scenario (2035) - translated to MRV-like snapshot	
@@ -2410,12 +2410,12 @@ community_incidents_total	3.5	count	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% K
 contract_renewal_rate	0.82	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 core_processes_total	24	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 cost_per_fu	16.949088	EUR/FU	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.62	index(0-100)	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	62	index(0-100)	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.76	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	Estimated social scenario: improved trust/acceptance consistent with R2 logic.
 data_accuracy	0.86	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 data_completeness	0.93	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 data_consistency	0.89	fraction	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
-data_quality_index	0.893333	index(0-100)	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	89.33330000000001	index(0-100)	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	16	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
 decisions_supported_by_analytics	16	count	2025-12-31T00:00:00	SOCIAL_PUSH	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2025-12-01T00:00:00	SOCIAL_PUSH	Estimated social-organizational scenario	
@@ -2515,12 +2515,12 @@ community_incidents_total	4.5	count	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% K
 contract_renewal_rate	0.78	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 core_processes_total	24	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 cost_per_fu	15.539095	EUR/FU	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	0.57	index(0-100)	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index.
+customer_acceptance_index	56.99999999999999	index(0-100)	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
 customer_survey_score	0.71	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 data_accuracy	0.87	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 data_completeness	0.94	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 data_consistency	0.9	fraction	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
-data_quality_index	0.903333	index(0-100)	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index.
+data_quality_index	90.33330000000001	index(0-100)	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
 decisions_supported	15	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
 decisions_supported_by_analytics	15	count	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
 decisions_total	20	count	2025-12-01T00:00:00	VSMC_KAIZEN	Estimated from VSM-C future-state / Kaizen	
@@ -2609,3 +2609,51 @@ waste_recovered_t	8076.923077	t	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV /
 waste_recovery_rate	46.153846	%	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_recovery_rate.
 water_intensity_fu	0.188492	m3/FU	2025-12-31T00:00:00	VSMC_KAIZEN	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for water_intensity_fu.
 water_withdrawn_m3	57000	m3	2025-12-01T00:00:00	VSMC_KAIZEN	Integrated MRV / MILP dataset	Annualized scenario value preserving the original scenario-to-BASE effect after integration with the MILP annual baseline.
+orders_on_time	96	count	2025-12-01T00:00:00	BASE	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2025-12-01T00:00:00	BASE	Final compatibility alias	Alias for service_level formula.
+orders_on_time	78	count	2025-12-31T00:00:00	DES_BASE_2025	Final compatibility alias	Alias for service_level formula.
+deliveries_total	98	count	2025-12-31T00:00:00	DES_BASE_2025	Final compatibility alias	Alias for service_level formula.
+orders_on_time	70	count	2030-12-31T00:00:00	DES_BASE_2030	Final compatibility alias	Alias for service_level formula.
+deliveries_total	87	count	2030-12-31T00:00:00	DES_BASE_2030	Final compatibility alias	Alias for service_level formula.
+orders_on_time	64	count	2035-12-31T00:00:00	DES_BASE_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	80	count	2035-12-31T00:00:00	DES_BASE_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	86	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final compatibility alias	Alias for service_level formula.
+deliveries_total	95	count	2030-12-31T00:00:00	DES_INTEGRATED_2030	Final compatibility alias	Alias for service_level formula.
+orders_on_time	74	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	82	count	2035-12-31T00:00:00	DES_INTEGRATED_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	82	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final compatibility alias	Alias for service_level formula.
+deliveries_total	95	count	2030-12-31T00:00:00	DES_MAINT_PUSH_2030	Final compatibility alias	Alias for service_level formula.
+orders_on_time	71	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	82	count	2035-12-31T00:00:00	DES_MAINT_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	76	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final compatibility alias	Alias for service_level formula.
+deliveries_total	90	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final compatibility alias	Alias for service_level formula.
+orders_on_time	69	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	82	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	96	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Final compatibility alias	Alias for service_level formula.
+orders_on_time	96	count	2025-12-01T00:00:00	MILP_MIN_CO2	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2025-12-01T00:00:00	MILP_MIN_CO2	Final compatibility alias	Alias for service_level formula.
+orders_on_time	98	count	2025-12-01T00:00:00	MILP_MIN_COST	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2025-12-01T00:00:00	MILP_MIN_COST	Final compatibility alias	Alias for service_level formula.
+orders_on_time	96	count	2035-12-31T00:00:00	SD_BAU_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2035-12-31T00:00:00	SD_BAU_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	100	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2035-12-31T00:00:00	SD_CIRC_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	95	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	119	count	2035-12-31T00:00:00	SD_CO2_LENIENT_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	96	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2035-12-31T00:00:00	SD_CO2_STRICT_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	100	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2035-12-31T00:00:00	SD_ENERGY_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	111	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	123	count	2035-12-31T00:00:00	SD_INTEGRATED_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	106	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	123	count	2035-12-31T00:00:00	SD_MAINT_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	103	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	123	count	2035-12-31T00:00:00	SD_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	94	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final compatibility alias	Alias for service_level formula.
+deliveries_total	117	count	2035-12-31T00:00:00	SD_REALITY_CHECK_2035	Final compatibility alias	Alias for service_level formula.
+orders_on_time	106	count	2025-12-01T00:00:00	SOCIAL_PUSH	Final compatibility alias	Alias for service_level formula.
+deliveries_total	122	count	2025-12-01T00:00:00	SOCIAL_PUSH	Final compatibility alias	Alias for service_level formula.
+orders_on_time	108	count	2025-12-01T00:00:00	VSMC_KAIZEN	Final compatibility alias	Alias for service_level formula.
+deliveries_total	126	count	2025-12-01T00:00:00	VSMC_KAIZEN	Final compatibility alias	Alias for service_level formula.
