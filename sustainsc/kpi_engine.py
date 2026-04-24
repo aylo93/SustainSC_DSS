@@ -558,6 +558,7 @@ def service_level(ctx: Ctx) -> Optional[float]:
     # Derived from fulfilled / total
     fulfilled = ctx.pick_sum(
         "orders_fulfilled",
+        "orders_delivered_on_time",
         "deliveries_fulfilled",
         "fulfilled_qty"
     )
@@ -572,6 +573,7 @@ def service_level(ctx: Ctx) -> Optional[float]:
     # Derived from on-time / total
     ontime = ctx.pick_sum(
         "orders_on_time",
+        "orders_delivered_on_time",
         "deliveries_on_time"
     )
     if ontime is not None and total is not None:
@@ -631,17 +633,25 @@ def average_lead_time(ctx: Ctx) -> Optional[float]:
     if v is not None:
         return float(v)
 
-    # Derived from total lead time / number of orders
+    # Derived from total lead time in days / number of orders or shipments
     total_lt = ctx.pick_sum(
         "lead_time_total_days",
         "order_lead_time_total_days"
     )
     n = ctx.pick_sum(
         "orders_total",
-        "shipments_total"
+        "shipments_total",
+        "number_of_deliveries",
+        "number_of_shipments"
     )
     if total_lt is not None and n is not None:
         return safe_div(total_lt, n)
+
+    # Derived from total delivery time in hours / number of deliveries.
+    total_hours = ctx.pick_sum("total_delivery_time_hours")
+    n_deliveries = ctx.pick_sum("number_of_deliveries", "number_of_shipments", "shipments_total")
+    if total_hours is not None and n_deliveries is not None:
+        return safe_div(total_hours, n_deliveries) / 24.0
 
     return None
 
@@ -749,7 +759,7 @@ def run_full_pipeline(debug_missing: bool = False) -> None:
     if run_normalization is None:
         print("WARNING: normalization step skipped (module/function not found).")
     else:
-        run_normalization(context_id="aggregates_ton")
+        run_normalization(context_id="aggregates")
         print("=== KPI normalization completed ===")
 
     print("=== STEP 3/3: Composite indices ===")

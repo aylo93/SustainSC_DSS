@@ -38,7 +38,7 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 from sustainsc.config import engine, SessionLocal, Base
 from sustainsc.dpp_service import build_dpp_passport, dpp_passport_to_json
 from sustainsc.kpi_engine import run_full_pipeline
-from sustainsc.models import Measurement, Scenario, ProductBatch
+from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
 
 
 # -----------------------------------------------------------------------------
@@ -747,9 +747,26 @@ def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool 
         if replace_uploaded_scenarios and uploaded_codes:
             ids_to_clear = [sc_map[c] for c in uploaded_codes if c in sc_map]
             if ids_to_clear:
+                # IMPORTANT:
+                # If measurements are replaced, raw and normalized KPI results for those
+                # scenarios must also be removed. Otherwise the dashboard may display
+                # stale normalized rows such as "Need BASE" even after importing a
+                # corrected CSV.
                 session.query(Measurement).filter(Measurement.scenario_id.in_(ids_to_clear)).delete(
                     synchronize_session=False
                 )
+                session.query(KPIResult).filter(KPIResult.scenario_id.in_(ids_to_clear)).delete(
+                    synchronize_session=False
+                )
+                session.query(KPINormalizedResult).filter(
+                    KPINormalizedResult.scenario_id.in_(ids_to_clear)
+                ).delete(synchronize_session=False)
+
+                # Relative-vs-BASE normalization depends on the reference scenario.
+                # If BASE changes, all normalized rows must be rebuilt.
+                if any(str(c).upper() == "BASE" for c in uploaded_codes):
+                    session.query(KPINormalizedResult).delete(synchronize_session=False)
+
                 session.flush()
 
         written = 0

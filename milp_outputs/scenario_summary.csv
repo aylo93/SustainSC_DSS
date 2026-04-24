@@ -1,0 +1,4 @@
+scenario_code,operating_cost_eur,total_co2_t,electricity_kwh,diesel_kwh,transport_work_tkm,solver_status,termination_condition
+MILP_MIN_COST,4970426.15,943.583,993439.475,494540.05,43740050.0,ok,optimal
+MILP_CO2CAP_940,4973443.7,939.999,988911.35,494971.3,44171300.0,ok,optimal
+MILP_MIN_CO2,4976306.8,936.602,984620.0,495380.0,44580000.0,ok,optimal
