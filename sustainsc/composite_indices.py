@@ -56,26 +56,32 @@ def _normalize_dimension_weights(dimension_weights: dict) -> dict:
 
 
 def _corrected_geometric_sustain_index(dim_scores: dict, dimension_weights: dict) -> float | None:
+    """
+    Correct weighted geometric mean on 0..100 scale.
+
+    IMPORTANT VALIDATION RULE:
+    The global SUSTAIN_INDEX is calculated only when all four dimensions are
+    available: environmental, economic, social and technological. This prevents
+    incomplete or legacy scenarios with only one dimension, for example
+    social = 100, from appearing as globally sustainable.
+    """
     dims = ["environmental", "economic", "social", "technological"]
 
-    vals = []
-    ws = []
+    # Require complete four-dimensional coverage.
     for d in dims:
         v = dim_scores.get(d, None)
         w = dimension_weights.get(d, 0.0)
         if v is None or pd.isna(v) or w <= 0:
-            continue
-        vals.append(float(v))
-        ws.append(float(w))
+            return None
 
-    if not vals or sum(ws) <= 0:
+    vals = np.array([float(dim_scores[d]) for d in dims], dtype=float)
+    ws = np.array([float(dimension_weights[d]) for d in dims], dtype=float)
+
+    if ws.sum() <= 0:
         return None
 
-    vals = np.array(vals, dtype=float)
-    ws = np.array(ws, dtype=float)
     ws = ws / ws.sum()
 
-    # Correct weighted geometric mean on 0..100 scale
     return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
 
 
@@ -189,6 +195,7 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
                         )
                     )
 
+            # Global SUSTAIN_INDEX is only created when all four dimensions are present.
             sustain_value = _corrected_geometric_sustain_index(dim_scores, dimension_weights)
             if sustain_value is not None and "SUSTAIN_INDEX" in comp_map:
                 session.add(
