@@ -1,7 +1,26 @@
 batch_code,product_code,product_name,scenario_code,origin_facility_code,facility_name,production_date,quantity,unit,status,notes
-BARIAY_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,BARIAY,Bariay,2025-07-15T08:00:00,320,t,produced,Batch produced under BASE scenario at Bariay
-BARIAY_4_8_2025_07_001,AGG_4_8,Aggregate 4-8 mm,BASE,BARIAY,Bariay,2025-07-15T10:30:00,280,t,produced,Batch produced under BASE scenario at Bariay
-CALICHES_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,LOS_CALICHES,Los Caliches,2025-07-17T09:00:00,300,t,produced,Batch produced under BASE scenario at Los Caliches
-PILON_20_40_2025_07_001,AGG_20_40,Aggregate 20-40 mm,BASE,PILON,Pilón,2025-07-18T07:45:00,260,t,produced,Batch produced under BASE scenario at Pilón
-BARIAY_0_4_2025_07_RES001,AGG_0_4,Aggregate 0-4 mm,LOW_CARBON_ENERGY_MIX,BARIAY,Bariay,2025-07-20T08:15:00,315,t,produced,Renewable-energy scenario batch
-BARIAY_4_8_2025_07_EFF001,AGG_4_8,Aggregate 4-8 mm,EFFICIENCY_DIGITAL,BARIAY,Bariay,2025-07-22T11:00:00,290,t,produced,Efficiency and digitalization scenario batch
+BARIAY_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,BARIAY,Bariay,2025-07-15T08:00:00,320,t,produced,Base scenario production
+BARIAY_4_8_2025_07_001,AGG_4_8,Aggregate 4-8 mm,BASE,BARIAY,Bariay,2025-07-15T10:30:00,280,t,produced,Secondary crushing output
+CALICHES_0_4_2025_07_001,AGG_0_4,Aggregate 0-4 mm,BASE,LOS_CALICHES,Los Caliches,2025-07-17T09:00:00,300,t,produced,Production aligned with demand zone Holguin
+PILON_20_40_2025_07_001,AGG_20_40,Aggregate 20-40 mm,BASE,PILON,Pilón,2025-07-18T07:45:00,260,t,produced,Coarse aggregate production
+
+BARIAY_0_4_2025_07_RES001,AGG_0_4,Aggregate 0-4 mm,ENERGY_PUSH,BARIAY,Bariay,2025-07-20T08:15:00,315,t,produced,Renewable energy integration
+CALICHES_4_8_2025_07_RES001,AGG_4_8,Aggregate 4-8 mm,ENERGY_PUSH,LOS_CALICHES,Los Caliches,2025-07-20T10:00:00,270,t,produced,Lower carbon intensity production
+
+BARIAY_4_8_2025_07_EFF001,AGG_4_8,Aggregate 4-8 mm,MAINT_PUSH,BARIAY,Bariay,2025-07-22T11:00:00,290,t,produced,Improved OEE scenario
+PILON_20_40_2025_07_EFF001,AGG_20_40,Aggregate 20-40 mm,MAINT_PUSH,PILON,Pilón,2025-07-22T09:30:00,275,t,produced,Maintenance-driven efficiency
+
+BARIAY_0_4_2025_07_MRV001,AGG_0_4,Aggregate 0-4 mm,MRV_PUSH,BARIAY,Bariay,2025-07-23T08:00:00,310,t,produced,High MRV coverage batch
+CALICHES_0_4_2025_07_MRV001,AGG_0_4,Aggregate 0-4 mm,MRV_PUSH,LOS_CALICHES,Los Caliches,2025-07-23T09:30:00,305,t,produced,Digitally monitored production
+
+BARIAY_0_4_2025_07_CIRC001,AGG_0_4,Aggregate 0-4 mm,CIRC_PUSH,BARIAY,Bariay,2025-07-24T08:20:00,300,t,produced,Recycled material integration
+PILON_20_40_2025_07_CIRC001,AGG_20_40,Aggregate 20-40 mm,CIRC_PUSH,PILON,Pilón,2025-07-24T07:50:00,255,t,produced,Circularity improvement scenario
+
+BARIAY_0_4_2025_07_SOC001,AGG_0_4,Aggregate 0-4 mm,SOCIAL_PUSH,BARIAY,Bariay,2025-07-25T08:00:00,325,t,produced,Training-driven productivity
+CALICHES_4_8_2025_07_SOC001,AGG_4_8,Aggregate 4-8 mm,SOCIAL_PUSH,LOS_CALICHES,Los Caliches,2025-07-25T10:10:00,285,t,produced,Improved workforce performance
+
+BARIAY_0_4_2025_07_INT001,AGG_0_4,Aggregate 0-4 mm,INTEGRATED,BARIAY,Bariay,2025-07-26T08:00:00,335,t,produced,Integrated sustainability scenario
+CALICHES_0_4_2025_07_INT001,AGG_0_4,Aggregate 0-4 mm,INTEGRATED,LOS_CALICHES,Los Caliches,2025-07-26T09:20:00,320,t,produced,Full system optimization
+
+BARIAY_0_4_2025_07_MILP001,AGG_0_4,Aggregate 0-4 mm,MILP_MIN_COST,BARIAY,Bariay,2025-07-27T08:00:00,340,t,produced,Cost-optimized production
+CALICHES_4_8_2025_07_MILP001,AGG_4_8,Aggregate 4-8 mm,MILP_MIN_CO2,LOS_CALICHES,Los Caliches,2025-07-27T10:00:00,275,t,produced,Carbon-optimized scenario
