@@ -6,6 +6,7 @@ from html import escape
 from pathlib import Path
 from typing import Mapping
 
+import pandas as pd
 import streamlit as st
 
 from .theme import GLOBAL_CSS
@@ -74,3 +75,28 @@ def render_filter_summary(filters: Mapping[str, str]) -> None:
     active = [f"{label}: {value}" for label, value in filters.items() if value != "All"]
     message = "Active table filters — " + " · ".join(active) if active else "No restrictive table filters."
     st.markdown(f"<div class='sc-filter-summary'>{escape(message)}</div>", unsafe_allow_html=True)
+
+
+def render_downloadable_table(
+    data: pd.DataFrame,
+    *,
+    filename: str,
+    key: str,
+    display_data=None,
+    height: int | None = None,
+) -> None:
+    """Render a table and preserve full scientific precision in its CSV export."""
+
+    table = display_data if display_data is not None else data
+    kwargs = {"width": "stretch"}
+    if height is not None:
+        kwargs["height"] = height
+    st.dataframe(table, **kwargs)
+    st.download_button(
+        "Download table as CSV",
+        data.to_csv(index=False).encode("utf-8"),
+        file_name=filename,
+        mime="text/csv",
+        key=key,
+        help="Exports the complete table using the stored calculation precision.",
+    )

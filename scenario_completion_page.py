@@ -11,6 +11,7 @@ import streamlit as st
 from batch_completion_engine import BatchCompletionResult, BatchScenarioCompletionEngine
 from sustainsc.ui import (
     render_data_status_panel,
+    render_downloadable_table,
     render_section_header,
     render_workflow_progress,
 )
@@ -100,7 +101,12 @@ def render_scenario_completion_page(
                 lambda column: column.str.contains(search, case=False, na=False)
             ).any(axis=1)
             review = review[mask]
-        st.dataframe(review, width="stretch", height=430)
+        render_downloadable_table(
+            review,
+            filename="mrv_completion_review.csv",
+            key="download_mrv_completion_review",
+            height=430,
+        )
     with tabs[1]:
         statuses = sorted(result.qa_report["status"].dropna().unique().tolist())
         selected_statuses = st.multiselect(
@@ -110,9 +116,18 @@ def render_scenario_completion_page(
             key="completion_qa_status",
         )
         qa_view = result.qa_report[result.qa_report["status"].isin(selected_statuses)]
-        st.dataframe(qa_view, width="stretch", height=430)
+        render_downloadable_table(
+            qa_view,
+            filename="mrv_qa_report.csv",
+            key="download_mrv_qa_report",
+            height=430,
+        )
     with tabs[2]:
-        st.dataframe(result.software_upload, width="stretch")
+        render_downloadable_table(
+            result.software_upload,
+            filename="completed_mrv_scenarios.csv",
+            key="download_mrv_software_upload_table",
+        )
         csv_bytes = result.software_upload.to_csv(index=False).encode("utf-8")
         st.download_button(
             "Download completed MRV CSV",
@@ -122,7 +137,11 @@ def render_scenario_completion_page(
             disabled=result.has_critical_failures,
         )
     with tabs[3]:
-        st.dataframe(result.comparison_report, width="stretch")
+        render_downloadable_table(
+            result.comparison_report,
+            filename="mrv_validation_comparison.csv",
+            key="download_mrv_validation_comparison",
+        )
 
     if on_commit is not None:
         if st.button(

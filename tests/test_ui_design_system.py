@@ -48,3 +48,12 @@ def test_streamlit_theme_and_plotly_usage_are_centralized():
     assert "template=\"sustainscm\"" in dashboard
     assert "st.bar_chart(" not in dashboard
     assert "st.line_chart(" not in dashboard
+
+
+def test_every_application_table_uses_downloadable_component():
+    dashboard = Path("kpi_dashboard.py").read_text(encoding="utf-8")
+    completion = Path("scenario_completion_page.py").read_text(encoding="utf-8")
+    assert "st.dataframe(" not in dashboard
+    assert "st.dataframe(" not in completion
+    assert dashboard.count("render_downloadable_table(") == 13
+    assert completion.count("render_downloadable_table(") == 4

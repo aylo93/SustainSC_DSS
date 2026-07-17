@@ -50,6 +50,7 @@ from sustainsc.dashboard_workflow import assess_analysis_readiness, has_restrict
 from sustainsc.ui import (
     apply_design_system,
     render_data_status_panel,
+    render_downloadable_table,
     render_empty_state,
     render_filter_summary,
     render_page_header,
@@ -274,7 +275,11 @@ def render_dpp_passport(passport: dict):
                 "transport_leg", "quantity", "unit", "source_system", "comment"
             ]
             wanted = [c for c in wanted if c in events_df.columns]
-            st.dataframe(events_df[wanted], width="stretch")
+            render_downloadable_table(
+                events_df[wanted],
+                filename=f"{identity.get('batch_code', 'batch')}_traceability_events.csv",
+                key="download_dpp_traceability_events",
+            )
         else:
             st.info("No traceability events found for this batch.")
 
@@ -294,7 +299,11 @@ def render_dpp_passport(passport: dict):
                 "normalized_value", "status", "period_end"
             ]
             wanted = [c for c in wanted if c in norm_df.columns]
-            st.dataframe(norm_df[wanted], width="stretch")
+            render_downloadable_table(
+                norm_df[wanted],
+                filename=f"{identity.get('batch_code', 'batch')}_normalized_kpis.csv",
+                key="download_dpp_normalized_kpis",
+            )
         else:
             st.info("No normalized KPI found for this passport.")
 
@@ -307,7 +316,11 @@ def render_dpp_passport(passport: dict):
             raw_df = pd.DataFrame(raw_kpis)
             wanted = ["kpi_code", "kpi_name", "value", "period_end"]
             wanted = [c for c in wanted if c in raw_df.columns]
-            st.dataframe(raw_df[wanted], width="stretch")
+            render_downloadable_table(
+                raw_df[wanted],
+                filename=f"{identity.get('batch_code', 'batch')}_raw_kpis.csv",
+                key="download_dpp_raw_kpis",
+            )
         else:
             st.info("No raw KPI linked to this batch/product-scenario combination yet.")
 
@@ -1144,7 +1157,12 @@ show_cols = [
 show_cols = [c for c in show_cols if c in filtered_table_df.columns]
 
 styled_main = filtered_table_df[show_cols].style.map(color_semaforo, subset=["semaforo"])
-st.dataframe(styled_main, width="stretch")
+render_downloadable_table(
+    filtered_table_df[show_cols],
+    filename=f"{sel_scenario}_detailed_kpis.csv",
+    key="download_detailed_kpis",
+    display_data=styled_main,
+)
 st.caption(f"Rows shown: {len(filtered_table_df)} KPI base items.")
 
 if restrictive_filters:
@@ -1220,10 +1238,19 @@ if detailed_cmp.empty:
     st.info("No normalized comparison data available for the selected filters.")
 else:
     st.markdown("### Summary: improved / worse / same")
-    st.dataframe(summary_cmp, width="stretch")
+    render_downloadable_table(
+        summary_cmp,
+        filename="normalized_comparison_summary.csv",
+        key="download_comparison_summary_table",
+    )
 
     st.markdown("### Summary by dimension")
-    st.dataframe(by_dim_cmp.sort_values(["scenario", "dimension"]), width="stretch")
+    by_dim_show = by_dim_cmp.sort_values(["scenario", "dimension"])
+    render_downloadable_table(
+        by_dim_show,
+        filename="normalized_comparison_by_dimension.csv",
+        key="download_comparison_dimension_table",
+    )
 
     st.markdown("### Detailed KPI effects (normalized)")
     det_show = detailed_cmp[
@@ -1233,7 +1260,11 @@ else:
             "reference_semaforo", "scenario_semaforo", "effect"
         ]
     ].sort_values(["scenario", "dimension", "kpi_code"])
-    st.dataframe(det_show, width="stretch")
+    render_downloadable_table(
+        det_show,
+        filename="normalized_comparison_detail.csv",
+        key="download_comparison_detail_table",
+    )
 
     if compare_scenarios:
         st.markdown("### Top improvers / worsenings")
@@ -1248,17 +1279,21 @@ else:
         with col_a:
             st.write("**Top improvements**")
             top_imp = focus_df.sort_values("delta_pts", ascending=False).head(10)
-            st.dataframe(
-                top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
-                width="stretch",
+            top_imp_show = top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]]
+            render_downloadable_table(
+                top_imp_show,
+                filename=f"{focus_scenario}_top_improvements.csv",
+                key="download_top_improvements",
             )
 
         with col_b:
             st.write("**Top worsenings**")
             top_wrs = focus_df.sort_values("delta_pts", ascending=True).head(10)
-            st.dataframe(
-                top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
-                width="stretch",
+            top_wrs_show = top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]]
+            render_downloadable_table(
+                top_wrs_show,
+                filename=f"{focus_scenario}_top_worsenings.csv",
+                key="download_top_worsenings",
             )
 
     st.markdown("### Traffic-light distribution by scenario")
@@ -1284,7 +1319,11 @@ else:
             ["scenario_code", "Green", "Amber", "Red", "Need BASE", "Missing"]
         ].sort_values("scenario_code")
 
-        st.dataframe(traffic_df, width="stretch")
+        render_downloadable_table(
+            traffic_df,
+            filename="traffic_light_distribution.csv",
+            key="download_traffic_distribution",
+        )
 
     st.download_button(
         "📥 Download normalized comparison summary (CSV)",
@@ -1362,7 +1401,11 @@ else:
             "SUSTAIN_INDEX_GEOM", "SUSTAIN_INDEX_ARITH"
         ]
     ].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
-    st.dataframe(dim_show, width="stretch")
+    render_downloadable_table(
+        dim_show,
+        filename="dimension_indices_by_scenario.csv",
+        key="download_dimension_indices",
+    )
 
     profile_long = dim_show.melt(
         id_vars="scenario_code",
@@ -1449,7 +1492,11 @@ else:
         st.plotly_chart(arith_fig, width="stretch", config={"displaylogo": False})
 
         with st.expander("Show sensitivity table"):
-            st.dataframe(sens_df, width="stretch")
+            render_downloadable_table(
+                sens_df,
+                filename=f"{sel_scenario}_sensitivity_analysis.csv",
+                key="download_sensitivity_table",
+            )
 
     st.markdown("### MCDA (normalized KPI scores)")
     st.caption(
@@ -1476,7 +1523,11 @@ else:
             mcda_df["Rank_TOPSIS"] = mcda_df["TOPSIS_score"].rank(ascending=False, method="dense")
         mcda_df = mcda_df.sort_values(["Rank_WSM", "scenario_code"])
 
-        st.dataframe(mcda_df, width="stretch")
+        render_downloadable_table(
+            mcda_df,
+            filename="mcda_scenario_ranking.csv",
+            key="download_mcda_ranking",
+        )
 
         if "WSM_score" in mcda_df.columns:
             st.write("**WSM ranking**")
