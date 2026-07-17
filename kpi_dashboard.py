@@ -39,6 +39,7 @@ from sustainsc.config import engine, SessionLocal, Base
 from sustainsc.dpp_service import build_dpp_passport, dpp_passport_to_json
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
+from scenario_completion_page import render_scenario_completion_page
 
 
 # -----------------------------------------------------------------------------
@@ -251,7 +252,7 @@ def render_dpp_passport(passport: dict):
                 "transport_leg", "quantity", "unit", "source_system", "comment"
             ]
             wanted = [c for c in wanted if c in events_df.columns]
-            st.dataframe(events_df[wanted], use_container_width=True)
+            st.dataframe(events_df[wanted], width="stretch")
         else:
             st.info("No traceability events found for this batch.")
 
@@ -267,7 +268,7 @@ def render_dpp_passport(passport: dict):
                 "normalized_value", "status", "period_end"
             ]
             wanted = [c for c in wanted if c in norm_df.columns]
-            st.dataframe(norm_df[wanted], use_container_width=True)
+            st.dataframe(norm_df[wanted], width="stretch")
         else:
             st.info("No normalized KPI found for this passport.")
 
@@ -276,7 +277,7 @@ def render_dpp_passport(passport: dict):
             raw_df = pd.DataFrame(raw_kpis)
             wanted = ["kpi_code", "kpi_name", "value", "period_end"]
             wanted = [c for c in wanted if c in raw_df.columns]
-            st.dataframe(raw_df[wanted], use_container_width=True)
+            st.dataframe(raw_df[wanted], width="stretch")
         else:
             st.info("No raw KPI linked to this batch/product-scenario combination yet.")
 
@@ -808,6 +809,27 @@ if not boot_ok:
 
 st.success("✅ Database ready")
 
+def import_completed_mrv(result):
+    """Persist a validated completion result and refresh every KPI output."""
+    completed = normalize_measurements_upload(result.software_upload)
+    written, imported_codes = write_measurements_to_db(
+        completed,
+        replace_uploaded_scenarios=True,
+    )
+    run_full_pipeline(debug_missing=False)
+    st.cache_data.clear()
+    st.success(
+        f"Imported {written} measurements for {len(imported_codes)} scenario(s): "
+        + ", ".join(imported_codes)
+    )
+
+
+with st.expander("Complete and import MRV scenario workbook", expanded=False):
+    render_scenario_completion_page(
+        config_dir=Path(__file__).resolve().parent / "config",
+        on_commit=import_completed_mrv,
+    )
+
 st.markdown("## DPP-ready passport demo")
 st.caption("Minimal prototype view for batch-level traceability and machine-readable passport export.")
 
@@ -875,7 +897,7 @@ with st.sidebar.expander("Import measurements (CSV)", expanded=False):
         try:
             preview_df = pd.read_csv(uploaded_measurements)
             st.write("Preview (first 10 rows):")
-            st.dataframe(preview_df.head(10), use_container_width=True)
+            st.dataframe(preview_df.head(10), width="stretch")
             uploaded_measurements.seek(0)
         except Exception as e:
             st.error(f"Could not preview CSV: {e}")
@@ -1017,7 +1039,7 @@ show_cols = [
 show_cols = [c for c in show_cols if c in raw_plus.columns]
 
 styled_main = raw_plus[show_cols].style.map(color_semaforo, subset=["semaforo"])
-st.dataframe(styled_main, use_container_width=True)
+st.dataframe(styled_main, width="stretch")
 st.caption(f"Rows shown: {len(raw_plus)} KPI base items.")
 
 # -----------------------------------------------------------------------------
@@ -1068,10 +1090,10 @@ if detailed_cmp.empty:
     st.info("No normalized comparison data available for the selected filters.")
 else:
     st.markdown("### Summary: improved / worse / same")
-    st.dataframe(summary_cmp, use_container_width=True)
+    st.dataframe(summary_cmp, width="stretch")
 
     st.markdown("### Summary by dimension")
-    st.dataframe(by_dim_cmp.sort_values(["scenario", "dimension"]), use_container_width=True)
+    st.dataframe(by_dim_cmp.sort_values(["scenario", "dimension"]), width="stretch")
 
     st.markdown("### Detailed KPI effects (normalized)")
     det_show = detailed_cmp[
@@ -1081,7 +1103,7 @@ else:
             "reference_semaforo", "scenario_semaforo", "effect"
         ]
     ].sort_values(["scenario", "dimension", "kpi_code"])
-    st.dataframe(det_show, use_container_width=True)
+    st.dataframe(det_show, width="stretch")
 
     if compare_scenarios:
         st.markdown("### Top improvers / worsenings")
@@ -1098,7 +1120,7 @@ else:
             top_imp = focus_df.sort_values("delta_pts", ascending=False).head(10)
             st.dataframe(
                 top_imp[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
-                use_container_width=True,
+                width="stretch",
             )
 
         with col_b:
@@ -1106,7 +1128,7 @@ else:
             top_wrs = focus_df.sort_values("delta_pts", ascending=True).head(10)
             st.dataframe(
                 top_wrs[["kpi_code", "kpi_name", "dimension", "delta_pts", "effect"]],
-                use_container_width=True,
+                width="stretch",
             )
 
     st.markdown("### Traffic-light distribution by scenario")
@@ -1132,7 +1154,7 @@ else:
             ["scenario_code", "Green", "Amber", "Red", "Need BASE", "Missing"]
         ].sort_values("scenario_code")
 
-        st.dataframe(traffic_df, use_container_width=True)
+        st.dataframe(traffic_df, width="stretch")
 
     st.download_button(
         "📥 Download normalized comparison summary (CSV)",
@@ -1207,7 +1229,7 @@ else:
             "SUSTAIN_INDEX_GEOM", "SUSTAIN_INDEX_ARITH"
         ]
     ].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
-    st.dataframe(dim_show, use_container_width=True)
+    st.dataframe(dim_show, width="stretch")
 
     st.markdown("### Corrected Sustain Index ranking")
     st.bar_chart(dim_show.set_index("scenario_code")["SUSTAIN_INDEX_GEOM"])
@@ -1225,7 +1247,7 @@ else:
         st.line_chart(arith_chart)
 
         with st.expander("Show sensitivity table"):
-            st.dataframe(sens_df, use_container_width=True)
+            st.dataframe(sens_df, width="stretch")
 
     st.markdown("### MCDA (normalized KPI scores)")
     st.caption(
@@ -1252,7 +1274,7 @@ else:
             mcda_df["Rank_TOPSIS"] = mcda_df["TOPSIS_score"].rank(ascending=False, method="dense")
         mcda_df = mcda_df.sort_values(["Rank_WSM", "scenario_code"])
 
-        st.dataframe(mcda_df, use_container_width=True)
+        st.dataframe(mcda_df, width="stretch")
 
         if "WSM_score" in mcda_df.columns:
             st.write("**WSM ranking**")

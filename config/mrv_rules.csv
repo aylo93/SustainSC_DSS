@@ -1,0 +1,57 @@
+rule_id,target_variable,rule_level,operation,source_1,source_2,source_3,parameter,output_unit,rule_status,formula_description,scientific_note
+MRV_R001,analytics_supported_decisions,L2,RATIO_PCT,decisions_supported_by_analytics,decisions_total,,,%,ACTIVE,Analytics-supported decisions / total decisions × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R002,average_lead_time,L2,RATIO_DIV24,total_delivery_time_hours,number_of_deliveries,,,days,ACTIVE,Total delivery time / deliveries / 24.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R003,average_lead_time_days,L2,ALIAS,average_lead_time,,,,days,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R004,circularity_ratio,L2,RATIO_PCT,material_circular_t,material_total_t,,,%,ACTIVE,Circular material / total material × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R005,community_incidents_total,L2,SUM,community_incidents_count,substantiated_complaints_count,,,count,ACTIVE,Incidents plus substantiated complaints.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R006,cost_per_fu,L2,RATIO,operating_cost_eur,output_qty_fu,,,EUR/FU,ACTIVE,Operating cost / functional-unit output.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R007,customer_acceptance_index,L2,AVERAGE3_PCT,sustainable_sales_share,customer_survey_score,contract_renewal_rate,,index(0-100),ACTIVE,Mean of the three acceptance proxies × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R008,data_quality_index,L2,AVERAGE3_PCT,data_completeness,data_consistency,data_accuracy,,index(0-100),ACTIVE,Mean data-quality components × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R009,decisions_supported_by_analytics,L2,ALIAS,decisions_supported,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R010,deliveries_total,L2,ALIAS,orders_total,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R011,diesel_liters,L2,DIVIDE_CONSTANT,diesel_kwh,,,10.7,L,ACTIVE,Diesel kWh divided by the configured conversion proxy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R012,digital_processes_count,L2,ALIAS,digital_processes,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R013,digitalization_rate,L2,RATIO_PCT,digital_processes,core_processes_total,,,%,ACTIVE,Digitalized processes / core processes × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R014,dpp_coverage,L2,RATIO_PCT,dpp_valid_volume,shipped_volume_total,,,%,ACTIVE,Valid DPP volume / shipped volume × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R015,dpp_valid_volume,L2,MIN2,dpp_volume,shipped_volume_total,,,FU,ACTIVE,DPP-valid volume capped at shipped volume.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R016,electricity_cost_eur,L2,MULTIPLY_CONSTANT,electricity_kwh,,,0.4,EUR,ACTIVE,Electricity kWh multiplied by the configured cost proxy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R017,employees_total,L2,ALIAS,employees_avg,,,,count,ACTIVE,Compatibility denominator alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R018,employees_with_health_checks,L2,ALIAS,employees_health_checks,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R019,energy_cost_share,L2,SUM_RATIO_PCT,electricity_cost_eur,fuel_cost_eur,operating_cost_eur,,%,ACTIVE,(Electricity + fuel cost) / operating cost × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R020,energy_intensity_fu,L2,RATIO,total_energy_kwh,output_qty_fu,,,kWh/FU,ACTIVE,Total energy / output.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R021,fuel_cost_eur,L2,MULTIPLY_CONSTANT,diesel_kwh,,,1.2,EUR,ACTIVE,Diesel kWh multiplied by the configured fuel-cost proxy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R022,fuel_liters,L2,ALIAS,diesel_liters,,,,L,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R023,fulfilled_orders,L2,ALIAS,orders_fulfilled,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R024,ghg_intensity_fu,L2,RATIO_X1000,ghg_total_s1s2,output_qty_fu,,,kgCO2e/FU,ACTIVE,tCO2e converted to kgCO2e per FU.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R025,health_checks_coverage,L2,RATIO_PCT,employees_with_health_checks,employees_total,,,%,ACTIVE,Health checks / employees × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R026,iot_asset_connectivity,L2,RATIO_PCT,assets_connected,assets_total,,,%,ACTIVE,Connected assets / total assets × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R027,lead_time_days,L2,ALIAS,average_lead_time_days,,,,days,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R028,logistics_cost_per_tkm,L2,RATIO,logistics_cost_eur,transport_work_tkm,,,EUR/tkm,ACTIVE,Logistics cost / transport work.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R029,ltifr,L2,RATIO_X1M,lti_count,hours_worked_h,,,LTIs/1e6h,ACTIVE,"Lost-time injuries / hours worked × 1,000,000.",Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R030,maintenance_cost_per_hour,L2,RATIO,maintenance_cost_eur,operating_hours_h,,,EUR/h,ACTIVE,Maintenance cost / operating hour.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R031,mrv_coverage,L2,RATIO_PCT,mrv_points_active_valid,mrv_points_required,,,%,ACTIVE,Valid active MRV points / required points × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R032,mrv_points_active_valid,L2,MIN2,mrv_points_active,mrv_points_required,,,count,ACTIVE,Active MRV points capped at required points.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R033,number_of_shipments,L2,ALIAS,number_of_deliveries,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R034,oee,L2,PRODUCT3_PCT,oee_availability,oee_performance,oee_quality,,%,ACTIVE,Availability × performance × quality × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R035,on_time_orders,L2,ALIAS,orders_delivered_on_time,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R036,orders_on_time,L2,ALIAS,orders_delivered_on_time,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R037,ot_it_integration,L2,ALIAS,ot_it_integration_score,,,,index(1-5),ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R038,processes_digital,L2,ALIAS,digital_processes,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R039,renewable_energy_share,L2,RATIO_PCT,renewable_energy_kwh,electricity_kwh,,,%,ACTIVE,Renewable electricity / electricity × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R040,rosi,L2,ROSI_PCT,incremental_benefits_eur,investment_cost_eur,,,%,ACTIVE,(Incremental benefits − investment cost) / investment cost × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R041,service_level,L2,RATIO_PCT,orders_fulfilled,orders_total,,,%,ACTIVE,Fulfilled orders / total orders × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R042,shipments_total,L2,ALIAS,number_of_shipments,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R043,shipped_volume,L2,ALIAS,shipped_volume_total,,,,t,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R044,suggestions_per_employee,L2,RATIO,suggestions_count,employees_avg,,,sugg/employee,ACTIVE,Suggestions / average employees.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R045,total_energy,L2,SUM,electricity_kwh,diesel_kwh,,,kWh,ACTIVE,Electricity plus diesel energy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R046,total_energy_consumption_kwh,L2,ALIAS,total_energy,,,,kWh,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R047,total_energy_kwh,L2,ALIAS,total_energy,,,,kWh,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R048,total_lead_time_days,L2,PRODUCT,average_lead_time_days,number_of_deliveries,,,days,ACTIVE,Average lead time × deliveries.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R049,total_orders,L2,ALIAS,orders_total,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R050,total_processes,L2,ALIAS,core_processes_total,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R051,training_hours_per_employee,L2,RATIO,training_hours_h,employees_avg,,,h/employee,ACTIVE,Training hours / average employees.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R052,transport_emissions_tco2e,L2,ALIAS,transport_ghg_tco2e,,,,tCO2e,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R053,transport_ghg_intensity_fu,L2,RATIO_X1000,transport_ghg_tco2e,output_qty_fu,,,kgCO2e/FU,ACTIVE,Transport tCO2e converted to kgCO2e per FU.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R054,waste_generation_intensity_fu,L2,RATIO,waste_generated_t,output_qty_fu,,,t/FU,ACTIVE,Waste / output.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R055,waste_recovery_rate,L2,RATIO_PCT,waste_recovered_t,waste_generated_t,,,%,ACTIVE,Recovered waste / generated waste × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R056,water_intensity_fu,L2,RATIO,water_withdrawn_m3,output_qty_fu,,,m3/FU,ACTIVE,Water / output.,Versioned MRV-layer rule; official KPI computation remains in the DSS.

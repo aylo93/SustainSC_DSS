@@ -1,0 +1,188 @@
+key,strategy_code,variable_group,influence_status,permitted_rules,priority,scientific_interpretation
+BASE|Circularity,BASE,Circularity,Retain_BASE,L6,10,Reference configuration.
+BASE|Context / denominator,BASE,Context / denominator,Retain_BASE,L6,10,Reference configuration.
+BASE|Economic,BASE,Economic,Retain_BASE,L6,10,Reference configuration.
+BASE|Energy,BASE,Energy,Retain_BASE,L6,10,Reference configuration.
+BASE|GHG,BASE,GHG,Retain_BASE,L6,10,Reference configuration.
+BASE|Logistics,BASE,Logistics,Retain_BASE,L6,10,Reference configuration.
+BASE|Operations,BASE,Operations,Retain_BASE,L6,10,Reference configuration.
+BASE|Other,BASE,Other,Retain_BASE,L6,10,Reference configuration.
+BASE|Social,BASE,Social,Retain_BASE,L6,10,Reference configuration.
+BASE|Technological,BASE,Technological,Retain_BASE,L6,10,Reference configuration.
+BASE|Water,BASE,Water,Retain_BASE,L6,10,Reference configuration.
+LEAN_GREEN|Circularity,LEAN_GREEN,Circularity,Direct_or_scaled,L1-L3,45,Process waste/material improvement.
+LEAN_GREEN|Context / denominator,LEAN_GREEN,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+LEAN_GREEN|Economic,LEAN_GREEN,Economic,Retain_BASE,L6,10,No defensible causal path is encoded.
+LEAN_GREEN|Energy,LEAN_GREEN,Energy,Direct_or_scaled,L1-L3,50,VSM-C or measured process improvement.
+LEAN_GREEN|GHG,LEAN_GREEN,GHG,Direct_or_derived,L1-L2,45,Use quantified carbon evidence or linked MRV calculation.
+LEAN_GREEN|Logistics,LEAN_GREEN,Logistics,Direct_or_bridge,L1-L4,40,Only when dispatch or process-flow evidence exists.
+LEAN_GREEN|Operations,LEAN_GREEN,Operations,Direct,L1,60,Direct process/OEE evidence.
+LEAN_GREEN|Other,LEAN_GREEN,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+LEAN_GREEN|Social,LEAN_GREEN,Social,Assumed,L5,20,"Only limited, approved participation effects."
+LEAN_GREEN|Technological,LEAN_GREEN,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+LEAN_GREEN|Water,LEAN_GREEN,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Circularity,ENERGY_TRANSITION,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Context / denominator,ENERGY_TRANSITION,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Economic,ENERGY_TRANSITION,Economic,Conditional,L1-L5,20,Only quantified costs or investments.
+ENERGY_TRANSITION|Energy,ENERGY_TRANSITION,Energy,Direct,L1,60,Energy-policy output or measured value.
+ENERGY_TRANSITION|GHG,ENERGY_TRANSITION,GHG,Direct_or_derived,L1-L2,55,Direct carbon result or factor-based MRV calculation.
+ENERGY_TRANSITION|Logistics,ENERGY_TRANSITION,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Operations,ENERGY_TRANSITION,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Other,ENERGY_TRANSITION,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Social,ENERGY_TRANSITION,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Technological,ENERGY_TRANSITION,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+ENERGY_TRANSITION|Water,ENERGY_TRANSITION,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Circularity,COST_ALLOCATION,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Context / denominator,COST_ALLOCATION,Context / denominator,Direct,L1,50,MILP output quantity when modelled.
+COST_ALLOCATION|Economic,COST_ALLOCATION,Economic,Direct,L1,60,MILP cost output.
+COST_ALLOCATION|Energy,COST_ALLOCATION,Energy,Direct,L1,55,MILP activity/energy output.
+COST_ALLOCATION|GHG,COST_ALLOCATION,GHG,Direct,L1,55,MILP carbon output.
+COST_ALLOCATION|Logistics,COST_ALLOCATION,Logistics,Direct,L1,55,MILP allocation/transport output.
+COST_ALLOCATION|Operations,COST_ALLOCATION,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Other,COST_ALLOCATION,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Social,COST_ALLOCATION,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Technological,COST_ALLOCATION,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+COST_ALLOCATION|Water,COST_ALLOCATION,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Circularity,TRANSPORT_OPT,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Context / denominator,TRANSPORT_OPT,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Economic,TRANSPORT_OPT,Economic,Direct,L1,55,Quantified logistics cost.
+TRANSPORT_OPT|Energy,TRANSPORT_OPT,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|GHG,TRANSPORT_OPT,GHG,Direct,L1,55,Quantified transport emissions.
+TRANSPORT_OPT|Logistics,TRANSPORT_OPT,Logistics,Direct,L1,60,MILP or DES transport output.
+TRANSPORT_OPT|Operations,TRANSPORT_OPT,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Other,TRANSPORT_OPT,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Social,TRANSPORT_OPT,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Technological,TRANSPORT_OPT,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+TRANSPORT_OPT|Water,TRANSPORT_OPT,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+LOGISTICS_REDESIGN|Circularity,LOGISTICS_REDESIGN,Circularity,Scaled,L3,35,Only if volume changes and process intensity is unchanged.
+LOGISTICS_REDESIGN|Context / denominator,LOGISTICS_REDESIGN,Context / denominator,Direct,L1,55,Shipped or delivered volume.
+LOGISTICS_REDESIGN|Economic,LOGISTICS_REDESIGN,Economic,Direct,L1,55,DES logistics cost.
+LOGISTICS_REDESIGN|Energy,LOGISTICS_REDESIGN,Energy,Scaled,L3,35,Only if volume changes and process intensity is unchanged.
+LOGISTICS_REDESIGN|GHG,LOGISTICS_REDESIGN,GHG,Direct_or_bridge,L1-L4,55,DES transport emissions.
+LOGISTICS_REDESIGN|Logistics,LOGISTICS_REDESIGN,Logistics,Direct_or_bridge,L1-L4,60,DES output or documented bridge.
+LOGISTICS_REDESIGN|Operations,LOGISTICS_REDESIGN,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+LOGISTICS_REDESIGN|Other,LOGISTICS_REDESIGN,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+LOGISTICS_REDESIGN|Social,LOGISTICS_REDESIGN,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+LOGISTICS_REDESIGN|Technological,LOGISTICS_REDESIGN,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+LOGISTICS_REDESIGN|Water,LOGISTICS_REDESIGN,Water,Scaled,L3,35,Only if volume changes and process intensity is unchanged.
+MAINTENANCE|Circularity,MAINTENANCE,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+MAINTENANCE|Context / denominator,MAINTENANCE,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+MAINTENANCE|Economic,MAINTENANCE,Economic,Direct,L1,45,Maintenance cost or quantified savings.
+MAINTENANCE|Energy,MAINTENANCE,Energy,Conditional,L1-L2,20,No automatic efficiency benefit.
+MAINTENANCE|GHG,MAINTENANCE,GHG,Conditional,L1-L2,20,No automatic carbon benefit.
+MAINTENANCE|Logistics,MAINTENANCE,Logistics,Direct_or_bridge,L1-L4,45,Only quantified service or lead-time effects.
+MAINTENANCE|Operations,MAINTENANCE,Operations,Direct,L1,60,Maintenance/OEE output.
+MAINTENANCE|Other,MAINTENANCE,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+MAINTENANCE|Social,MAINTENANCE,Social,Conditional,L1-L5,15,Safety effects require evidence.
+MAINTENANCE|Technological,MAINTENANCE,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+MAINTENANCE|Water,MAINTENANCE,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Circularity,CIRCULARITY,Circularity,Direct_or_derived,L1-L2,60,Material and waste flow output.
+CIRCULARITY|Context / denominator,CIRCULARITY,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Economic,CIRCULARITY,Economic,Conditional,L1-L5,20,Only quantified cost effects.
+CIRCULARITY|Energy,CIRCULARITY,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|GHG,CIRCULARITY,GHG,Conditional,L1-L2,20,Only quantified avoided emissions.
+CIRCULARITY|Logistics,CIRCULARITY,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Operations,CIRCULARITY,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Other,CIRCULARITY,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Social,CIRCULARITY,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Technological,CIRCULARITY,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+CIRCULARITY|Water,CIRCULARITY,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Circularity,WATER_EFFICIENCY,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Context / denominator,WATER_EFFICIENCY,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Economic,WATER_EFFICIENCY,Economic,Conditional,L1-L5,20,Only quantified economic effect.
+WATER_EFFICIENCY|Energy,WATER_EFFICIENCY,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|GHG,WATER_EFFICIENCY,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Logistics,WATER_EFFICIENCY,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Operations,WATER_EFFICIENCY,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Other,WATER_EFFICIENCY,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Social,WATER_EFFICIENCY,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Technological,WATER_EFFICIENCY,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+WATER_EFFICIENCY|Water,WATER_EFFICIENCY,Water,Direct,L1,60,Measured or VSM-C water result.
+SOCIAL_PUSH|Circularity,SOCIAL_PUSH,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Context / denominator,SOCIAL_PUSH,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Economic,SOCIAL_PUSH,Economic,Conditional,L1-L5,15,Only program cost or quantified consequence.
+SOCIAL_PUSH|Energy,SOCIAL_PUSH,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|GHG,SOCIAL_PUSH,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Logistics,SOCIAL_PUSH,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Operations,SOCIAL_PUSH,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Other,SOCIAL_PUSH,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Social,SOCIAL_PUSH,Social,Direct_or_assumed,L1-L5,60,Measured value or approved social assumption.
+SOCIAL_PUSH|Technological,SOCIAL_PUSH,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+SOCIAL_PUSH|Water,SOCIAL_PUSH,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Circularity,OHS_IMPROVEMENT,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Context / denominator,OHS_IMPROVEMENT,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Economic,OHS_IMPROVEMENT,Economic,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Energy,OHS_IMPROVEMENT,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|GHG,OHS_IMPROVEMENT,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Logistics,OHS_IMPROVEMENT,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Operations,OHS_IMPROVEMENT,Operations,Conditional,L1-L5,15,Only quantified downtime/reliability effect.
+OHS_IMPROVEMENT|Other,OHS_IMPROVEMENT,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Social,OHS_IMPROVEMENT,Social,Direct_or_assumed,L1-L5,60,Measured or approved OHS evidence.
+OHS_IMPROVEMENT|Technological,OHS_IMPROVEMENT,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+OHS_IMPROVEMENT|Water,OHS_IMPROVEMENT,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Circularity,STAKEHOLDER_ENGAGEMENT,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Context / denominator,STAKEHOLDER_ENGAGEMENT,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Economic,STAKEHOLDER_ENGAGEMENT,Economic,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Energy,STAKEHOLDER_ENGAGEMENT,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|GHG,STAKEHOLDER_ENGAGEMENT,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Logistics,STAKEHOLDER_ENGAGEMENT,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Operations,STAKEHOLDER_ENGAGEMENT,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Other,STAKEHOLDER_ENGAGEMENT,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+STAKEHOLDER_ENGAGEMENT|Social,STAKEHOLDER_ENGAGEMENT,Social,Direct_or_assumed,L1-L5,60,Measured or approved stakeholder evidence.
+STAKEHOLDER_ENGAGEMENT|Technological,STAKEHOLDER_ENGAGEMENT,Technological,Conditional,L1-L5,15,Only explicit transparency/traceability content.
+STAKEHOLDER_ENGAGEMENT|Water,STAKEHOLDER_ENGAGEMENT,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Circularity,MRV_IMPROVEMENT,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Context / denominator,MRV_IMPROVEMENT,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Economic,MRV_IMPROVEMENT,Economic,Conditional,L1-L2,15,Only quantified decision effects.
+MRV_IMPROVEMENT|Energy,MRV_IMPROVEMENT,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|GHG,MRV_IMPROVEMENT,GHG,Conditional,L1-L2,15,Measurement improvement is not physical improvement.
+MRV_IMPROVEMENT|Logistics,MRV_IMPROVEMENT,Logistics,Conditional,L1-L2,15,Only quantified operational effects.
+MRV_IMPROVEMENT|Operations,MRV_IMPROVEMENT,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Other,MRV_IMPROVEMENT,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Social,MRV_IMPROVEMENT,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+MRV_IMPROVEMENT|Technological,MRV_IMPROVEMENT,Technological,Direct,L1,60,MRV and data-quality output.
+MRV_IMPROVEMENT|Water,MRV_IMPROVEMENT,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Circularity,IOT_ANALYTICS,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Context / denominator,IOT_ANALYTICS,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Economic,IOT_ANALYTICS,Economic,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Energy,IOT_ANALYTICS,Energy,Conditional,L1-L4,15,Requires quantified monitoring effect.
+IOT_ANALYTICS|GHG,IOT_ANALYTICS,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Logistics,IOT_ANALYTICS,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Operations,IOT_ANALYTICS,Operations,Conditional,L1-L4,20,Requires predictive-maintenance or monitoring evidence.
+IOT_ANALYTICS|Other,IOT_ANALYTICS,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Social,IOT_ANALYTICS,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+IOT_ANALYTICS|Technological,IOT_ANALYTICS,Technological,Direct,L1,60,Digital/IoT output.
+IOT_ANALYTICS|Water,IOT_ANALYTICS,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Circularity,DPP_TRACEABILITY,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Context / denominator,DPP_TRACEABILITY,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Economic,DPP_TRACEABILITY,Economic,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Energy,DPP_TRACEABILITY,Energy,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|GHG,DPP_TRACEABILITY,GHG,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Logistics,DPP_TRACEABILITY,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Operations,DPP_TRACEABILITY,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Other,DPP_TRACEABILITY,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+DPP_TRACEABILITY|Social,DPP_TRACEABILITY,Social,Conditional,L1-L5,15,Acceptance/trust effect requires evidence.
+DPP_TRACEABILITY|Technological,DPP_TRACEABILITY,Technological,Direct,L1,60,DPP and traceability output.
+DPP_TRACEABILITY|Water,DPP_TRACEABILITY,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Circularity,CARBON_POLICY,Circularity,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Context / denominator,CARBON_POLICY,Context / denominator,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Economic,CARBON_POLICY,Economic,Conditional,L1-L5,20,Only quantified policy cost.
+CARBON_POLICY|Energy,CARBON_POLICY,Energy,Direct,L1,45,Only if the policy changes energy variables.
+CARBON_POLICY|GHG,CARBON_POLICY,GHG,Direct_or_derived,L1-L2,60,Carbon-policy output or factor-based MRV calculation.
+CARBON_POLICY|Logistics,CARBON_POLICY,Logistics,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Operations,CARBON_POLICY,Operations,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Other,CARBON_POLICY,Other,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Social,CARBON_POLICY,Social,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Technological,CARBON_POLICY,Technological,Retain_BASE,L6,10,No defensible causal path is encoded.
+CARBON_POLICY|Water,CARBON_POLICY,Water,Retain_BASE,L6,10,No defensible causal path is encoded.
+INTEGRATED_SSCM|Circularity,INTEGRATED_SSCM,Circularity,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Context / denominator,INTEGRATED_SSCM,Context / denominator,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Economic,INTEGRATED_SSCM,Economic,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Energy,INTEGRATED_SSCM,Energy,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|GHG,INTEGRATED_SSCM,GHG,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Logistics,INTEGRATED_SSCM,Logistics,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Operations,INTEGRATED_SSCM,Operations,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Other,INTEGRATED_SSCM,Other,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Social,INTEGRATED_SSCM,Social,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Technological,INTEGRATED_SSCM,Technological,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.
+INTEGRATED_SSCM|Water,INTEGRATED_SSCM,Water,Conditional,L1-L5,15,The integrated label authorizes no effect by itself; a component strategy must support the variable.

@@ -1,0 +1,135 @@
+variable_name,canonical_unit,variable_group,data_role,common_upload_variable,scenario_presence_count,user_input_allowed,formula_available,formula_type,min_value,max_value,base_example,base_source_system,scientific_note
+analytics_supported_decisions,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,66.66666666666666,v7_cam_causal_alignment,Derived from analytics-supported decisions/total decisions.
+assets_connected,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,250.0,CH7_annual_KPI_alignment_patch,Updated to align Chapter 7 annualized MRV dataset with final KPI/VSM-C reconciled results.
+assets_total,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,500.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+average_lead_time,days,Logistics,DERIVED_MRV,Yes,24,No,Yes,RATIO_DIV24,0.0,,0.354166667,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+average_lead_time_days,days,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,0.354166667,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+circularity_ratio,%,Circularity,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,20.0,v7_cam_causal_alignment,Derived accounting identity: circular/total material.
+community_incidents_count,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,3.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+community_incidents_total,count,Social,DERIVED_MRV,Yes,24,No,Yes,SUM,0.0,,7.0,v7_cam_causal_alignment,Derived from incidents plus substantiated complaints.
+contract_renewal_rate,fraction,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.65,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+core_processes_total,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,24.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+cost_per_fu,EUR/FU,Economic,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,17.3575,v7_cam_causal_alignment,Derived accounting identity: operating_cost/output.
+customer_acceptance_index,index(0-100),Social,DERIVED_MRV,Yes,24,No,Yes,AVERAGE3_PCT,0.0,100.0,55.00000000000001,v7_cam_causal_alignment,Derived from sales/survey/renewal proxy.
+customer_survey_score,fraction,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.55,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+data_accuracy,fraction,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.85,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+data_completeness,fraction,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.92,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+data_consistency,fraction,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.88,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+data_quality_index,index(0-100),Technological,DERIVED_MRV,Yes,24,No,Yes,AVERAGE3_PCT,0.0,100.0,88.33333333333333,v7_cam_causal_alignment,"Derived from completeness, consistency and accuracy."
+decisions_supported,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,40.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+decisions_supported_by_analytics,count,Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,40.0,v6_derived_recalculation,v6 causal-alignment: scenario value set/recomputed to preserve causal consistency with module outputs and DSS KPI formulas.
+decisions_total,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,60.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+deliveries_total,count,Other,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,120.0,Final compatibility alias,Alias for service_level formula.
+demand_qty_total,t,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+des_demand_t,t,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+des_native_lead_time_days,days,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+des_native_service_level_pct,%,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,100.0,,,
+des_transport_cost_eur,EUR,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+diesel_kwh,kWh,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,500000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+diesel_liters,L,Energy,DERIVED_MRV,Yes,24,No,Yes,DIVIDE_CONSTANT,0.0,,46728.97196,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: diesel_liters.
+digital_processes,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,18.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+digital_processes_count,count,Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,18.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+digitalization_rate,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,75.0,v7_cam_causal_alignment,Derived from digital processes/core processes.
+distance_total_km,km,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+dpp_coverage,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,80.0,v7_cam_causal_alignment,Derived from DPP volume/shipped volume.
+dpp_valid_volume,FU,Technological,DERIVED_MRV,Yes,24,No,Yes,MIN2,0.0,,230400.0,v6_base_canonical,v6: valid DPP volume computed as capped coverage times shipped volume.
+dpp_volume,FU,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,230400.0,v6_base_canonical,v6: DPP volume computed as capped coverage times shipped volume.
+electricity_cost_eur,EUR,Energy,DERIVED_MRV,Yes,24,No,Yes,MULTIPLY_CONSTANT,0.0,,400000.0,Derived from MILP workbook,electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_kwh,kWh,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1000000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+employees_avg,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1200.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+employees_health_checks,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,800.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+employees_total,count,Social,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,1200.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+employees_with_health_checks,count,Social,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,800.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+energy_cost_share,%,Energy,DERIVED_MRV,Yes,24,No,Yes,SUM_RATIO_PCT,0.0,100.0,20.004160865460012,v7_cam_causal_alignment,Derived accounting identity: energy cost/operating cost.
+energy_intensity_fu,kWh/FU,Energy,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,5.208333333333333,v7_cam_causal_alignment,Derived accounting identity: total energy/output.
+fuel_cost_eur,EUR,Energy,DERIVED_MRV,Yes,24,No,Yes,MULTIPLY_CONSTANT,0.0,,600000.0,Derived from MILP workbook,diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_liters,L,Energy,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,46728.97196,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: fuel_liters.
+fulfilled_orders,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,96.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: fulfilled_orders.
+ghg_intensity_fu,kgCO2e/FU,GHG,DERIVED_MRV,Yes,24,No,Yes,RATIO_X1000,,,2.602430555555556,CH7_annual_KPI_alignment_patch,Updated to align Chapter 7 annualized MRV dataset with final KPI/VSM-C reconciled results.
+ghg_total_s1s2,tCO2e,GHG,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,749.5,CH7_annual_KPI_alignment_patch,Updated to align Chapter 7 annualized MRV dataset with final KPI/VSM-C reconciled results.
+health_checks_coverage,%,Social,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,66.66666666666666,v7_cam_causal_alignment,Derived from employees with health checks/total employees.
+hours_worked_h,h,Other,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,2500000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+incremental_benefits_eur,EUR,Economic,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,240000.0,Observed / baseline,
+investment_cost_eur,EUR,Economic,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1200000.0,Observed / baseline,
+iot_asset_connectivity,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,50.0,CH7_annual_KPI_alignment_patch,Updated to align Chapter 7 annualized MRV dataset with final KPI/VSM-C reconciled results.
+lead_time_days,days,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,0.354166667,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+logistics_cost_eur,EUR,Economic,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,898560.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+logistics_cost_per_tkm,EUR/tkm,Economic,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,0.02,v7_cam_causal_alignment,Derived accounting identity: logistics cost/transport work.
+lti_count,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,6.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+ltifr,LTIs/1e6h,Social,DERIVED_MRV,Yes,24,No,Yes,RATIO_X1M,,,2.4,v7_cam_causal_alignment,Derived from LTI count and hours worked.
+maintenance_cost_eur,EUR,Economic,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,350000.0,Observed / baseline,
+maintenance_cost_per_hour,EUR/h,Economic,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,7.0,v7_cam_causal_alignment,Derived accounting identity: maintenance cost/operating hour.
+material_circular_t,t,Circularity,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,60000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+material_total_t,t,Circularity,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,300000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+milp_location_based_co2_t,tCO2e,MILP native,NATIVE_MODEL_OUTPUT,No,5,No,No,,0.0,,950.4,v6_derived_recalculation,v6: location-based CO2 retained for comparison with MILP/VSM-C reporting.
+model_co2e_per_t,tCO2e/t,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+model_delivery_tpy,tpy,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+model_mrv_coverage_index,index,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+model_renewable_share,fraction,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,1.0,,,
+model_total_ghg_tco2e,tCO2e,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+model_waste_recovery_rate,fraction,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,1.0,,,
+model_waste_to_disposal_t,t,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,0.0,,,,
+mrv_coverage,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,70.0,v7_cam_causal_alignment,Derived from active valid MRV points/required points.
+mrv_points_active,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,140.0,v6_base_canonical,v6: active MRV points derived from capped MRV coverage.
+mrv_points_active_valid,count,Technological,DERIVED_MRV,Yes,24,No,Yes,MIN2,0.0,,140.0,v6_base_canonical,v6: active valid MRV points derived from capped MRV coverage.
+mrv_points_required,count,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,200.0,v6_base_canonical,v6: MRV required points retained as denominator for coverage.
+number_of_deliveries,count,Other,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,60.0,Final DSS measurement integration,Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+number_of_shipments,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,60.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: number_of_shipments.
+oee,%,Operations,DERIVED_MRV,Yes,24,No,Yes,PRODUCT3_PCT,0.0,100.0,75.078,v6_derived_recalculation,v6 causal-alignment: scenario value set/recomputed to preserve causal consistency with module outputs and DSS KPI formulas.
+oee_availability,fraction,Operations,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.86,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+oee_performance,fraction,Operations,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.9,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+oee_quality,fraction,Operations,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.97,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+on_time_orders,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,96.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: on_time_orders.
+operating_cost_eur,EUR,Economic,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,4998960.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+operating_hours_h,h,Operations,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,50000.0,Observed / baseline,
+orders_delivered_on_time,count,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,96.0,Final DSS measurement integration,Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_fulfilled,count,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,96.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: orders_fulfilled.
+orders_on_time,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,96.0,Final compatibility alias,Alias for service_level formula.
+orders_total,count,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,120.0,Final DSS measurement integration,Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+ot_it_integration,index(1-5),Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,,,3.5,v6_derived_recalculation,v6 causal-alignment: scenario value set/recomputed to preserve causal consistency with module outputs and DSS KPI formulas.
+ot_it_integration_score,score,Technological,PRIMARY_MRV,Yes,24,Yes,No,,,,3.5,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+output_qty_fu,FU,Context / denominator,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,288000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+processes_digital,count,Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,18.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+renewable_energy_kwh,kWh,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,250000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+renewable_energy_share,%,Energy,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,25.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+rosi,%,Economic,DERIVED_MRV,Yes,24,No,Yes,ROSI_PCT,-1000.0,1000.0,-80.0,v6_derived_recalculation,v6 causal-alignment: scenario value set/recomputed to preserve causal consistency with module outputs and DSS KPI formulas.
+sd_delivery_tpy,t/year,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+sd_mrv_coverage_index,index,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+sd_total_tco2e_2035,tCO2e/year,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+sd_waste_to_disposal_t,t/year,SD native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
+service_level,%,Logistics,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,80.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+shipments_total,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,60.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: shipments_total.
+shipped_volume,t,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,288000.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: shipped_volume.
+shipped_volume_total,FU,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,288000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+substantiated_complaints_count,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,4.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+suggestions_count,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1200.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+suggestions_per_employee,sugg/employee,Social,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,1.0,v7_cam_causal_alignment,Derived from suggestions and average employees.
+sustainable_sales_share,fraction,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,1.0,0.45,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+total_delivery_time_hours,h,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,510.0,Final DSS measurement integration,Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+total_energy,kWh,Energy,DERIVED_MRV,Yes,24,No,Yes,SUM,0.0,,1500000.0,v7_cam_causal_alignment,Derived accounting identity.
+total_energy_consumption_kwh,kWh,Energy,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,1500000.0,v7_cam_causal_alignment,Derived accounting identity.
+total_energy_kwh,kWh,Energy,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,1500000.0,v7_cam_causal_alignment,Derived accounting identity.
+total_lead_time_days,days,Logistics,DERIVED_MRV,Yes,24,No,Yes,PRODUCT,0.0,,21.25,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: total_lead_time_days.
+total_orders,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,120.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: total_orders.
+total_processes,count,Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,24.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+training_hours_h,h,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,24000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+training_hours_per_employee,h/employee,Social,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,20.0,v7_cam_causal_alignment,Derived from training hours and average employees.
+transport_emissions_tco2e,tCO2e,GHG,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,133.4,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+transport_ghg_intensity_fu,kgCO2e/FU,GHG,DERIVED_MRV,Yes,24,No,Yes,RATIO_X1000,,,0.4631944444444444,v7_cam_causal_alignment,Derived accounting identity: transport emissions/output.
+transport_ghg_tco2e,tCO2e,GHG,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,133.4,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+transport_ghg_total_tco2e,tCO2e,GHG,NATIVE_MODEL_OUTPUT,No,11,No,No,,0.0,,133.4,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+transport_work_tkm,tkm,Logistics,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,44928000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+vsmc_annual_output_ton,t,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,0.0,,288000.0,VSM-C DSS-alignment patch,Annualized VSM-C output aligned to DSS output_qty_fu.
+vsmc_co2e_per_fu_kg,kgCO2e/FU,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,,,2.602430555555556,VSM-C DSS-alignment patch,DSS-aligned VSM-C emissions intensity.
+vsmc_location_based_co2e_t,tCO2e,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,0.0,,950.4,VSM-C DSS-alignment patch,Location-based reference using alternative grid factor; not used for KPI ranking.
+vsmc_pce_pct,%,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,0.0,100.0,45.0,VSM-C DSS-alignment patch,VSM-C process cycle efficiency.
+vsmc_process_lead_time_min,min,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,,,400.0,VSM-C DSS-alignment patch,VAT + NVAT for canonical process sequence.
+vsmc_step_co2e_dss_t,tCO2e,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,0.0,,749.5000000000001,VSM-C DSS-alignment patch,DSS-aligned Scope 1-2 VSM-C emissions reconciled with ghg_total_s1s2.
+vsmc_total_nvat_min,min,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,,,220.0,VSM-C DSS-alignment patch,Sum of VSM-C step waiting times for canonical process sequence.
+vsmc_total_vat_min,min,VSM-C native,NATIVE_MODEL_OUTPUT,No,2,No,No,,,,180.0,VSM-C DSS-alignment patch,Sum of VSM-C step cycle times for canonical process sequence.
+waste_generated_t,t,Circularity,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,20000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+waste_generation_intensity_fu,t/FU,Circularity,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,0.069444444,v7_cam_causal_alignment,Derived accounting identity: waste/output.
+waste_recovered_t,t,Circularity,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,8000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
+waste_recovery_rate,%,Circularity,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,40.0,v7_cam_causal_alignment,Derived accounting identity: recovered/generated.
+water_intensity_fu,m3/FU,Water,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,0.2083333333333333,v7_cam_causal_alignment,Derived accounting identity: water/output.
+water_withdrawn_m3,m3,Water,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,60000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.

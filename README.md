@@ -1,32 +1,60 @@
-# SustainSC DSS – KPI Dashboard (Prototype)
+# SustainSC DSS
 
-This repository contains a prototype Decision Support System (DSS) for Sustainable Supply Chain Management (SustainSCM).  
-It includes:
-- A SQLite database schema (SQLAlchemy)
-- Example datasets (CSV)
-- A KPI computation engine (26 core KPIs)
-- A Streamlit dashboard with filters (Scenario / Dimension / Decision level / Flow) and scenario comparison.
+Decision Support System for Sustainable Supply Chain Management. The Streamlit
+application combines MRV scenario completion, KPI calculation and normalization,
+composite sustainability indices, MCDA comparison, traceability and DPP export.
 
-## Project structure
+## Run locally
 
-- `sustainsc/` → Python package (models, KPI engine, dashboard utilities)
-- `data/` → Example CSV datasets
-  - `scenarios.csv`
-  - `emission_factors.csv`
-  - `cost_factors.csv`
-  - `kpis.csv`
-  - `measurements.csv`
-- `create_db.py` → creates the SQLite schema
-- `load_example_data.py` → loads CSV data into the DB
-- `sustainsc/kpi_engine.py` → computes KPI results and stores them in DB
-- `kpi_dashboard.py` → Streamlit dashboard
-
-## Requirements
-
-- Python 3.10+ (recommended)
-- Dependencies in `requirements.txt`
-
-Install dependencies:
+Requires Python 3.10 or newer.
 
 ```bash
 pip install -r requirements.txt
+streamlit run kpi_dashboard.py
+```
+
+The application creates and seeds its SQLite database automatically when needed.
+Set `SUSTAINSC_DB_URL` to use a different SQLAlchemy database URL.
+
+## Main structure
+
+- `kpi_dashboard.py`: Streamlit entry point.
+- `scenario_completion_engine.py`: auditable causal MRV completion engine.
+- `batch_completion_engine.py`: multi-scenario workbook orchestrator.
+- `scenario_completion_page.py`: workbook validation and import UI.
+- `config/`: MRV dictionary, strategy scope and completion rules.
+- `sustainsc/`: database models and KPI, normalization and DPP services.
+- `data/`: demo and reference datasets loaded by the application.
+
+## MRV workbook import
+
+Open **Complete and import MRV scenario workbook** in the application, upload an
+`.xlsx` workbook, review QA results and import it. Critical QA failures disable
+the import. A successful import replaces measurements for the included scenarios
+and recalculates the complete KPI pipeline.
+
+The expected workbook sheets are:
+
+- `01_SCENARIOS`
+- `02_DIRECT_MRV_INPUT`
+- `03_NATIVE_OUTPUTS`
+- `04_APPROVED_ASSUMPTIONS`
+- `05_REFERENCE_BASE`
+- `11_EXPECTED_CH7_MRV`
+
+For command-line batch processing:
+
+```bash
+python run_cuba_batch.py path/to/workbook.xlsx --output-dir generated
+```
+
+## Data maintenance
+
+- `create_db.py`: ensure the schema exists.
+- `load_example_data.py`: reload the core demo catalog and measurements.
+- `seed_dpp_demo.py`: seed the traceability/DPP demo.
+- `load_measurements_only.py`: reload only measurements.
+- `load_product_batches.py` and `load_traceability_events.py`: import DPP data.
+
+Generated databases, Python caches, local editor settings and batch output files
+are excluded from version control.

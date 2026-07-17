@@ -1,0 +1,11 @@
+strategy_code,variable_name,influence_status,permitted_rules,priority,scientific_justification,active
+ENERGY_TRANSITION,renewable_energy_kwh,Direct,L1,70,Direct strategy lever.,Yes
+ENERGY_TRANSITION,renewable_energy_share,Derived,L2,65,Recalculate from energy values unless a direct approved value exists.,Yes
+ENERGY_TRANSITION,training_hours_h,Retain_BASE,L6,80,No social effect without a separate social strategy.,Yes
+SOCIAL_PUSH,electricity_kwh,Retain_BASE,L6,80,Prevents non-causal physical improvements.,Yes
+SOCIAL_PUSH,diesel_kwh,Retain_BASE,L6,80,Prevents non-causal physical improvements.,Yes
+SOCIAL_PUSH,ghg_total_s1s2,Retain_BASE,L6,80,Prevents non-causal carbon improvements.,Yes
+COST_ALLOCATION,employees_health_checks,Retain_BASE,L6,80,MILP does not modify health coverage.,Yes
+CIRCULARITY,service_level,Retain_BASE,L6,80,Circularity does not change service without a modelled path.,Yes
+MRV_IMPROVEMENT,electricity_kwh,Retain_BASE,L6,80,MRV maturity does not itself reduce electricity.,Yes
+INTEGRATED_SSCM,*,Conditional,L1-L5,100,"Cuba case-study reconstruction fallback for approved Chapter 7 evidence. Do not use this priority for prospective scenarios.",Yes

@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .vscode/
 dpp_demo_batch_001.json
+generated/
+.streamlit/secrets.toml
