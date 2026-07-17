@@ -100,3 +100,16 @@ For tests:
 pip install -r requirements-dev.txt
 python -m pytest -q
 ```
+
+## Streamlit workflow
+
+Data are imported only from the initial **Data Import** view. The MRV workbook
+is required; batch and traceability CSV files are optional and are processed in
+that same view. After import, targeted dashboard caches are invalidated and the
+application reruns against committed database records.
+
+The sidebar filters apply only to the detailed KPI table. When a restrictive
+dimension, decision-level or flow filter is active, integrated indices,
+sensitivity and ranking sections are skipped because they require the complete
+dataset. DPP and traceability appear after the integrated analyses and are
+generated directly from the currently imported batch records.

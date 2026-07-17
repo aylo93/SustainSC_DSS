@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import tempfile
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -43,6 +45,7 @@ from sustainsc.dpp_service import (
 )
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
+from sustainsc.dashboard_workflow import assess_analysis_readiness, has_restrictive_filters
 from scenario_completion_page import render_scenario_completion_page
 
 
@@ -300,6 +303,79 @@ def render_dpp_passport(passport: dict):
     with tab4:
         st.markdown("### Raw passport JSON")
         st.json(passport)
+
+
+def render_dpp_section() -> None:
+    """Render DPP and traceability after the integrated dashboard analyses."""
+
+    st.markdown("## Digital Product Passport and Traceability")
+    st.caption(
+        "DPP-ready batch-level prototype. Core identity and traceability are "
+        "available independently of analytical KPI enrichment."
+    )
+    session = SessionLocal()
+    try:
+        batches = (
+            session.query(ProductBatch)
+            .order_by(ProductBatch.batch_code)
+            .all()
+        )
+        batch_options = [batch.batch_code for batch in batches]
+        scenario_by_batch = {batch.batch_code: batch.scenario_id for batch in batches}
+    finally:
+        session.close()
+
+    if not batch_options:
+        st.info(
+            "No product batches or traceability events were imported with the active dataset."
+        )
+        return
+
+    batch_code = st.selectbox("Batch code", batch_options, key="dpp_batch_code")
+    st.session_state["selected_batch"] = batch_code
+    include_raw = st.checkbox(
+        "Include product-scenario raw KPI results", value=True, key="dpp_include_raw"
+    )
+    include_normalized = st.checkbox(
+        "Include scenario decision-support results",
+        value=True,
+        key="dpp_include_normalized",
+    )
+
+    session = SessionLocal()
+    try:
+        passport = build_dpp_passport(
+            session,
+            batch_code,
+            include_raw_kpis=include_raw,
+            include_normalized_kpis=include_normalized,
+        )
+        scenario_id = scenario_by_batch.get(batch_code)
+        dpp_summary = (
+            summarize_dpp_mrv(session, scenario_id) if scenario_id is not None else None
+        )
+    finally:
+        session.close()
+
+    render_dpp_passport(passport)
+    st.download_button(
+        "Download DPP JSON",
+        dpp_passport_to_json(passport).encode("utf-8"),
+        file_name=f"{batch_code}_dpp.json",
+        mime="application/json",
+    )
+
+    if dpp_summary is not None:
+        st.markdown("### Scenario-level DPP MRV summary")
+        s1, s2, s3, s4, s5 = st.columns(5)
+        s1.metric("Total batches", int(dpp_summary["dpp_batches_total"]))
+        s2.metric("Valid batches", int(dpp_summary["dpp_batches_valid"]))
+        s3.metric("DPP volume", f"{dpp_summary['dpp_volume']:.2f}")
+        s4.metric("Valid DPP volume", f"{dpp_summary['dpp_valid_volume']:.2f}")
+        s5.metric(
+            "Average completeness",
+            f"{dpp_summary['dpp_completeness_average']:.1f}%",
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -826,23 +902,56 @@ if not boot_ok:
 st.success("✅ Database ready")
 
 
-def import_completed_mrv(result):
+def _load_uploaded_csv(uploaded_file, loader) -> int:
+    if uploaded_file is None:
+        return 0
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as temp:
+        temp.write(uploaded_file.getbuffer())
+        path = Path(temp.name)
+    try:
+        return int(loader(path))
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def import_completed_mrv(result, *, batches_file=None, events_file=None):
     """Persist a validated completion result and refresh every KPI output."""
+    from load_product_batches import load_product_batches_file
+    from load_traceability_events import load_traceability_events_file
+
     completed = normalize_measurements_upload(result.software_upload)
     written, imported_codes = write_measurements_to_db(
         completed,
         replace_uploaded_scenarios=True,
     )
+    batches_written = _load_uploaded_csv(batches_file, load_product_batches_file)
+    events_written = _load_uploaded_csv(events_file, load_traceability_events_file)
     run_full_pipeline(debug_missing=False)
-    st.cache_data.clear()
+    load_kpi_catalog.clear()
+    load_raw_kpi_results.clear()
+    load_normalized_results.clear()
+    load_normalization_rules.clear()
+    run_ids = sorted(
+        {
+            scenario_result.run_id
+            for scenario_result in result.scenario_results.values()
+            if scenario_result.run_id
+        }
+    )
+    st.session_state["import_completed"] = True
+    st.session_state["active_scenario"] = imported_codes[0] if imported_codes else None
+    st.session_state["last_import_run_id"] = ",".join(run_ids) or str(uuid.uuid4())
+    st.session_state["last_import_timestamp"] = datetime.utcnow().isoformat()
+    st.session_state["selected_batch"] = None
+    st.session_state["show_import_page"] = False
     st.success(
-        f"Imported {written} measurements for {len(imported_codes)} scenario(s): "
-        + ", ".join(imported_codes)
+        f"Imported {written} measurements, {batches_written} batches and "
+        f"{events_written} traceability events."
     )
     st.rerun()
 
 
-if _safe_count("sc_measurement") == 0:
+if _safe_count("sc_measurement") == 0 or st.session_state.get("show_import_page", False):
     st.markdown("## Welcome to SustainSCM DSS")
     st.write(
         "Start by uploading the MRV Excel template. The completion engines will "
@@ -853,209 +962,54 @@ if _safe_count("sc_measurement") == 0:
         "Review the completion and QA tabs. The import button is enabled only "
         "when the workbook has no critical failures."
     )
+    batches_upload = st.file_uploader(
+        "Product batches CSV (optional)",
+        type=["csv"],
+        key="initial_product_batches_csv",
+        help="Load this before traceability events so batch references can be resolved.",
+    )
+    events_upload = st.file_uploader(
+        "Traceability events CSV (optional)",
+        type=["csv"],
+        key="initial_traceability_events_csv",
+    )
     render_scenario_completion_page(
         config_dir=Path(__file__).resolve().parent / "config",
-        on_commit=import_completed_mrv,
+        on_commit=lambda result: import_completed_mrv(
+            result,
+            batches_file=batches_upload,
+            events_file=events_upload,
+        ),
     )
     st.stop()
 
+with engine.connect() as connection:
+    data_status = {
+        "scenarios": int(connection.execute(text("SELECT COUNT(*) FROM sc_scenario")).scalar() or 0),
+        "measurements": int(connection.execute(text("SELECT COUNT(*) FROM sc_measurement")).scalar() or 0),
+        "batches": int(connection.execute(text("SELECT COUNT(*) FROM sc_product_batch")).scalar() or 0),
+        "events": int(connection.execute(text("SELECT COUNT(*) FROM sc_traceability_event")).scalar() or 0),
+        "last_measurement": connection.execute(text("SELECT MAX(timestamp) FROM sc_measurement")).scalar(),
+    }
 
-with st.expander("Complete and import MRV scenario workbook", expanded=False):
-    render_scenario_completion_page(
-        config_dir=Path(__file__).resolve().parent / "config",
-        on_commit=import_completed_mrv,
-    )
-
-st.markdown("## DPP-ready passport demo")
-st.caption("Minimal prototype view for batch-level traceability and machine-readable passport export.")
-
-# --- load available batch codes from DB ---
-session = SessionLocal()
-try:
-    batch_rows = session.query(ProductBatch.batch_code).order_by(ProductBatch.batch_code).all()
-    available_batches = [r[0] for r in batch_rows]
-finally:
-    session.close()
-
-if available_batches:
-    batch_code = st.selectbox("Batch code", options=available_batches, key="dpp_batch_code")
-else:
-    st.warning("No product batches available in the database.")
-    batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
-
-include_raw_dpp = st.checkbox("Include product-scenario raw KPI results", value=True)
-include_normalized_dpp = st.checkbox("Include scenario decision-support results", value=True)
-
-if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
-    session = SessionLocal()
-    passport = None
-    try:
-        passport = build_dpp_passport(
-            session,
-            batch_code,
-            include_raw_kpis=include_raw_dpp,
-            include_normalized_kpis=include_normalized_dpp,
-        )
-    except Exception as e:
-        st.error(f"Could not generate passport: {e}")
-    finally:
-        session.close()
-
-    if passport:
-        st.success("DPP-ready passport generated successfully.")
-        render_dpp_passport(passport)
-
-        st.download_button(
-            "Download DPP JSON",
-            dpp_passport_to_json(passport).encode("utf-8"),
-            file_name=f"{batch_code}_dpp.json",
-            mime="application/json",
-        )
-
-st.markdown("### Scenario-level DPP MRV summary")
-session = SessionLocal()
-try:
-    dpp_scenarios = (
-        session.query(Scenario)
-        .join(ProductBatch, ProductBatch.scenario_id == Scenario.id)
-        .distinct()
-        .order_by(Scenario.code)
-        .all()
-    )
-    if dpp_scenarios:
-        dpp_scenario_code = st.selectbox(
-            "Scenario for DPP MRV summary",
-            options=[scenario.code for scenario in dpp_scenarios],
-            key="dpp_summary_scenario",
-        )
-        selected_dpp_scenario = next(
-            scenario for scenario in dpp_scenarios if scenario.code == dpp_scenario_code
-        )
-        dpp_summary = summarize_dpp_mrv(session, selected_dpp_scenario.id)
-        s1, s2, s3, s4, s5 = st.columns(5)
-        s1.metric("Total batches", int(dpp_summary["dpp_batches_total"]))
-        s2.metric("Valid batches", int(dpp_summary["dpp_batches_valid"]))
-        s3.metric("DPP volume", f"{dpp_summary['dpp_volume']:.2f}")
-        s4.metric("Valid DPP volume", f"{dpp_summary['dpp_valid_volume']:.2f}")
-        s5.metric(
-            "Average completeness",
-            f"{dpp_summary['dpp_completeness_average']:.1f}%",
-        )
-    else:
-        st.info("No batch-linked scenarios are available for DPP MRV summarization.")
-finally:
-    session.close()
-
-# -----------------------------------------------------------------------------
-# Sidebar: Import measurements
-# -----------------------------------------------------------------------------
-
-st.sidebar.subheader("📥 Import measurements")
-
-with st.sidebar.expander("Import measurements (CSV)", expanded=False):
-    st.write("Upload a CSV of raw measurements.")
-    st.caption(
-        "Required columns: scenario_code, variable_name, value, timestamp. "
-        "Optional: unit, source_system, comment."
-    )
-
-    uploaded_measurements = st.file_uploader(
-        "Measurements CSV",
-        type=["csv"],
-        key="measurements_csv_uploader",
-    )
-
-    replace_uploaded_scenarios = st.checkbox(
-        "Replace existing measurements for uploaded scenarios",
-        value=True,
-        key="replace_uploaded_scenarios",
-    )
-
-    if uploaded_measurements is not None:
-        try:
-            preview_df = pd.read_csv(uploaded_measurements)
-            st.write("Preview (first 10 rows):")
-            st.dataframe(preview_df.head(10), width="stretch")
-            uploaded_measurements.seek(0)
-        except Exception as e:
-            st.error(f"Could not preview CSV: {e}")
-
-        if st.button("Import measurements and run full pipeline", type="primary", key="btn_import_measurements"):
-            try:
-                with st.spinner("Reading measurements CSV..."):
-                    df_upload = pd.read_csv(uploaded_measurements)
-
-                with st.spinner("Validating measurements..."):
-                    df_upload = normalize_measurements_upload(df_upload)
-
-                with st.spinner("Writing measurements to database..."):
-                    written, imported_codes = write_measurements_to_db(
-                        df_upload,
-                        replace_uploaded_scenarios=replace_uploaded_scenarios,
-                    )
-
-                with st.spinner("Running KPI engine, normalization, composite indices and comparisons..."):
-                    run_full_pipeline(debug_missing=False)
-
-                st.cache_data.clear()
-                st.cache_resource.clear()
-
-                st.success(
-                    f"✅ Imported {written} measurements for {len(imported_codes)} scenario(s): "
-                    + ", ".join(imported_codes)
-                )
-                st.rerun()
-
-            except Exception as e:
-                st.error("❌ Import failed")
-                st.exception(e)
+st.markdown("## Active data summary")
+status_cols = st.columns(4)
+status_cols[0].metric("Scenarios", data_status["scenarios"])
+status_cols[1].metric("Measurements", data_status["measurements"])
+status_cols[2].metric("Batches", data_status["batches"])
+status_cols[3].metric("Traceability events", data_status["events"])
+st.caption(
+    "Import run: "
+    + st.session_state.get("last_import_run_id", "database state")
+    + " · Last import/measurement: "
+    + str(st.session_state.get("last_import_timestamp") or data_status["last_measurement"] or "unknown")
+    + " · Active reference scenario: BASE"
+)
+if st.button("Go to Data Import", key="go_to_data_import"):
+    st.session_state["show_import_page"] = True
+    st.rerun()
 
 st.sidebar.header("Controls")
-
-if st.sidebar.button("🔄 Rebuild demo (full)"):
-    from pathlib import Path
-    from load_example_data import main as load_example_data_main
-    from seed_dpp_demo import main as seed_dpp_demo_main
-    from load_product_batches import load_product_batches_file
-    from load_traceability_events import load_traceability_events_file
-
-    try:
-        load_example_data_main()
-        seed_dpp_demo_main()
-
-        base_dir = Path(__file__).parent
-        batches_csv = base_dir / "data" / "product_batches.csv"
-        events_csv = base_dir / "data" / "traceability_events.csv"
-
-        batches_loaded = 0
-        events_loaded = 0
-
-        batches_exists = batches_csv.exists()
-        events_exists = events_csv.exists()
-
-        if batches_exists:
-            batches_loaded = load_product_batches_file(batches_csv)
-
-        if events_exists:
-            events_loaded = load_traceability_events_file(events_csv)
-
-        run_full_pipeline(debug_missing=True)
-
-        st.session_state["rebuild_dpp_debug"] = {
-            "batches_csv_path": str(batches_csv),
-            "events_csv_path": str(events_csv),
-            "batches_exists": batches_exists,
-            "events_exists": events_exists,
-            "batches_loaded": batches_loaded,
-            "events_loaded": events_loaded,
-        }
-
-        st.cache_data.clear()
-        st.cache_resource.clear()
-        st.rerun()
-
-    except Exception as e:
-        st.error(f"Rebuild failed: {e}")
 
 
 # -----------------------------------------------------------------------------
@@ -1072,11 +1026,15 @@ if catalog_df.empty:
     st.stop()
 
 if norm_df.empty:
-    st.warning("⚠️ No normalized KPI results found. Rebuild demo or import measurements and run the full pipeline.")
+    st.warning(
+        "No normalized KPI results are available. Return to Data Import and "
+        "load a valid MRV workbook before opening the dashboard."
+    )
     st.stop()
 
 raw_latest = latest_per_kpi_scenario(raw_df)
 norm_latest = latest_per_kpi_scenario(norm_df)
+full_dashboard_df = norm_latest.copy(deep=True)
 
 # Sidebar filters from KPI catalog
 dimensions = ["All"] + sorted(catalog_df["dimension"].dropna().unique().tolist())
@@ -1088,6 +1046,17 @@ sel_dim = st.sidebar.selectbox("Dimension", dimensions, index=0)
 sel_level = st.sidebar.selectbox("Decision level", decision_levels, index=0)
 sel_flow = st.sidebar.selectbox("Flow", flows, index=0)
 sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenario_options, index=_default_base_index(scenario_options))
+all_dimensions = dimensions[1:]
+all_levels = decision_levels[1:]
+all_flows = flows[1:]
+restrictive_filters = has_restrictive_filters(
+    all_dimensions if sel_dim == "All" else [sel_dim],
+    all_dimensions,
+    all_levels if sel_level == "All" else [sel_level],
+    all_levels,
+    all_flows if sel_flow == "All" else [sel_flow],
+    all_flows,
+)
 
 # -----------------------------------------------------------------------------
 # Section 1: Raw KPI values + normalized interpretation
@@ -1099,7 +1068,7 @@ st.caption(
     "the normalized score and traffic-light classification. Comparative analyses below use normalized scores."
 )
 
-raw_plus = build_raw_plus_normalized_table(
+filtered_table_df = build_raw_plus_normalized_table(
     catalog_df=catalog_df,
     raw_latest=raw_latest,
     norm_latest=norm_latest,
@@ -1114,11 +1083,21 @@ show_cols = [
     "raw_value", "normalized_value", "semaforo", "baseline_value",
     "lower_ref", "upper_ref", "normalization_method"
 ]
-show_cols = [c for c in show_cols if c in raw_plus.columns]
+show_cols = [c for c in show_cols if c in filtered_table_df.columns]
 
-styled_main = raw_plus[show_cols].style.map(color_semaforo, subset=["semaforo"])
+styled_main = filtered_table_df[show_cols].style.map(color_semaforo, subset=["semaforo"])
 st.dataframe(styled_main, width="stretch")
-st.caption(f"Rows shown: {len(raw_plus)} KPI base items.")
+st.caption(f"Rows shown: {len(filtered_table_df)} KPI base items.")
+
+if restrictive_filters:
+    st.info(
+        "The active sidebar filters are applied to the detailed KPI table only. "
+        "Integrated indices, sensitivity analysis, and scenario-ranking views "
+        "require the complete set of scenarios and sustainability dimensions. "
+        "Clear the filters to display those analyses."
+    )
+    render_dpp_section()
+    st.stop()
 
 # -----------------------------------------------------------------------------
 # Section 2: Normalized scenario comparison vs reference
@@ -1130,6 +1109,18 @@ st.caption("All scenario deviations are computed using normalized KPI scores, so
 
 base_like = [s for s in scenario_options if "BASE" in s.upper()]
 ref_default = base_like[0] if base_like else scenario_options[0]
+analysis_readiness = assess_analysis_readiness(
+    full_dashboard_df,
+    all_scenarios=scenario_options,
+    reference_scenario=ref_default,
+)
+if not analysis_readiness.ready:
+    st.warning(
+        "Integrated analyses are unavailable because the imported dataset is "
+        f"incomplete. {analysis_readiness.message}"
+    )
+    render_dpp_section()
+    st.stop()
 
 reference_scenario = st.selectbox(
     "Reference scenario",
@@ -1155,12 +1146,12 @@ same_tolerance = st.slider(
 )
 
 detailed_cmp, summary_cmp, by_dim_cmp = build_normalized_comparison(
-    norm_latest=norm_latest,
+    norm_latest=full_dashboard_df,
     reference_scenario=reference_scenario,
     selected_scenarios=compare_scenarios,
-    dim_sel=sel_dim,
-    level_sel=sel_level,
-    flow_sel=sel_flow,
+    dim_sel="All",
+    level_sel="All",
+    flow_sel="All",
     tol=same_tolerance,
 )
 
@@ -1211,7 +1202,7 @@ else:
 
     st.markdown("### Traffic-light distribution by scenario")
     selected_for_traffic = [reference_scenario] + compare_scenarios
-    traffic_base = _apply_common_filters(norm_latest, sel_dim, sel_level, sel_flow)
+    traffic_base = full_dashboard_df.copy()
     traffic_base = traffic_base[traffic_base["scenario_code"].isin(selected_for_traffic)].copy()
 
     if traffic_base.empty:
@@ -1280,7 +1271,7 @@ st.write(
     })
 )
 
-dim_long_df, dim_wide_df = compute_dimension_indices(norm_latest, rules_df, dim_weights)
+dim_long_df, dim_wide_df = compute_dimension_indices(full_dashboard_df, rules_df, dim_weights)
 
 if dim_wide_df.empty:
     st.info("No composite/dimension indices could be computed from normalized KPI results.")
@@ -1342,8 +1333,8 @@ else:
     )
 
     global_weights = build_global_kpi_weights(rules_df, dim_weights)
-    wsm_df = compute_wsm_scores(norm_latest, global_weights, mcda_scenarios)
-    topsis_df = compute_topsis_scores(norm_latest, global_weights, mcda_scenarios)
+    wsm_df = compute_wsm_scores(full_dashboard_df, global_weights, mcda_scenarios)
+    topsis_df = compute_topsis_scores(full_dashboard_df, global_weights, mcda_scenarios)
 
     mcda_df = pd.merge(wsm_df, topsis_df, on="scenario_code", how="outer")
     if not mcda_df.empty:
@@ -1363,3 +1354,5 @@ else:
             st.bar_chart(mcda_df.set_index("scenario_code")["TOPSIS_score"])
     else:
         st.info("MCDA ranking could not be computed with the current scenario selection.")
+
+render_dpp_section()
