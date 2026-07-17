@@ -16,6 +16,17 @@ streamlit run kpi_dashboard.py
 The application creates and seeds its SQLite database automatically when needed.
 Set `SUSTAINSC_DB_URL` to use a different SQLAlchemy database URL.
 
+The first screen remains empty until one or more measurements CSV files are uploaded. To delete
+all operational data and return to that initial screen:
+
+```bash
+python create_db.py --reset
+```
+
+This command permanently removes the current local database contents and
+recreates only the empty schema. The KPI catalog and calculation factors are
+loaded automatically when Streamlit starts; scenarios and measurements are not.
+
 ## Main structure
 
 - `kpi_dashboard.py`: Streamlit entry point.

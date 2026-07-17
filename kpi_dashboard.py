@@ -70,34 +70,25 @@ def bootstrap_everything():
     try:
         ensure_schema()
 
-        from load_example_data import main as load_example_data_main
-        from seed_dpp_demo import main as seed_dpp_demo_main
+        from load_example_data import load_cost_factors, load_emission_factors, load_kpis
 
         kpi_count = _safe_count("sc_kpi")
-        scenario_count = _safe_count("sc_scenario")
-        measurement_count = _safe_count("sc_measurement")
-        raw_count = _safe_count("sc_kpi_result")
-        norm_count = _safe_count("sc_kpi_normalized_result")
+        emission_factor_count = _safe_count("sc_emission_factor")
+        cost_factor_count = _safe_count("sc_cost_factor")
 
-        if kpi_count == 0 or scenario_count == 0 or measurement_count == 0:
-            load_example_data_main()
-            ensure_schema()
-
-        # ---- DPP demo seed ----
-        try:
-            batch_count = _safe_count("sc_product_batch")
-        except Exception:
-            batch_count = 0
-
-        if batch_count == 0:
-            seed_dpp_demo_main()
-            ensure_schema()
-
-        raw_count = _safe_count("sc_kpi_result")
-        norm_count = _safe_count("sc_kpi_normalized_result")
-
-        if raw_count == 0 or norm_count == 0:
-            run_full_pipeline(debug_missing=True)
+        # Reference metadata is required to process uploaded measurements, but
+        # scenarios and operational data must always come from the user.
+        if kpi_count == 0 or emission_factor_count == 0 or cost_factor_count == 0:
+            session = SessionLocal()
+            try:
+                if emission_factor_count == 0:
+                    load_emission_factors(session)
+                if cost_factor_count == 0:
+                    load_cost_factors(session)
+                if kpi_count == 0:
+                    load_kpis(session)
+            finally:
+                session.close()
 
         return True, None
 
@@ -808,6 +799,61 @@ if not boot_ok:
     st.stop()
 
 st.success("✅ Database ready")
+
+
+def render_initial_csv_loader():
+    st.markdown("## Welcome to SustainSCM DSS")
+    st.write(
+        "The workspace is empty. Upload a measurements CSV to create the "
+        "scenarios and calculate the sustainability indicators."
+    )
+    st.caption(
+        "Required columns: scenario_code, variable_name, value and timestamp. "
+        "Optional columns: unit, source_system and comment."
+    )
+
+    uploaded_files = st.file_uploader(
+        "Measurements CSV files",
+        type=["csv"],
+        key="initial_measurements_csv",
+        accept_multiple_files=True,
+    )
+    if not uploaded_files:
+        return
+
+    try:
+        frames = [pd.read_csv(uploaded) for uploaded in uploaded_files]
+        combined_upload = pd.concat(frames, ignore_index=True)
+        st.caption(
+            f"{len(uploaded_files)} file(s), {len(combined_upload)} measurement rows detected."
+        )
+        st.dataframe(combined_upload.head(20), width="stretch")
+    except Exception as exc:
+        st.error(f"Could not read the CSV files: {exc}")
+        return
+
+    if st.button("Process CSV files and open dashboard", type="primary"):
+        try:
+            measurements = normalize_measurements_upload(combined_upload)
+            written, imported_codes = write_measurements_to_db(
+                measurements,
+                replace_uploaded_scenarios=True,
+            )
+            run_full_pipeline(debug_missing=False)
+            st.cache_data.clear()
+            st.cache_resource.clear()
+            st.success(
+                f"Processed {written} measurements for: {', '.join(imported_codes)}"
+            )
+            st.rerun()
+        except Exception as exc:
+            st.error("The CSV could not be processed.")
+            st.exception(exc)
+
+
+if _safe_count("sc_measurement") == 0:
+    render_initial_csv_loader()
+    st.stop()
 
 def import_completed_mrv(result):
     """Persist a validated completion result and refresh every KPI output."""
