@@ -72,3 +72,31 @@ python run_cuba_batch.py path/to/workbook.xlsx --output-dir generated
 
 Generated databases, Python caches, local editor settings and batch output files
 are excluded from version control.
+
+## Two-phase DPP workflow
+
+The DPP module implements a **DPP-ready batch-level prototype**:
+
+1. Build and validate KPI-independent DPP cores.
+2. Summarize valid batch quantities into `dpp_volume` and
+   `dpp_valid_volume` MRV measurements.
+3. Recalculate KPIs from the finalized MRV layer.
+4. Enrich passports with product-scenario raw KPI results and scenario-level
+   normalized decision-support results.
+
+Normalized scores and traffic lights are not represented as physical batch
+properties. They retain their scenario decision-support scope.
+
+`run_scenario_pipeline_with_dpp` supports a session-aware KPI runner so all
+steps can share one transaction. The current legacy `run_full_pipeline`
+function creates independent sessions; callers using it must first commit the
+returned DPP MRV records and then run that global pipeline. No new DPP
+persistence table was added because the repository has no migration framework
+and the existing `ProductPassport` model is only a link/metadata record.
+
+For tests:
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -q
+```

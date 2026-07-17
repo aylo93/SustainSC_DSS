@@ -36,7 +36,11 @@ os.environ.setdefault("SUSTAINSC_DB_URL", _default_db_url())
 # -----------------------------------------------------------------------------
 
 from sustainsc.config import engine, SessionLocal, Base
-from sustainsc.dpp_service import build_dpp_passport, dpp_passport_to_json
+from sustainsc.dpp_service import (
+    build_dpp_passport,
+    dpp_passport_to_json,
+    summarize_dpp_mrv,
+)
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
 from scenario_completion_page import render_scenario_completion_page
@@ -206,14 +210,27 @@ def render_dpp_passport(passport: dict):
 
     identity = passport.get("product_identity", {}) or {}
     events = passport.get("traceability_events", []) or []
-    raw_kpis = passport.get("raw_kpis", []) or []
-    norm_kpis = passport.get("normalized_kpis", []) or []
+    validation = passport.get("validation", {}) or {}
+    raw_scope = passport.get("sustainability_claims", {}) or {}
+    normalized_scope = passport.get("decision_support_summary", {}) or {}
+    raw_kpis = raw_scope.get("results", passport.get("raw_kpis", [])) or []
+    norm_kpis = normalized_scope.get("results", passport.get("normalized_kpis", [])) or []
 
     tab1, tab2, tab3, tab4 = st.tabs(
         ["Passport summary", "Traceability events", "KPI summary", "Raw JSON"]
     )
 
     with tab1:
+        st.markdown("### Prototype validation")
+        v1, v2 = st.columns(2)
+        v1.metric("Status", "Valid" if validation.get("is_valid") else "Invalid")
+        v2.metric("Completeness", f"{validation.get('completeness_score', 0):.1f}%")
+        for error in validation.get("errors", []):
+            st.error(error)
+        for warning in validation.get("warnings", []):
+            st.warning(warning)
+        st.caption("Prototype completeness validation; this is not legal compliance validation.")
+
         st.markdown("### Product identity")
 
         c1, c2, c3, c4 = st.columns(4)
@@ -249,6 +266,10 @@ def render_dpp_passport(passport: dict):
 
     with tab3:
         st.markdown("### Normalized KPI")
+        st.caption(
+            f"Scope: {normalized_scope.get('scope', 'scenario')}. "
+            "These values support scenario decisions and are not batch physical properties."
+        )
         if norm_kpis:
             norm_df = pd.DataFrame(norm_kpis)
             if "semaforo" in norm_df.columns:
@@ -264,6 +285,10 @@ def render_dpp_passport(passport: dict):
             st.info("No normalized KPI found for this passport.")
 
         st.markdown("### Raw KPI")
+        st.caption(
+            f"Scope: {raw_scope.get('scope', 'product_scenario')}. "
+            "No scenario total is allocated arbitrarily to this batch."
+        )
         if raw_kpis:
             raw_df = pd.DataFrame(raw_kpis)
             wanted = ["kpi_code", "kpi_name", "value", "period_end"]
@@ -858,11 +883,19 @@ else:
     st.warning("No product batches available in the database.")
     batch_code = st.text_input("Batch code", value="BATCH_DEMO_001", key="dpp_batch_code")
 
+include_raw_dpp = st.checkbox("Include product-scenario raw KPI results", value=True)
+include_normalized_dpp = st.checkbox("Include scenario decision-support results", value=True)
+
 if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
     session = SessionLocal()
     passport = None
     try:
-        passport = build_dpp_passport(session, batch_code)
+        passport = build_dpp_passport(
+            session,
+            batch_code,
+            include_raw_kpis=include_raw_dpp,
+            include_normalized_kpis=include_normalized_dpp,
+        )
     except Exception as e:
         st.error(f"Could not generate passport: {e}")
     finally:
@@ -878,6 +911,40 @@ if st.button("Generate DPP-ready passport", key="btn_dpp_generate"):
             file_name=f"{batch_code}_dpp.json",
             mime="application/json",
         )
+
+st.markdown("### Scenario-level DPP MRV summary")
+session = SessionLocal()
+try:
+    dpp_scenarios = (
+        session.query(Scenario)
+        .join(ProductBatch, ProductBatch.scenario_id == Scenario.id)
+        .distinct()
+        .order_by(Scenario.code)
+        .all()
+    )
+    if dpp_scenarios:
+        dpp_scenario_code = st.selectbox(
+            "Scenario for DPP MRV summary",
+            options=[scenario.code for scenario in dpp_scenarios],
+            key="dpp_summary_scenario",
+        )
+        selected_dpp_scenario = next(
+            scenario for scenario in dpp_scenarios if scenario.code == dpp_scenario_code
+        )
+        dpp_summary = summarize_dpp_mrv(session, selected_dpp_scenario.id)
+        s1, s2, s3, s4, s5 = st.columns(5)
+        s1.metric("Total batches", int(dpp_summary["dpp_batches_total"]))
+        s2.metric("Valid batches", int(dpp_summary["dpp_batches_valid"]))
+        s3.metric("DPP volume", f"{dpp_summary['dpp_volume']:.2f}")
+        s4.metric("Valid DPP volume", f"{dpp_summary['dpp_valid_volume']:.2f}")
+        s5.metric(
+            "Average completeness",
+            f"{dpp_summary['dpp_completeness_average']:.1f}%",
+        )
+    else:
+        st.info("No batch-linked scenarios are available for DPP MRV summarization.")
+finally:
+    session.close()
 
 # -----------------------------------------------------------------------------
 # Sidebar: Import measurements

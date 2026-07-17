@@ -494,7 +494,11 @@ def dpp_coverage(ctx: Ctx) -> Optional[float]:
     v = ctx.direct("dpp_coverage")
     if v is not None:
         return v
-    dpp_vol = ctx.pick_sum("dpp_volume")
+    # Prefer volume backed by a valid DPP core. Fall back to the legacy
+    # dpp_volume input so existing datasets remain calculable.
+    dpp_vol = ctx.pick_sum("dpp_valid_volume")
+    if dpp_vol is None:
+        dpp_vol = ctx.pick_sum("dpp_volume")
     ship_vol = ctx.pick_sum("shipped_volume_total")
     if dpp_vol is None or ship_vol is None:
         return None
