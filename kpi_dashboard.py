@@ -801,60 +801,6 @@ if not boot_ok:
 st.success("✅ Database ready")
 
 
-def render_initial_csv_loader():
-    st.markdown("## Welcome to SustainSCM DSS")
-    st.write(
-        "The workspace is empty. Upload a measurements CSV to create the "
-        "scenarios and calculate the sustainability indicators."
-    )
-    st.caption(
-        "Required columns: scenario_code, variable_name, value and timestamp. "
-        "Optional columns: unit, source_system and comment."
-    )
-
-    uploaded_files = st.file_uploader(
-        "Measurements CSV files",
-        type=["csv"],
-        key="initial_measurements_csv",
-        accept_multiple_files=True,
-    )
-    if not uploaded_files:
-        return
-
-    try:
-        frames = [pd.read_csv(uploaded) for uploaded in uploaded_files]
-        combined_upload = pd.concat(frames, ignore_index=True)
-        st.caption(
-            f"{len(uploaded_files)} file(s), {len(combined_upload)} measurement rows detected."
-        )
-        st.dataframe(combined_upload.head(20), width="stretch")
-    except Exception as exc:
-        st.error(f"Could not read the CSV files: {exc}")
-        return
-
-    if st.button("Process CSV files and open dashboard", type="primary"):
-        try:
-            measurements = normalize_measurements_upload(combined_upload)
-            written, imported_codes = write_measurements_to_db(
-                measurements,
-                replace_uploaded_scenarios=True,
-            )
-            run_full_pipeline(debug_missing=False)
-            st.cache_data.clear()
-            st.cache_resource.clear()
-            st.success(
-                f"Processed {written} measurements for: {', '.join(imported_codes)}"
-            )
-            st.rerun()
-        except Exception as exc:
-            st.error("The CSV could not be processed.")
-            st.exception(exc)
-
-
-if _safe_count("sc_measurement") == 0:
-    render_initial_csv_loader()
-    st.stop()
-
 def import_completed_mrv(result):
     """Persist a validated completion result and refresh every KPI output."""
     completed = normalize_measurements_upload(result.software_upload)
@@ -868,6 +814,25 @@ def import_completed_mrv(result):
         f"Imported {written} measurements for {len(imported_codes)} scenario(s): "
         + ", ".join(imported_codes)
     )
+    st.rerun()
+
+
+if _safe_count("sc_measurement") == 0:
+    st.markdown("## Welcome to SustainSCM DSS")
+    st.write(
+        "Start by uploading the MRV Excel template. The completion engines will "
+        "complete the scenario data, apply the configured causal rules and run "
+        "the quality checks before anything is written to the software."
+    )
+    st.info(
+        "Review the completion and QA tabs. The import button is enabled only "
+        "when the workbook has no critical failures."
+    )
+    render_scenario_completion_page(
+        config_dir=Path(__file__).resolve().parent / "config",
+        on_commit=import_completed_mrv,
+    )
+    st.stop()
 
 
 with st.expander("Complete and import MRV scenario workbook", expanded=False):
