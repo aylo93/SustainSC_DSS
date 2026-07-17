@@ -113,3 +113,18 @@ dimension, decision-level or flow filter is active, integrated indices,
 sensitivity and ranking sections are skipped because they require the complete
 dataset. DPP and traceability appear after the integrated analyses and are
 generated directly from the currently imported batch records.
+
+## User-interface design system
+
+Reusable presentation code lives in `sustainsc/ui/`:
+
+- `theme.py` defines semantic colors, spacing, surfaces and accessible CSS.
+- `components.py` contains page headers, workflow progress, data-status panels,
+  empty states and filter summaries.
+- `chart_theme.py` registers the shared `sustainscm` Plotly template.
+- `assets/supply_chain.svg` is an original lightweight vector illustration
+  created for this repository; it has no external licensing dependency.
+
+The application uses a polished light theme configured in
+`.streamlit/config.toml`. A custom runtime dark-mode switch was intentionally
+not added because it would conflict with Streamlit widget theming and reruns.

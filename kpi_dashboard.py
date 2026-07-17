@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 import traceback
 from sqlalchemy import text
@@ -46,6 +47,16 @@ from sustainsc.dpp_service import (
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
 from sustainsc.dashboard_workflow import assess_analysis_readiness, has_restrictive_filters
+from sustainsc.ui import (
+    apply_design_system,
+    render_data_status_panel,
+    render_empty_state,
+    render_filter_summary,
+    render_page_header,
+    render_section_header,
+    render_workflow_progress,
+)
+from sustainsc.ui.chart_theme import DIMENSION_COLOR_MAP
 from scenario_completion_page import render_scenario_completion_page
 
 
@@ -308,10 +319,10 @@ def render_dpp_passport(passport: dict):
 def render_dpp_section() -> None:
     """Render DPP and traceability after the integrated dashboard analyses."""
 
-    st.markdown("## Digital Product Passport and Traceability")
-    st.caption(
-        "DPP-ready batch-level prototype. Core identity and traceability are "
-        "available independently of analytical KPI enrichment."
+    render_section_header(
+        "Digital Product Passport and traceability",
+        "DPP-ready batch-level prototype with identity, validation, event history "
+        "and clearly scoped sustainability claims.",
     )
     session = SessionLocal()
     try:
@@ -634,7 +645,7 @@ def build_normalized_comparison(norm_latest, reference_scenario, selected_scenar
             "Mean Δ (pts)": float(g["delta_pts"].dropna().mean()) if g["delta_pts"].notna().any() else np.nan,
             "Median Δ (pts)": float(g["delta_pts"].dropna().median()) if g["delta_pts"].notna().any() else np.nan,
             "Net score": int((g["effect"] == "Improved").sum()) - int((g["effect"] == "Worse").sum()),
-        }))
+        }), include_groups=False)
         .reset_index()
         .sort_values(["Net score", "Mean Δ (pts)"], ascending=False)
     )
@@ -646,7 +657,7 @@ def build_normalized_comparison(norm_latest, reference_scenario, selected_scenar
             "Worse": int((g["effect"] == "Worse").sum()),
             "Same": int((g["effect"] == "Same").sum()),
             "Mean Δ (pts)": float(g["delta_pts"].dropna().mean()) if g["delta_pts"].notna().any() else np.nan,
-        }))
+        }), include_groups=False)
         .reset_index()
     )
 
@@ -892,15 +903,12 @@ def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool 
 # -----------------------------------------------------------------------------
 
 st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
-st.title("SustainSCM DSS – KPI Dashboard")
+apply_design_system()
 
 boot_ok, boot_msg = bootstrap_everything()
 if not boot_ok:
     st.error(f"❌ Failed to bootstrap database: {boot_msg}")
     st.stop()
-
-st.success("✅ Database ready")
-
 
 def _load_uploaded_csv(uploaded_file, loader) -> int:
     if uploaded_file is None:
@@ -952,15 +960,30 @@ def import_completed_mrv(result, *, batches_file=None, events_file=None):
 
 
 if _safe_count("sc_measurement") == 0 or st.session_state.get("show_import_page", False):
-    st.markdown("## Welcome to SustainSCM DSS")
-    st.write(
-        "Start by uploading the MRV Excel template. The completion engines will "
-        "complete the scenario data, apply the configured causal rules and run "
-        "the quality checks before anything is written to the software."
+    render_page_header(
+        "SustainSCM DSS",
+        "Data-driven decision support for sustainable supply-chain management, "
+        "causal MRV completion, scenario evaluation and traceability.",
+        metadata="Data Import · No active analytical dataset" if _safe_count("sc_measurement") == 0 else "Data Import",
     )
-    st.info(
-        "Review the completion and QA tabs. The import button is enabled only "
-        "when the workbook has no critical failures."
+    render_workflow_progress(
+        {
+            "Import": "ready",
+            "Validate": "pending",
+            "Complete MRV": "pending",
+            "Calculate KPIs": "pending",
+            "Explore DPP": "pending",
+        }
+    )
+    render_empty_state(
+        "Load an MRV scenario workbook",
+        "Upload the scientific input template to validate evidence, complete "
+        "missing variables and calculate decision-support indicators.",
+    )
+    render_section_header(
+        "Guided data import",
+        "Step 1 — optional batch context. Step 2 — MRV workbook validation. "
+        "Step 3 — review and commit.",
     )
     batches_upload = st.file_uploader(
         "Product batches CSV (optional)",
@@ -992,18 +1015,34 @@ with engine.connect() as connection:
         "last_measurement": connection.execute(text("SELECT MAX(timestamp) FROM sc_measurement")).scalar(),
     }
 
-st.markdown("## Active data summary")
-status_cols = st.columns(4)
-status_cols[0].metric("Scenarios", data_status["scenarios"])
-status_cols[1].metric("Measurements", data_status["measurements"])
-status_cols[2].metric("Batches", data_status["batches"])
-status_cols[3].metric("Traceability events", data_status["events"])
-st.caption(
-    "Import run: "
-    + st.session_state.get("last_import_run_id", "database state")
-    + " · Last import/measurement: "
-    + str(st.session_state.get("last_import_timestamp") or data_status["last_measurement"] or "unknown")
-    + " · Active reference scenario: BASE"
+render_page_header(
+    "KPI Dashboard",
+    "Integrated scenario, normalization, sustainability-index and decision-ranking analysis.",
+    metadata=(
+        "Reference: BASE · Last update: "
+        + str(st.session_state.get("last_import_timestamp") or data_status["last_measurement"] or "unknown")
+    ),
+)
+render_workflow_progress(
+    {
+        "Import": "complete",
+        "Validate": "complete",
+        "Complete MRV": "complete",
+        "Calculate KPIs": "complete",
+        "Explore DPP": "ready" if data_status["batches"] else "pending",
+    }
+)
+render_section_header(
+    "Active data context",
+    "Committed database records used by every analytical view on this page.",
+)
+render_data_status_panel(
+    {
+        "Scenarios": data_status["scenarios"],
+        "Measurements": data_status["measurements"],
+        "Batches": data_status["batches"],
+        "Traceability events": data_status["events"],
+    }
 )
 if st.button("Go to Data Import", key="go_to_data_import"):
     st.session_state["show_import_page"] = True
@@ -1042,10 +1081,23 @@ decision_levels = ["All"] + sorted(catalog_df["decision_level"].dropna().unique(
 flows = ["All"] + sorted(catalog_df["flow"].dropna().unique().tolist())
 scenario_options = sorted(norm_latest["scenario_code"].dropna().unique().tolist())
 
-sel_dim = st.sidebar.selectbox("Dimension", dimensions, index=0)
-sel_level = st.sidebar.selectbox("Decision level", decision_levels, index=0)
-sel_flow = st.sidebar.selectbox("Flow", flows, index=0)
-sel_scenario = st.sidebar.selectbox("Scenario (main view)", scenario_options, index=_default_base_index(scenario_options))
+def reset_table_filters() -> None:
+    st.session_state["filter_dimension"] = "All"
+    st.session_state["filter_level"] = "All"
+    st.session_state["filter_flow"] = "All"
+
+
+st.sidebar.caption("Filters affect the detailed KPI table only.")
+st.sidebar.button("Reset table filters", on_click=reset_table_filters, width="stretch")
+sel_dim = st.sidebar.selectbox("Dimension", dimensions, index=0, key="filter_dimension")
+sel_level = st.sidebar.selectbox("Decision level", decision_levels, index=0, key="filter_level")
+sel_flow = st.sidebar.selectbox("Flow", flows, index=0, key="filter_flow")
+sel_scenario = st.sidebar.selectbox(
+    "Scenario (main view)",
+    scenario_options,
+    index=_default_base_index(scenario_options),
+    key="filter_scenario",
+)
 all_dimensions = dimensions[1:]
 all_levels = decision_levels[1:]
 all_flows = flows[1:]
@@ -1062,7 +1114,13 @@ restrictive_filters = has_restrictive_filters(
 # Section 1: Raw KPI values + normalized interpretation
 # -----------------------------------------------------------------------------
 
-st.subheader(f"Raw KPI values + normalized interpretation – Scenario: {sel_scenario}")
+render_section_header(
+    "Detailed KPI evidence",
+    f"Raw values, normalized interpretation and status for scenario {sel_scenario}.",
+)
+render_filter_summary(
+    {"Dimension": sel_dim, "Decision level": sel_level, "Flow": sel_flow}
+)
 st.caption(
     "This table displays the raw KPI values for technical interpretation and, alongside them, "
     "the normalized score and traffic-light classification. Comparative analyses below use normalized scores."
@@ -1104,7 +1162,10 @@ if restrictive_filters:
 # -----------------------------------------------------------------------------
 
 st.markdown('<div id="scenario-compare"></div>', unsafe_allow_html=True)
-st.markdown("## Normalized Scenario Comparison")
+render_section_header(
+    "Normalized scenario comparison",
+    "Deviation from the reference after KPI directionality has been encoded.",
+)
 st.caption("All scenario deviations are computed using normalized KPI scores, so directionality is already encoded.")
 
 base_like = [s for s in scenario_options if "BASE" in s.upper()]
@@ -1243,7 +1304,10 @@ else:
 # Section 3: Composite indices, sensitivity and MCDA
 # -----------------------------------------------------------------------------
 
-st.markdown("## Composite Indices, Sensitivity & MCDA")
+render_section_header(
+    "Integrated sustainability and decision analysis",
+    "Composite indices, weight sensitivity, WSM and TOPSIS rankings.",
+)
 st.caption(
     "Dimension indices are weighted averages of normalized KPI scores within each dimension. "
     "The corrected SUSTAIN_INDEX is the weighted geometric mean of the four dimension indices."
@@ -1300,20 +1364,89 @@ else:
     ].sort_values("SUSTAIN_INDEX_GEOM", ascending=False)
     st.dataframe(dim_show, width="stretch")
 
+    profile_long = dim_show.melt(
+        id_vars="scenario_code",
+        value_vars=["environmental", "economic", "social", "technological"],
+        var_name="dimension",
+        value_name="score",
+    )
+    profile_fig = px.bar(
+        profile_long,
+        x="scenario_code",
+        y="score",
+        color="dimension",
+        barmode="group",
+        color_discrete_map=DIMENSION_COLOR_MAP,
+        title="Dimension profile by scenario",
+        labels={"scenario_code": "Scenario", "score": "Normalized score", "dimension": "Dimension"},
+        template="sustainscm",
+    )
+    profile_fig.update_traces(
+        hovertemplate="<b>%{x}</b><br>Score: %{y:.1f}<extra>%{fullData.name}</extra>"
+    )
+    profile_fig.update_yaxes(range=[0, 100])
+    st.plotly_chart(profile_fig, width="stretch", config={"displaylogo": False})
+
     st.markdown("### Corrected Sustain Index ranking")
-    st.bar_chart(dim_show.set_index("scenario_code")["SUSTAIN_INDEX_GEOM"])
+    ranking = dim_show.sort_values("SUSTAIN_INDEX_GEOM", ascending=True)
+    ranking_fig = px.bar(
+        ranking,
+        x="SUSTAIN_INDEX_GEOM",
+        y="scenario_code",
+        orientation="h",
+        title="Geometric sustainability index ranking",
+        labels={"SUSTAIN_INDEX_GEOM": "Index score", "scenario_code": "Scenario"},
+        template="sustainscm",
+        color_discrete_sequence=["#087F78"],
+    )
+    ranking_fig.update_traces(
+        hovertemplate="<b>%{y}</b><br>Geometric index: %{x:.2f}<extra></extra>"
+    )
+    ranking_fig.update_xaxes(range=[0, 100])
+    st.plotly_chart(ranking_fig, width="stretch", config={"displaylogo": False})
 
     st.markdown("### Sensitivity analysis for selected scenario")
     sens_df = build_one_way_sensitivity(r)
     if not sens_df.empty:
-        geom_chart = sens_df.pivot(index="focus_weight", columns="focus_dimension", values="SUSTAIN_INDEX_GEOM")
-        arith_chart = sens_df.pivot(index="focus_weight", columns="focus_dimension", values="SUSTAIN_INDEX_ARITH")
+        geom_fig = px.line(
+            sens_df,
+            x="focus_weight",
+            y="SUSTAIN_INDEX_GEOM",
+            color="focus_dimension",
+            color_discrete_map=DIMENSION_COLOR_MAP,
+            markers=True,
+            title="One-way sensitivity — geometric index",
+            labels={
+                "focus_weight": "Focused dimension weight",
+                "SUSTAIN_INDEX_GEOM": "Geometric index",
+                "focus_dimension": "Dimension",
+            },
+            template="sustainscm",
+        )
+        geom_fig.update_traces(
+            hovertemplate="Weight: %{x:.2f}<br>Index: %{y:.2f}<extra>%{fullData.name}</extra>"
+        )
+        st.plotly_chart(geom_fig, width="stretch", config={"displaylogo": False})
 
-        st.write("**One-way sensitivity (geometric Sustain Index)**")
-        st.line_chart(geom_chart)
-
-        st.write("**One-way sensitivity (arithmetic alternative)**")
-        st.line_chart(arith_chart)
+        arith_fig = px.line(
+            sens_df,
+            x="focus_weight",
+            y="SUSTAIN_INDEX_ARITH",
+            color="focus_dimension",
+            color_discrete_map=DIMENSION_COLOR_MAP,
+            markers=True,
+            title="One-way sensitivity — arithmetic alternative",
+            labels={
+                "focus_weight": "Focused dimension weight",
+                "SUSTAIN_INDEX_ARITH": "Arithmetic index",
+                "focus_dimension": "Dimension",
+            },
+            template="sustainscm",
+        )
+        arith_fig.update_traces(
+            hovertemplate="Weight: %{x:.2f}<br>Index: %{y:.2f}<extra>%{fullData.name}</extra>"
+        )
+        st.plotly_chart(arith_fig, width="stretch", config={"displaylogo": False})
 
         with st.expander("Show sensitivity table"):
             st.dataframe(sens_df, width="stretch")
@@ -1347,11 +1480,37 @@ else:
 
         if "WSM_score" in mcda_df.columns:
             st.write("**WSM ranking**")
-            st.bar_chart(mcda_df.set_index("scenario_code")["WSM_score"])
+            wsm_plot = mcda_df.sort_values("WSM_score", ascending=True)
+            wsm_fig = px.bar(
+                wsm_plot,
+                x="WSM_score",
+                y="scenario_code",
+                orientation="h",
+                title="Weighted-sum ranking",
+                labels={"WSM_score": "WSM score", "scenario_code": "Scenario"},
+                template="sustainscm",
+                color_discrete_sequence=["#2F6B9A"],
+            )
+            wsm_fig.update_traces(hovertemplate="<b>%{y}</b><br>WSM: %{x:.3f}<extra></extra>")
+            st.plotly_chart(wsm_fig, width="stretch", config={"displaylogo": False})
 
         if "TOPSIS_score" in mcda_df.columns:
             st.write("**TOPSIS ranking**")
-            st.bar_chart(mcda_df.set_index("scenario_code")["TOPSIS_score"])
+            topsis_plot = mcda_df.sort_values("TOPSIS_score", ascending=True)
+            topsis_fig = px.bar(
+                topsis_plot,
+                x="TOPSIS_score",
+                y="scenario_code",
+                orientation="h",
+                title="TOPSIS closeness ranking",
+                labels={"TOPSIS_score": "TOPSIS closeness", "scenario_code": "Scenario"},
+                template="sustainscm",
+                color_discrete_sequence=["#6657A6"],
+            )
+            topsis_fig.update_traces(
+                hovertemplate="<b>%{y}</b><br>TOPSIS: %{x:.3f}<extra></extra>"
+            )
+            st.plotly_chart(topsis_fig, width="stretch", config={"displaylogo": False})
     else:
         st.info("MCDA ranking could not be computed with the current scenario selection.")
 

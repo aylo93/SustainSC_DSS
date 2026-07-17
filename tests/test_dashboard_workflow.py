@@ -90,3 +90,7 @@ def test_dashboard_has_single_import_page_and_dpp_after_analytics():
     )
     assert 'st.session_state["last_import_run_id"]' in source
     assert "load_normalized_results.clear()" in source
+    assert source.find("render_page_header(") < source.find("Detailed KPI evidence")
+    assert source.rfind("render_dpp_section()") > source.find(
+        "Integrated sustainability and decision analysis"
+    )

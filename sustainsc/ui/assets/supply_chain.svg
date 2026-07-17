@@ -1,0 +1,12 @@
+<svg viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract sustainable supply-chain network">
+  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+    <path d="M25 40h38M78 40h28M121 40h34"/>
+    <path d="M90 40c0-18 14-28 28-28M90 40c0 18-14 28-28 28"/>
+  </g>
+  <g fill="#087F78">
+    <circle cx="18" cy="40" r="10"/><circle cx="70" cy="40" r="10"/>
+    <circle cx="114" cy="40" r="10"/><circle cx="162" cy="40" r="10"/>
+  </g>
+  <path d="M118 8c11 2 17 10 16 20-10 1-19-5-20-16z" fill="#16846B"/>
+  <path d="M57 73c-9-5-12-14-8-23 10 2 16 10 14 20z" fill="#16846B"/>
+</svg>
