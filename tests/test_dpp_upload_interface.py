@@ -11,3 +11,6 @@ def test_guided_import_has_one_integrated_dpp_uploader():
     assert "Traceability events CSV (optional)" not in source
     assert "initial_product_batches_csv" not in source
     assert "initial_traceability_events_csv" not in source
+    assert "dpp_workbook_bytes=workbook_bytes" in source
+    assert "batches_file" not in source
+    assert "events_file" not in source

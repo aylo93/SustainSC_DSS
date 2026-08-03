@@ -68,7 +68,10 @@ python run_cuba_batch.py path/to/workbook.xlsx --output-dir generated
 - `load_example_data.py`: reload the core demo catalog and measurements.
 - `seed_dpp_demo.py`: seed the traceability/DPP demo.
 - `load_measurements_only.py`: reload only measurements.
-- `load_product_batches.py` and `load_traceability_events.py`: import DPP data.
+- The guided Streamlit workflow imports DPP data from one integrated XLSX workbook
+  containing `01_PRODUCT_BATCHES` and `02_TRACEABILITY_EVENTS`.
+- `load_product_batches.py` and `load_traceability_events.py` are legacy command-line
+  compatibility utilities; they are not used by the normal Streamlit commit path.
 
 Generated databases, Python caches, local editor settings and batch output files
 are excluded from version control.
