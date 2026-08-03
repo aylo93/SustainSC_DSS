@@ -8,7 +8,7 @@ from sustainsc.ui.chart_theme import (
 )
 
 
-def test_horizontal_ranking_keeps_arbitrary_winner_label_visible():
+def test_horizontal_ranking_keeps_every_label_visible_including_winner():
     frame = pd.DataFrame(
         {
             "scenario_code": ["SCENARIO_A", "SCENARIO_B", "SCENARIO_C"],
@@ -31,9 +31,10 @@ def test_horizontal_ranking_keeps_arbitrary_winner_label_visible():
     assert plotted == categories
     assert figure.layout.yaxis.showticklabels is True
     assert figure.layout.yaxis.automargin is True
-    assert figure.layout.yaxis.tickmode is None
-    assert figure.layout.yaxis.tickvals is None
-    assert figure.layout.yaxis.ticktext is None
+    assert figure.layout.yaxis.tickmode == "array"
+    assert list(figure.layout.yaxis.tickvals) == categories
+    assert list(figure.layout.yaxis.ticktext) == categories
+    assert figure.layout.yaxis.ticklabeloverflow == "allow"
     assert len(plotted) == len(categories) == frame["scenario_code"].nunique()
     assert all(label for label in categories)
     assert figure.layout.margin.l >= 120
@@ -42,7 +43,7 @@ def test_horizontal_ranking_keeps_arbitrary_winner_label_visible():
 
 
 @pytest.mark.parametrize("score_col", ["WSM_score", "TOPSIS_score"])
-def test_cuba_winner_is_present_as_top_category_without_hardcoded_ticks(score_col):
+def test_cuba_winner_is_present_as_top_category_with_dynamic_ticks(score_col):
     frame = pd.DataFrame(
         {
             "scenario_code": ["BASE", "VSMC_KAIZEN", "MILP_MIN_CO2"],
@@ -63,6 +64,24 @@ def test_cuba_winner_is_present_as_top_category_without_hardcoded_ticks(score_co
     assert categories == plotted
     assert categories[-1] == "VSMC_KAIZEN"
     assert len(categories) == len(set(categories)) == len(frame)
+    assert list(figure.layout.yaxis.ticktext)[-1] == "VSMC_KAIZEN"
+
+
+def test_all_24_ranking_labels_are_explicitly_rendered():
+    labels = [f"SCENARIO_{index:02d}" for index in range(24)]
+    frame = pd.DataFrame({"scenario": labels, "score": range(24)})
+    figure = build_horizontal_ranking_chart(
+        frame,
+        scenario_col="scenario",
+        score_col="score",
+        title="Ranking",
+        x_title="Score",
+        color="#087F78",
+    )
+
+    assert len(figure.layout.yaxis.tickvals) == 24
+    assert len(figure.layout.yaxis.ticktext) == 24
+    assert set(figure.layout.yaxis.ticktext) == set(labels)
 
 
 def test_horizontal_ranking_rejects_duplicate_or_missing_categories():
