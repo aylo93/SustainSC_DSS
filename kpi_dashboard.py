@@ -1024,7 +1024,7 @@ if not boot_ok:
     st.error(f"❌ Failed to bootstrap database: {boot_msg}")
     st.stop()
 
-def import_completed_mrv(result):
+def import_completed_mrv(result, *, dpp_workbook_bytes: bytes | None = None):
     """Persist a validated completion result and refresh every KPI output."""
     completed = normalize_measurements_upload(result.software_upload)
     written, imported_codes, import_run_id = write_measurements_to_db(
@@ -1033,6 +1033,17 @@ def import_completed_mrv(result):
         dataset_name="Completed MRV import",
         source_filename=getattr(result, "source_filename", None),
     )
+    dpp_outcome = None
+    if dpp_workbook_bytes is not None:
+        dpp_session = SessionLocal()
+        try:
+            dpp_outcome = import_dpp_workbook(
+                dpp_session,
+                dpp_workbook_bytes,
+                active_import_run_id=import_run_id,
+            )
+        finally:
+            dpp_session.close()
     run_full_pipeline(debug_missing=False, import_run_id=import_run_id)
     load_kpi_catalog.clear()
     load_active_context.clear()
@@ -1053,9 +1064,21 @@ def import_completed_mrv(result):
     st.session_state["last_import_timestamp"] = datetime.utcnow().isoformat()
     st.session_state["selected_batch"] = None
     st.session_state["show_import_page"] = False
-    st.success(
-        f"Imported {written} measurements."
-    )
+    if dpp_outcome is None:
+        st.success(f"Imported {written} measurements.")
+    else:
+        st.session_state["dpp_import_summary"] = dpp_outcome.summaries
+        st.session_state["dpp_import_message"] = (
+            "DPP and traceability import completed. "
+            f"Batches: {dpp_outcome.product_batches.rows_read} read, "
+            f"{dpp_outcome.product_batches.created} created, "
+            f"{dpp_outcome.product_batches.updated} updated, "
+            f"{dpp_outcome.product_batches.rejected} rejected. "
+            f"Events: {dpp_outcome.traceability_events.rows_read} read, "
+            f"{dpp_outcome.traceability_events.created} created, "
+            f"{dpp_outcome.traceability_events.updated} updated, "
+            f"{dpp_outcome.traceability_events.rejected} rejected."
+        )
     st.rerun()
 
 
@@ -1098,6 +1121,7 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
         help=("Upload one SustainSCM workbook containing the "
               "01_PRODUCT_BATCHES and 02_TRACEABILITY_EVENTS sheets."),
     )
+    workbook_bytes = None
     if dpp_workbook is not None:
         try:
             workbook_bytes = dpp_workbook.getvalue()
@@ -1152,10 +1176,14 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
                     st.warning("Import MRV data first so active scenario membership can be validated.")
                 else:
                     st.info("Select Validate and Import DPP Data to run full relational validation.")
-            if st.button(
+            if not _has_active_import_run():
+                st.info(
+                    "The validated DPP workbook will be committed with the MRV "
+                    "workbook during Review and Commit."
+                )
+            elif st.button(
                 "Validate and Import DPP Data",
                 type="primary",
-                disabled=not _has_active_import_run(),
                 key="import_dpp_workbook",
             ):
                 dpp_session = SessionLocal()
@@ -1191,7 +1219,9 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
 
     render_scenario_completion_page(
         config_dir=Path(__file__).resolve().parent / "config",
-        on_commit=import_completed_mrv,
+        on_commit=lambda result: import_completed_mrv(
+            result, dpp_workbook_bytes=workbook_bytes
+        ),
     )
     st.stop()
 

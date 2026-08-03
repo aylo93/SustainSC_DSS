@@ -9,9 +9,10 @@ from sustainsc.config import Base
 from sustainsc.dpp_import import (
     DPPImportValidationError, import_dpp_workbook, read_dpp_workbook,
 )
+from sustainsc.dpp_service import build_dpp_core
 from sustainsc.models import (
-    Facility, ImportRun, ImportRunScenario, Product, ProductBatch, Scenario,
-    TraceabilityEvent,
+    Facility, ImportRun, ImportRunScenario, Measurement, Product, ProductBatch, Scenario,
+    TraceabilityEvent, TransportLeg,
 )
 
 
@@ -135,3 +136,85 @@ def test_missing_required_sheet_fails(session):
         )
     with pytest.raises(ValueError, match="02_TRACEABILITY_EVENTS"):
         import_dpp_workbook(session, output.getvalue())
+
+
+def test_cuba_workbook_commits_complete_active_dataset_transaction():
+    engine = create_engine("sqlite:///:memory:", future=True)
+    Base.metadata.create_all(engine)
+    db = sessionmaker(bind=engine, future=True)()
+    try:
+        scenario = Scenario(code="BASE", name="Cuba baseline")
+        facilities = {
+            code: Facility(code=code, name=code)
+            for code in (
+                "BARIAY", "LOS_CALICHES", "PILON", "RIO_SAGUA", "BUENAVENTURA"
+            )
+        }
+        db.add_all([
+            scenario,
+            Product(code="AGG_0_20", name="Aggregate 0-20", fu_unit="t"),
+            *facilities.values(),
+        ])
+        db.flush()
+        db.add(TransportLeg(
+            code="BARIAY_TO_Z1",
+            name="Bariay to zone 1",
+            from_facility_id=facilities["BARIAY"].id,
+        ))
+        run = ImportRun(
+            dataset_name="Cuba regression",
+            import_timestamp=pd.Timestamp("2026-08-03").to_pydatetime(),
+            status="active",
+            scenario_count=1,
+            measurement_count=0,
+            is_active=True,
+        )
+        db.add(run)
+        db.flush()
+        db.add(ImportRunScenario(import_run_id=run.id, scenario_id=scenario.id))
+        db.add(Measurement(
+            variable_name="shipped_volume_total",
+            value=288000,
+            unit="t",
+            timestamp=pd.Timestamp("2026-08-03").to_pydatetime(),
+            scenario_id=scenario.id,
+            import_run_id=run.id,
+            source_system="regression",
+        ))
+        db.commit()
+
+        fixture = "tests/fixtures/dpp/SustainSCM_DPP_Traceability_CUBA_FILLED.xlsx"
+        parsed_batches, parsed_events = read_dpp_workbook(fixture)
+        outcome = import_dpp_workbook(db, fixture, active_import_run_id=run.id)
+
+        assert len(parsed_batches) == outcome.product_batches.rows_read == 18
+        assert len(parsed_events) == outcome.traceability_events.rows_read == 24
+        assert outcome.product_batches.created == 18
+        assert outcome.traceability_events.created == 24
+        assert outcome.product_batches.rejected == 0
+        assert outcome.traceability_events.rejected == 0
+        assert db.query(ProductBatch).filter_by(import_run_id=run.id).count() == 18
+        assert db.query(TraceabilityEvent).filter_by(import_run_id=run.id).count() == 24
+        assert db.query(TraceabilityEvent).filter(TraceabilityEvent.batch_id.is_(None)).count() == 0
+        assert outcome.summaries["BASE"]["dpp_batches_total"] == 18
+        assert outcome.summaries["BASE"]["dpp_traceability_events_total"] == 24
+        assert outcome.summaries["BASE"]["dpp_volume"] == pytest.approx(230400)
+        assert outcome.summaries["BASE"]["dpp_valid_volume"] == pytest.approx(230400)
+        coverage = db.query(Measurement).filter_by(
+            import_run_id=run.id,
+            scenario_id=scenario.id,
+            variable_name="dpp_coverage",
+        ).one()
+        assert coverage.value == pytest.approx(80.0)
+        assert coverage.source_system == "dpp_generation_module"
+        assert build_dpp_core(
+            db, "BATCH_BASE_001", import_run_id=run.id
+        )["traceability_events"]
+
+        second = import_dpp_workbook(db, fixture, active_import_run_id=run.id)
+        assert second.product_batches.updated == 18
+        assert second.traceability_events.updated == 24
+        assert db.query(ProductBatch).count() == 18
+        assert db.query(TraceabilityEvent).count() == 24
+    finally:
+        db.close()

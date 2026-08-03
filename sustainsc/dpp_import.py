@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from io import BytesIO
+import logging
 from pathlib import Path
 from typing import BinaryIO
 
@@ -36,6 +37,7 @@ EVENT_COLUMNS = (
 ALLOWED_STATUSES = frozenset(
     {"produced", "in_stock", "shipped", "delivered", "blocked", "released"}
 )
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -168,6 +170,11 @@ def import_dpp_workbook(
     result = DPPWorkbookImportResult()
     try:
         batch_df, event_df = read_dpp_workbook(source)
+        logger.info(
+            "DPP workbook parsed: batches=%s events=%s",
+            len(batch_df),
+            len(event_df),
+        )
         result.product_batches.rows_read = len(batch_df)
         result.traceability_events.rows_read = len(event_df)
         _require_columns(batch_df, BATCH_COLUMNS, "Product batches", result)
@@ -262,10 +269,13 @@ def import_dpp_workbook(
             if leg_code and leg_code not in legs:
                 result.references["unknown_transport_legs"].add(leg_code)
                 result.errors.append(f"Unknown transport leg: {leg_code}")
-            if quantity is None:
-                result.errors.append(f"{tag}: quantity must be positive.")
-            if not unit:
-                result.errors.append(f"{tag}: unit is required.")
+            raw_quantity = row.quantity
+            if not pd.isna(raw_quantity) and quantity is None:
+                result.errors.append(f"{tag}: quantity must be positive when supplied.")
+            if (quantity is None) != (unit is None):
+                result.errors.append(
+                    f"{tag}: quantity and unit must either both be supplied or both be blank."
+                )
             if len(result.errors) == before:
                 event_rows.append(dict(event_code=event_code, batch_code=batch_code,
                     event_type=event_type.lower(), timestamp=timestamp,
@@ -282,7 +292,9 @@ def import_dpp_workbook(
 
         imported: dict[str, ProductBatch] = {}
         for row in batch_rows:
-            obj = session.query(ProductBatch).filter_by(batch_code=row["code"]).first()
+            obj = session.query(ProductBatch).filter_by(
+                batch_code=row["code"], import_run_id=run_id
+            ).first()
             if obj is None:
                 obj = ProductBatch(batch_code=row["code"], created_at=now)
                 session.add(obj)
@@ -321,7 +333,9 @@ def import_dpp_workbook(
         session.flush()
 
         for code in sorted(imported):
-            validation = validate_dpp_core(build_dpp_core(session, code))
+            validation = validate_dpp_core(
+                build_dpp_core(session, code, import_run_id=run_id)
+            )
             if not validation.is_valid:
                 result.errors.extend(f"{code}: {error}" for error in validation.errors)
         if result.errors:
@@ -336,6 +350,35 @@ def import_dpp_workbook(
                 summary, scenario_code=scenario_code, timestamp=now,
                 run_id=f"import-run-{run_id}",
             )
+            shipped_volume = (
+                session.query(Measurement.value)
+                .filter(
+                    Measurement.import_run_id == run_id,
+                    Measurement.scenario_id == scenario.id,
+                    Measurement.variable_name == "shipped_volume_total",
+                )
+                .order_by(Measurement.timestamp.desc(), Measurement.id.desc())
+                .limit(1)
+                .scalar()
+            )
+            if shipped_volume is not None and float(shipped_volume) > 0:
+                coverage = (
+                    float(summary["dpp_valid_volume"])
+                    / float(shipped_volume)
+                    * 100.0
+                )
+                records.append({
+                    "variable_name": "dpp_coverage",
+                    "value": coverage,
+                    "unit": "%",
+                    "timestamp": now,
+                    "scenario_code": scenario_code,
+                    "source_system": "dpp_generation_module",
+                    "comment": (
+                        "DPP-valid volume divided by active-run shipped volume; "
+                        f"import-run-{run_id}."
+                    ),
+                })
             variable_names = [record["variable_name"] for record in records]
             if variable_names:
                 (
@@ -345,7 +388,7 @@ def import_dpp_workbook(
                         Measurement.scenario_id == scenario.id,
                         Measurement.variable_name.in_(variable_names),
                     )
-                    .delete(synchronize_session=False)
+                    .delete(synchronize_session="fetch")
                 )
             for record in records:
                 session.add(Measurement(
@@ -356,6 +399,15 @@ def import_dpp_workbook(
                 ))
         if commit:
             session.commit()
+        logger.info(
+            "DPP workbook committed: import_run_id=%s batches_created=%s "
+            "batches_updated=%s events_created=%s events_updated=%s",
+            run_id,
+            result.product_batches.created,
+            result.product_batches.updated,
+            result.traceability_events.created,
+            result.traceability_events.updated,
+        )
         return result
     except Exception:
         session.rollback()

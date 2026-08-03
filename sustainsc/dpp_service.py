@@ -93,17 +93,24 @@ def _iso(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
 
 
-def _batch_by_code(session: Session, batch_code: str) -> ProductBatch:
-    batch = session.query(ProductBatch).filter_by(batch_code=batch_code).first()
+def _batch_by_code(
+    session: Session, batch_code: str, import_run_id: int | None = None
+) -> ProductBatch:
+    query = session.query(ProductBatch).filter_by(batch_code=batch_code)
+    if import_run_id is not None:
+        query = query.filter(ProductBatch.import_run_id == import_run_id)
+    batch = query.first()
     if batch is None:
         raise ValueError(f"Batch not found: {batch_code}")
     return batch
 
 
-def build_dpp_core(session: Session, batch_code: str) -> dict[str, Any]:
+def build_dpp_core(
+    session: Session, batch_code: str, import_run_id: int | None = None
+) -> dict[str, Any]:
     """Build a KPI-independent DPP core for one batch."""
 
-    batch = _batch_by_code(session, batch_code)
+    batch = _batch_by_code(session, batch_code, import_run_id)
     events = (
         session.query(TraceabilityEvent)
         .filter(TraceabilityEvent.batch_id == batch.id)
@@ -225,7 +232,9 @@ def summarize_dpp_mrv(
     event_total = 0
 
     for batch in batches:
-        passport = build_dpp_core(session, batch.batch_code)
+        passport = build_dpp_core(
+            session, batch.batch_code, import_run_id=import_run_id
+        )
         validation = validate_dpp_core(passport)
         quantity = batch.quantity
         numeric_positive = (
@@ -435,8 +444,8 @@ def build_dpp_passport(
 ) -> dict[str, Any]:
     """Build, validate and optionally enrich a backward-compatible passport."""
 
-    batch = _batch_by_code(session, batch_code)
-    passport = build_dpp_core(session, batch_code)
+    batch = _batch_by_code(session, batch_code, import_run_id)
+    passport = build_dpp_core(session, batch_code, import_run_id=import_run_id)
     passport["validation"] = asdict(validate_dpp_core(passport))
     passport = enrich_dpp_with_kpis(
         session,
