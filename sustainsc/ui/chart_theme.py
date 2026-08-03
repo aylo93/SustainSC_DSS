@@ -108,9 +108,13 @@ def build_horizontal_ranking_chart(
     figure.update_yaxes(
         categoryorder="array",
         categoryarray=categories,
+        tickmode="array",
+        tickvals=categories,
+        ticktext=categories,
         showticklabels=True,
         automargin=True,
         ticklabelposition="outside",
+        ticklabeloverflow="allow",
         title_text="Scenario",
     )
     figure.update_traces(
