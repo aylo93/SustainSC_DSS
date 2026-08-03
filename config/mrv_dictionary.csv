@@ -32,9 +32,9 @@ digital_processes_count,count,Technological,COMPATIBILITY_ALIAS,Yes,24,No,Yes,AL
 digitalization_rate,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,75.0,v7_cam_causal_alignment,Derived from digital processes/core processes.
 distance_total_km,km,DES native,NATIVE_MODEL_OUTPUT,No,9,No,No,,,,,,
 dpp_coverage,%,Technological,DERIVED_MRV,Yes,24,No,Yes,RATIO_PCT,0.0,100.0,80.0,v7_cam_causal_alignment,Derived from DPP volume/shipped volume.
-dpp_valid_volume,FU,Technological,DERIVED_MRV,Yes,24,No,Yes,MIN2,0.0,,230400.0,v6_base_canonical,v6: valid DPP volume computed as capped coverage times shipped volume.
+dpp_valid_volume,FU,Technological,DERIVED_MRV,Yes,24,No,No,DPP_GENERATED,0.0,,230400.0,dpp_generation_module,Valid volume is generated only from prototype-validated batch passports; shipped volume is a QA upper bound.
 dpp_volume,FU,Technological,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,230400.0,v6_base_canonical,v6: DPP volume computed as capped coverage times shipped volume.
-electricity_cost_eur,EUR,Energy,DERIVED_MRV,Yes,24,No,Yes,MULTIPLY_CONSTANT,0.0,,400000.0,Derived from MILP workbook,electricity_kwh × 0.4 EUR/kWh proxy.
+electricity_cost_eur,EUR,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,400000.0,Approved cost evidence,Direct scenario/model cost or versioned cost-factor result; no universal constant.
 electricity_kwh,kWh,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1000000.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
 employees_avg,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,1200.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
 employees_health_checks,count,Social,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,800.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
@@ -42,7 +42,7 @@ employees_total,count,Social,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,1200.0
 employees_with_health_checks,count,Social,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,800.0,v6_base_canonical,v6 canonical BASE value aligned with thesis MRV boundary and DSS formula logic.
 energy_cost_share,%,Energy,DERIVED_MRV,Yes,24,No,Yes,SUM_RATIO_PCT,0.0,100.0,20.004160865460012,v7_cam_causal_alignment,Derived accounting identity: energy cost/operating cost.
 energy_intensity_fu,kWh/FU,Energy,DERIVED_MRV,Yes,24,No,Yes,RATIO,,,5.208333333333333,v7_cam_causal_alignment,Derived accounting identity: total energy/output.
-fuel_cost_eur,EUR,Energy,DERIVED_MRV,Yes,24,No,Yes,MULTIPLY_CONSTANT,0.0,,600000.0,Derived from MILP workbook,diesel_kwh × 1.2 EUR/kWh proxy.
+fuel_cost_eur,EUR,Energy,PRIMARY_MRV,Yes,24,Yes,No,,0.0,,600000.0,Approved cost evidence,Direct scenario/model cost or versioned cost-factor result; no universal constant.
 fuel_liters,L,Energy,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,46728.97196,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: fuel_liters.
 fulfilled_orders,count,Logistics,COMPATIBILITY_ALIAS,Yes,24,No,Yes,ALIAS,0.0,,96.0,Final 100% KPI compatibility layer,Compatibility alias added for KPI engine naming variations: fulfilled_orders.
 ghg_intensity_fu,kgCO2e/FU,GHG,DERIVED_MRV,Yes,24,No,Yes,RATIO_X1000,,,2.602430555555556,CH7_annual_KPI_alignment_patch,Updated to align Chapter 7 annualized MRV dataset with final KPI/VSM-C reconciled results.

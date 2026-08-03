@@ -2,11 +2,50 @@
 from __future__ import annotations
 
 from sqlalchemy import (
-    Column, Integer, String, Float, DateTime, Text, Boolean, ForeignKey
+    Column, Integer, String, Float, DateTime, Text, Boolean, ForeignKey,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 
 from .config import Base
+
+
+class ImportRun(Base):
+    __tablename__ = "sc_import_run"
+    id = Column(Integer, primary_key=True)
+    dataset_name = Column(String(255), nullable=False)
+    source_filename = Column(String(500), nullable=True)
+    import_timestamp = Column(DateTime, nullable=False)
+    status = Column(String(30), nullable=False, default="importing")
+    reference_scenario_code = Column(String(50), nullable=True)
+    scenario_count = Column(Integer, nullable=False, default=0)
+    measurement_count = Column(Integer, nullable=False, default=0)
+    checksum = Column(String(64), nullable=True)
+    factor_set_id = Column(String(100), nullable=True)
+    last_kpi_calculation = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, nullable=False, default=False, index=True)
+
+    scenario_links = relationship(
+        "ImportRunScenario", back_populates="import_run", cascade="all, delete-orphan"
+    )
+    measurements = relationship("Measurement", back_populates="import_run")
+    kpi_results = relationship("KPIResult", back_populates="import_run")
+    normalized_results = relationship("KPINormalizedResult", back_populates="import_run")
+
+
+class ImportRunScenario(Base):
+    __tablename__ = "sc_import_run_scenario"
+    __table_args__ = (
+        UniqueConstraint("import_run_id", "scenario_id", name="uq_import_run_scenario"),
+    )
+    id = Column(Integer, primary_key=True)
+    import_run_id = Column(
+        Integer, ForeignKey("sc_import_run.id"), nullable=False, index=True
+    )
+    scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=False, index=True)
+
+    import_run = relationship("ImportRun", back_populates="scenario_links")
+    scenario = relationship("Scenario", back_populates="import_run_links")
 
 
 class Scenario(Base):
@@ -19,6 +58,9 @@ class Scenario(Base):
 
     measurements = relationship("Measurement", back_populates="scenario", cascade="all, delete-orphan")
     kpi_results = relationship("KPIResult", back_populates="scenario", cascade="all, delete-orphan")
+    import_run_links = relationship(
+        "ImportRunScenario", back_populates="scenario", cascade="all, delete-orphan"
+    )
 
 
 # ---------- DPP / Master data ----------
@@ -122,6 +164,7 @@ class Measurement(Base):
     timestamp = Column(DateTime, nullable=False)
 
     scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+    import_run_id = Column(Integer, ForeignKey("sc_import_run.id"), nullable=True, index=True)
 
     # Contexto DPP / trazabilidad (opcionales)
     product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=True)
@@ -133,6 +176,7 @@ class Measurement(Base):
     comment = Column(Text, nullable=True)
 
     scenario = relationship("Scenario", back_populates="measurements")
+    import_run = relationship("ImportRun", back_populates="measurements")
     product = relationship("Product", back_populates="measurements")
     facility = relationship("Facility", back_populates="measurements")
     process = relationship("Process", back_populates="measurements")
@@ -146,6 +190,7 @@ class KPIResult(Base):
 
     kpi_id = Column(Integer, ForeignKey("sc_kpi.id"), nullable=False)
     scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+    import_run_id = Column(Integer, ForeignKey("sc_import_run.id"), nullable=True, index=True)
 
     # contexto opcional (para drill-down por DPP/planta)
     product_id = Column(Integer, ForeignKey("sc_product.id"), nullable=True)
@@ -157,6 +202,7 @@ class KPIResult(Base):
 
     kpi = relationship("KPI", back_populates="results")
     scenario = relationship("Scenario", back_populates="kpi_results")
+    import_run = relationship("ImportRun", back_populates="kpi_results")
     product = relationship("Product", back_populates="kpi_results")
     facility = relationship("Facility", back_populates="kpi_results")
 
@@ -167,6 +213,7 @@ class KPINormalizedResult(Base):
 
     kpi_id = Column(Integer, ForeignKey("sc_kpi.id"), nullable=False)
     scenario_id = Column(Integer, ForeignKey("sc_scenario.id"), nullable=True)
+    import_run_id = Column(Integer, ForeignKey("sc_import_run.id"), nullable=True, index=True)
 
     period_end = Column(DateTime, nullable=True)
 
@@ -180,11 +227,13 @@ class KPINormalizedResult(Base):
 
     normalization_method = Column(String(100), nullable=True)
     notes = Column(Text, nullable=True)
+    import_run = relationship("ImportRun", back_populates="normalized_results")
 
 
 class EmissionFactor(Base):
     __tablename__ = "sc_emission_factor"
     id = Column(Integer, primary_key=True)
+    code = Column(String(100), unique=True, nullable=True)
     name = Column(String(255), nullable=False)
     activity_type = Column(String(100), nullable=False)
     unit = Column(String(50), nullable=True)
@@ -192,6 +241,8 @@ class EmissionFactor(Base):
     valid_from = Column(DateTime, nullable=True)
     valid_to = Column(DateTime, nullable=True)
     source = Column(String(255), nullable=True)
+    analytical_role = Column(String(100), nullable=True)
+    factor_set_id = Column(String(100), nullable=True)
 
 
 class CostFactor(Base):
@@ -224,6 +275,11 @@ class ProductBatch(Base):
 
     status = Column(String(50), nullable=True)   # produced / in_stock / shipped / delivered
     notes = Column(Text, nullable=True)
+    source_system = Column(String(100), nullable=True)
+    source_reference = Column(String(255), nullable=True)
+    import_run_id = Column(Integer, ForeignKey("sc_import_run.id"), nullable=True, index=True)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
 
     product = relationship("Product")
     scenario = relationship("Scenario")
@@ -235,6 +291,7 @@ class TraceabilityEvent(Base):
     id = Column(Integer, primary_key=True)
 
     batch_id = Column(Integer, ForeignKey("sc_product_batch.id"), nullable=False)
+    event_code = Column(String(120), nullable=True, index=True)
     event_type = Column(String(80), nullable=False)
     # examples: produced, quality_checked, loaded, shipped, delivered
 
@@ -248,7 +305,11 @@ class TraceabilityEvent(Base):
     unit = Column(String(50), nullable=True)
 
     source_system = Column(String(100), nullable=True)
+    source_reference = Column(String(255), nullable=True)
     comment = Column(Text, nullable=True)
+    import_run_id = Column(Integer, ForeignKey("sc_import_run.id"), nullable=True, index=True)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
 
     batch = relationship("ProductBatch")
     facility = relationship("Facility")

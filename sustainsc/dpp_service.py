@@ -209,15 +209,15 @@ def validate_dpp_core(passport: Mapping[str, Any]) -> DPPValidationResult:
     )
 
 
-def summarize_dpp_mrv(session: Session, scenario_id: int) -> dict[str, float]:
+def summarize_dpp_mrv(
+    session: Session, scenario_id: int, import_run_id: int | None = None
+) -> dict[str, float]:
     """Summarize validated batch passports into deterministic MRV-ready values."""
 
-    batches = (
-        session.query(ProductBatch)
-        .filter(ProductBatch.scenario_id == scenario_id)
-        .order_by(ProductBatch.batch_code.asc(), ProductBatch.id.asc())
-        .all()
-    )
+    query = session.query(ProductBatch).filter(ProductBatch.scenario_id == scenario_id)
+    if import_run_id is not None:
+        query = query.filter(ProductBatch.import_run_id == import_run_id)
+    batches = query.order_by(ProductBatch.batch_code.asc(), ProductBatch.id.asc()).all()
     valid_count = 0
     total_volume = 0.0
     valid_volume = 0.0
@@ -315,17 +315,20 @@ def _latest_raw_kpis_for_product_and_scenario(
     session: Session,
     product_id: int | None,
     scenario_id: int | None,
+    import_run_id: int | None = None,
 ) -> list[dict[str, Any]]:
     if product_id is None or scenario_id is None:
         return []
-    rows = (
+    query = (
         session.query(KPIResult, KPI)
         .join(KPI, KPI.id == KPIResult.kpi_id)
         .filter(KPIResult.product_id == product_id)
         .filter(KPIResult.scenario_id == scenario_id)
         .order_by(KPI.code.asc(), KPIResult.period_end.desc(), KPIResult.id.desc())
-        .all()
     )
+    if import_run_id is not None:
+        query = query.filter(KPIResult.import_run_id == import_run_id)
+    rows = query.all()
     latest: dict[str, tuple[KPIResult, KPI]] = {}
     for result, kpi in rows:
         if kpi.code not in latest and not is_composite_kpi(kpi.code):
@@ -346,10 +349,11 @@ def _latest_raw_kpis_for_product_and_scenario(
 def _latest_normalized_kpis_for_scenario(
     session: Session,
     scenario_id: int | None,
+    import_run_id: int | None = None,
 ) -> list[dict[str, Any]]:
     if scenario_id is None:
         return []
-    rows = (
+    query = (
         session.query(KPINormalizedResult, KPI)
         .join(KPI, KPI.id == KPINormalizedResult.kpi_id)
         .filter(KPINormalizedResult.scenario_id == scenario_id)
@@ -358,8 +362,10 @@ def _latest_normalized_kpis_for_scenario(
             KPINormalizedResult.period_end.desc(),
             KPINormalizedResult.id.desc(),
         )
-        .all()
     )
+    if import_run_id is not None:
+        query = query.filter(KPINormalizedResult.import_run_id == import_run_id)
+    rows = query.all()
     latest: dict[str, tuple[KPINormalizedResult, KPI]] = {}
     for result, kpi in rows:
         if kpi.code not in latest and not is_composite_kpi(kpi.code):
@@ -388,6 +394,7 @@ def enrich_dpp_with_kpis(
     scenario_id: int | None,
     include_raw_kpis: bool = True,
     include_normalized_kpis: bool = True,
+    import_run_id: int | None = None,
 ) -> dict[str, Any]:
     """Add decision-support results with explicit non-batch scopes.
 
@@ -401,7 +408,7 @@ def enrich_dpp_with_kpis(
             "scope": "product_scenario",
             "scope_note": "Results are product-and-scenario level; no batch allocation is applied.",
             "results": _latest_raw_kpis_for_product_and_scenario(
-                session, product_id, scenario_id
+                session, product_id, scenario_id, import_run_id
             ),
         }
     if include_normalized_kpis:
@@ -411,7 +418,9 @@ def enrich_dpp_with_kpis(
                 "Normalized scores and traffic lights support scenario decisions "
                 "and are not batch physical properties."
             ),
-            "results": _latest_normalized_kpis_for_scenario(session, scenario_id),
+            "results": _latest_normalized_kpis_for_scenario(
+                session, scenario_id, import_run_id
+            ),
         }
     return enriched
 
@@ -422,6 +431,7 @@ def build_dpp_passport(
     *,
     include_raw_kpis: bool = True,
     include_normalized_kpis: bool = True,
+    import_run_id: int | None = None,
 ) -> dict[str, Any]:
     """Build, validate and optionally enrich a backward-compatible passport."""
 
@@ -435,6 +445,7 @@ def build_dpp_passport(
         scenario_id=batch.scenario_id,
         include_raw_kpis=include_raw_kpis,
         include_normalized_kpis=include_normalized_kpis,
+        import_run_id=import_run_id,
     )
     # Legacy aliases remain available to callers while the scoped sections are canonical.
     passport["raw_kpis"] = passport.get("sustainability_claims", {}).get("results", [])
@@ -503,7 +514,6 @@ def run_scenario_pipeline_with_dpp(
                 (
                     session.query(Measurement)
                     .filter(Measurement.scenario_id == scenario.id)
-                    .filter(Measurement.source_system == DPP_SOURCE_SYSTEM)
                     .filter(Measurement.variable_name.in_(variable_names))
                     .delete(synchronize_session=False)
                 )

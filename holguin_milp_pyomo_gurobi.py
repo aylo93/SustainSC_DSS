@@ -224,7 +224,7 @@ def export_results(results, out_dir="milp_outputs"):
 if __name__ == "__main__":
     scenarios = [
         ("MILP_MIN_COST", "min_cost", None),
-        ("MILP_CO2CAP_940", "min_cost_cap", CO2_cap),
+        ("MILP_CO2CAP", "min_cost_cap", CO2_cap),
         ("MILP_MIN_CO2", "min_co2", None),
     ]
 

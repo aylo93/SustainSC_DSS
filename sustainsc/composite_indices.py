@@ -5,6 +5,8 @@ import numpy as np
 
 from sustainsc.config import engine, SessionLocal
 from sustainsc.models import KPI, KPIResult, Scenario
+from sustainsc.dataset_scope import get_import_run_scenario_ids, resolve_import_run_id
+from sustainsc.mcda import canonical_dimension
 
 
 COMPOSITE_KPIS = [
@@ -85,7 +87,11 @@ def _corrected_geometric_sustain_index(dim_scores: dict, dimension_weights: dict
     return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
 
 
-def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights: dict | None = None):
+def run_composite_indices(
+    context_id: str = "aggregates_ton",
+    dimension_weights: dict | None = None,
+    import_run_id: int | None = None,
+):
     if dimension_weights is None:
         dimension_weights = {
             "environmental": 0.25,
@@ -95,6 +101,15 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
         }
 
     dimension_weights = _normalize_dimension_weights(dimension_weights)
+
+    scope_session = SessionLocal()
+    try:
+        import_run_id = resolve_import_run_id(scope_session, import_run_id)
+        if import_run_id is None:
+            raise RuntimeError("No active import run. Import a dataset before composites.")
+        scenario_ids = get_import_run_scenario_ids(scope_session, import_run_id)
+    finally:
+        scope_session.close()
 
     nr = pd.read_sql(
         """
@@ -108,15 +123,17 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
         FROM sc_kpi_normalized_result n
         JOIN sc_kpi k ON k.id = n.kpi_id
         JOIN sc_scenario s ON s.id = n.scenario_id
+        WHERE n.import_run_id = :import_run_id
         """,
         engine,
+        params={"import_run_id": import_run_id},
     )
 
     rules = pd.read_csv("data/kpi_normalization_rules.csv")
     rules.columns = [c.strip().lower() for c in rules.columns]
     rules["context_id"] = rules["context_id"].astype(str).str.strip()
     rules["kpi_code"] = rules["kpi_code"].astype(str).str.strip()
-    rules["dimension"] = rules["dimension"].astype(str).str.strip()
+    rules["dimension"] = rules["dimension"].map(canonical_dimension)
     rules["weight"] = pd.to_numeric(rules["weight"], errors="coerce")
 
     rules = rules[rules["context_id"] == context_id][["kpi_code", "dimension", "weight"]].copy()
@@ -131,13 +148,18 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
                 KPI.code.in_(["ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"])
             ).all()
         }
-        sc_map = {s.code: s.id for s in session.query(Scenario).all()}
+        sc_map = {
+            s.code: s.id
+            for s in session.query(Scenario).filter(Scenario.id.in_(scenario_ids)).all()
+        }
 
         # Clear previous composite results only
         for code in ["ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"]:
             kpi_id = comp_map.get(code)
             if kpi_id:
-                session.query(KPIResult).filter_by(kpi_id=kpi_id).delete(synchronize_session=False)
+                session.query(KPIResult).filter_by(
+                    kpi_id=kpi_id, import_run_id=import_run_id
+                ).delete(synchronize_session=False)
 
         session.flush()
 
@@ -157,6 +179,10 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
             "social": "SOC_INDEX",
             "technological": "TECH_INDEX",
         }
+        expected_by_dimension = {
+            dim: set(rules.loc[rules["dimension"] == dim, "kpi_code"])
+            for dim in dim_to_comp
+        }
 
         for scenario_code, dfg in df.groupby("scenario_code"):
             sc_id = sc_map.get(scenario_code)
@@ -168,7 +194,13 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
 
             for dim, sub in dfg.groupby("dimension"):
                 sub = sub.dropna(subset=["normalized_value", "weight"]).copy()
-                if sub.empty:
+                expected_codes = expected_by_dimension.get(dim, set())
+                present_codes = set(sub["kpi_code"])
+                if (
+                    not expected_codes
+                    or present_codes != expected_codes
+                    or sub["kpi_code"].duplicated().any()
+                ):
                     continue
 
                 w = sub["weight"].astype(float).to_numpy()
@@ -187,6 +219,7 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
                         KPIResult(
                             kpi_id=comp_kpi_id,
                             scenario_id=sc_id,
+                            import_run_id=import_run_id,
                             product_id=None,
                             facility_id=None,
                             period_start=None,
@@ -202,6 +235,7 @@ def run_composite_indices(context_id: str = "aggregates_ton", dimension_weights:
                     KPIResult(
                         kpi_id=comp_map["SUSTAIN_INDEX"],
                         scenario_id=sc_id,
+                        import_run_id=import_run_id,
                         product_id=None,
                         facility_id=None,
                         period_start=None,

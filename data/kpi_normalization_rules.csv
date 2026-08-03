@@ -3,11 +3,11 @@ E1,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,15,80,5
 E2,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,15,80,50,1,15% reduction target vs BASE
 E3,aggregates_ton,environmental,0.15,lower_better,relative_vs_base_pct,0,12,80,50,1,12% improvement target
 E4,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,10,50,80,50,0,Renewable share
-E5,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,30,85,80,50,0,Waste recovery
-E6,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Waste intensity reduction
-E7,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Water intensity reduction
+E5,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Waste generation intensity reduction
+E6,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,30,85,80,50,0,Waste recovery rate
+E7,aggregates_ton,environmental,0.10,lower_better,relative_vs_base_pct,0,12,80,50,1,Transport GHG intensity reduction
 E8,aggregates_ton,environmental,0.10,higher_better,absolute_continuous,15,60,80,50,0,Circularity ratio
-E9,aggregates_ton,environmental,0.05,lower_better,relative_vs_base_pct,0,15,80,50,1,Transport GHG intensity reduction
+E9,aggregates_ton,environmental,0.05,lower_better,relative_vs_base_pct,0,15,80,50,1,Water consumption intensity reduction
 
 EC1,aggregates_ton,economic,0.18,lower_better,relative_vs_base_pct,0,10,80,50,1,Cost/FU reduction
 EC2,aggregates_ton,economic,0.10,lower_better,relative_vs_base_pct,0,8,80,50,1,Energy cost share reduction

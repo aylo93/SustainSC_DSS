@@ -13,13 +13,13 @@ MRV_R011,diesel_liters,L2,DIVIDE_CONSTANT,diesel_kwh,,,10.7,L,ACTIVE,Diesel kWh 
 MRV_R012,digital_processes_count,L2,ALIAS,digital_processes,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R013,digitalization_rate,L2,RATIO_PCT,digital_processes,core_processes_total,,,%,ACTIVE,Digitalized processes / core processes × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R014,dpp_coverage,L2,RATIO_PCT,dpp_valid_volume,shipped_volume_total,,,%,ACTIVE,Valid DPP volume / shipped volume × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
-MRV_R015,dpp_valid_volume,L2,MIN2,dpp_volume,shipped_volume_total,,,FU,ACTIVE,DPP-valid volume capped at shipped volume.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
-MRV_R016,electricity_cost_eur,L2,MULTIPLY_CONSTANT,electricity_kwh,,,0.4,EUR,ACTIVE,Electricity kWh multiplied by the configured cost proxy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R015,dpp_valid_volume,L2,DPP_GENERATED,,,,,FU,INACTIVE,DPP-valid volume is generated exclusively by validated batch passports.,DPP schema 1.0; MIN2 remains a QA boundary check only.
+MRV_R016,electricity_cost_eur,L2,FACTOR_LOOKUP,electricity_kwh,,,,EUR,INACTIVE,Electricity cost requires direct evidence or a versioned factor set.,No universal electricity-cost constant is permitted.
 MRV_R017,employees_total,L2,ALIAS,employees_avg,,,,count,ACTIVE,Compatibility denominator alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R018,employees_with_health_checks,L2,ALIAS,employees_health_checks,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R019,energy_cost_share,L2,SUM_RATIO_PCT,electricity_cost_eur,fuel_cost_eur,operating_cost_eur,,%,ACTIVE,(Electricity + fuel cost) / operating cost × 100.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R020,energy_intensity_fu,L2,RATIO,total_energy_kwh,output_qty_fu,,,kWh/FU,ACTIVE,Total energy / output.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
-MRV_R021,fuel_cost_eur,L2,MULTIPLY_CONSTANT,diesel_kwh,,,1.2,EUR,ACTIVE,Diesel kWh multiplied by the configured fuel-cost proxy.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
+MRV_R021,fuel_cost_eur,L2,FACTOR_LOOKUP,diesel_kwh,,,,EUR,INACTIVE,Fuel cost requires direct evidence or a versioned factor set.,No universal fuel-cost constant is permitted.
 MRV_R022,fuel_liters,L2,ALIAS,diesel_liters,,,,L,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R023,fulfilled_orders,L2,ALIAS,orders_fulfilled,,,,count,ACTIVE,Compatibility alias.,Versioned MRV-layer rule; official KPI computation remains in the DSS.
 MRV_R024,ghg_intensity_fu,L2,RATIO_X1000,ghg_total_s1s2,output_qty_fu,,,kgCO2e/FU,ACTIVE,tCO2e converted to kgCO2e per FU.,Versioned MRV-layer rule; official KPI computation remains in the DSS.

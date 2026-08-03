@@ -1,0 +1,4 @@
+﻿factor_code,value,unit,analytical_role
+EF_GRID_LOCATION_REFERENCE,0.817,kgCO2e/kWh,Reference only
+EF_ELECTRICITY_CASE,0.6161,kgCO2e/kWh,Active analytical factor
+EF_DIESEL,0.2668,kgCO2e/kWh,Active analytical factor

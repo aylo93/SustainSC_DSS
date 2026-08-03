@@ -14,6 +14,7 @@ import zipfile
 import pandas as pd
 
 from scenario_completion_engine import ScenarioCompletionEngine, CompletionResult, UPLOAD_COLUMNS
+from sustainsc.mrv_validation import validate_completed_mrv
 
 BATCH_INPUT_SHEETS = {
     "scenarios": "01_SCENARIOS",
@@ -112,6 +113,36 @@ class BatchScenarioCompletionEngine:
         review_all = pd.concat(review_frames, ignore_index=True) if review_frames else pd.DataFrame()
         upload_all = pd.concat(upload_frames, ignore_index=True) if upload_frames else pd.DataFrame(columns=UPLOAD_COLUMNS)
         qa_all = pd.concat(qa_frames, ignore_index=True) if qa_frames else pd.DataFrame()
+        completed_validation = validate_completed_mrv(
+            upload_all,
+            dictionary_path=self.engine.config_dir / "mrv_dictionary.csv",
+            raise_on_error=False,
+        )
+        validation_failures = completed_validation.report[
+            completed_validation.report["severity"] == "Critical"
+        ]
+        if not validation_failures.empty:
+            completion_qa = pd.DataFrame(
+                {
+                    "check_id": "QA_COMPLETED_MRV_SCHEMA",
+                    "severity": "Critical",
+                    "status": "FAIL",
+                    "affected_variable": validation_failures["variable_name"],
+                    "message": validation_failures.apply(
+                        lambda row: (
+                            f"{row['finding']} for scenario {row['scenario_code']}: "
+                            f"{row['variable_name']}"
+                        ),
+                        axis=1,
+                    ),
+                    "required_action": (
+                        "Resolve the completed MRV schema finding before KPI calculation."
+                    ),
+                    "scenario_code": validation_failures["scenario_code"],
+                    "run_id": "batch_schema_validation",
+                }
+            )
+            qa_all = pd.concat([qa_all, completion_qa], ignore_index=True)
 
         comparison = upload_all.merge(
             expected.loc[:, ["scenario_code", "variable_name", "expected_value"]],

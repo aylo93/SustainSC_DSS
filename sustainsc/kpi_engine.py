@@ -14,7 +14,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from .config import SessionLocal
-from .models import KPI, KPIResult, Measurement, EmissionFactor, CostFactor, Scenario
+from .models import KPI, KPIResult, Measurement, EmissionFactor, CostFactor, Scenario, ImportRun
+from .dataset_scope import (
+    get_import_run_scenario_ids,
+    resolve_import_run_id,
+    utc_now_naive,
+)
+from .formula_registry import resolve_formula_id
+
+COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
 
 # IMPORTS opcionales para no romper si el nombre real cambia
 try:
@@ -32,10 +40,6 @@ except Exception:
 # Helpers
 # -----------------------------
 
-def utc_now_naive() -> datetime:
-    """Naive UTC datetime (SQLite-friendly)."""
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
 def safe_div(n: Optional[float], d: Optional[float]) -> Optional[float]:
     if n is None or d is None or d == 0:
         return None
@@ -46,40 +50,52 @@ def clamp_0_100(x: Optional[float]) -> Optional[float]:
         return None
     return max(0.0, min(100.0, float(x)))
 
-def fetch_values(session: Session, var: str, scenario_id: Optional[int]) -> List[float]:
+def fetch_values(
+    session: Session, var: str, scenario_id: Optional[int], import_run_id: int | None = None
+) -> List[float]:
     q = session.query(Measurement.value).filter(Measurement.variable_name == var)
     if scenario_id is not None:
         q = q.filter(Measurement.scenario_id == scenario_id)
+    if import_run_id is not None:
+        q = q.filter(Measurement.import_run_id == import_run_id)
     return [float(v[0]) for v in q.all()]
 
-def fetch_latest(session: Session, var: str, scenario_id: Optional[int]) -> Optional[float]:
+def fetch_latest(
+    session: Session, var: str, scenario_id: Optional[int], import_run_id: int | None = None
+) -> Optional[float]:
     q = session.query(Measurement).filter(Measurement.variable_name == var)
     if scenario_id is not None:
         q = q.filter(Measurement.scenario_id == scenario_id)
+    if import_run_id is not None:
+        q = q.filter(Measurement.import_run_id == import_run_id)
     q = q.order_by(Measurement.timestamp.desc())
     m = q.first()
     return float(m.value) if m else None
 
-def sum_var(session: Session, var: str, scenario_id: Optional[int]) -> Optional[float]:
-    vals = fetch_values(session, var, scenario_id)
+def sum_var(session: Session, var: str, scenario_id: Optional[int], import_run_id=None) -> Optional[float]:
+    vals = fetch_values(session, var, scenario_id, import_run_id)
     return float(sum(vals)) if vals else None
 
-def avg_var(session: Session, var: str, scenario_id: Optional[int]) -> Optional[float]:
-    vals = fetch_values(session, var, scenario_id)
+def avg_var(session: Session, var: str, scenario_id: Optional[int], import_run_id=None) -> Optional[float]:
+    vals = fetch_values(session, var, scenario_id, import_run_id)
     return float(sum(vals) / len(vals)) if vals else None
 
-def direct_or_none(session: Session, formula_id: str, scenario_id: Optional[int]) -> Optional[float]:
+def direct_or_none(session: Session, formula_id: str, scenario_id: Optional[int], import_run_id=None) -> Optional[float]:
     """If a measurement exists with variable_name == formula_id, use latest value as direct KPI."""
-    return fetch_latest(session, formula_id, scenario_id)
+    return fetch_latest(session, formula_id, scenario_id, import_run_id)
 
-def list_scenarios(session: Session) -> List[Optional[Scenario]]:
-    scenarios = session.query(Scenario).all()
+def list_scenarios(session: Session, import_run_id: int | None = None) -> List[Optional[Scenario]]:
+    scenario_ids = get_import_run_scenario_ids(session, import_run_id)
+    scenarios = (
+        session.query(Scenario).filter(Scenario.id.in_(scenario_ids)).order_by(Scenario.code).all()
+        if scenario_ids else []
+    )
     return scenarios if scenarios else [None]
 
 def kpiresult_has_column(colname: str) -> bool:
     return colname in KPIResult.__table__.columns.keys()
 
-def scenario_effective_timestamp(session: Session, scenario_id: Optional[int]) -> datetime:
+def scenario_effective_timestamp(session: Session, scenario_id: Optional[int], import_run_id=None) -> datetime:
     """
     Use last MRV measurement timestamp as the KPIResult timestamp for that scenario.
     This makes the dashboard time-series reflect the month of the input data.
@@ -87,6 +103,8 @@ def scenario_effective_timestamp(session: Session, scenario_id: Optional[int]) -
     q = session.query(Measurement.timestamp)
     if scenario_id is not None:
         q = q.filter(Measurement.scenario_id == scenario_id)
+    if import_run_id is not None:
+        q = q.filter(Measurement.import_run_id == import_run_id)
     max_ts = q.order_by(Measurement.timestamp.desc()).first()
     return max_ts[0] if max_ts and max_ts[0] else utc_now_naive()
 
@@ -95,7 +113,8 @@ def upsert_kpi_result(
     kpi_id: int,
     scenario_id: Optional[int],
     value: float,
-    computed_at: datetime
+    computed_at: datetime,
+    import_run_id: int | None = None,
 ) -> None:
     """
     Upsert 1 result per KPI per scenario per period_end.
@@ -110,6 +129,7 @@ def upsert_kpi_result(
             facility_id=None,
             period_start=None,
             period_end=computed_at,
+            import_run_id=import_run_id,
         )
         .first()
     )
@@ -131,6 +151,7 @@ def upsert_kpi_result(
         period_start=None,
         period_end=computed_at,
         value=float(value),
+        import_run_id=import_run_id,
     )
 
     if kpiresult_has_column("timestamp"):
@@ -145,8 +166,29 @@ def upsert_kpi_result(
 # Factors (optional use)
 # -----------------------------
 
+ANALYTICAL_FACTOR_CODES = {
+    "electricity_kwh": "EF_ELECTRICITY_CASE",
+    "diesel_kwh": "EF_DIESEL",
+}
+
+
+def get_factor_by_code(session: Session, factor_code: str, ts: datetime | None = None) -> Optional[EmissionFactor]:
+    q = session.query(EmissionFactor).filter(EmissionFactor.code == factor_code)
+    if ts is not None:
+        q = q.filter(
+            and_(
+                (EmissionFactor.valid_from.is_(None) | (EmissionFactor.valid_from <= ts)),
+                (EmissionFactor.valid_to.is_(None) | (EmissionFactor.valid_to >= ts)),
+            )
+        )
+    return q.order_by(EmissionFactor.valid_from.desc().nullslast(), EmissionFactor.id.desc()).first()
+
+
 def select_valid_emission_factor(session: Session, activity_type: str, ts: datetime) -> Optional[EmissionFactor]:
-    q = session.query(EmissionFactor).filter(EmissionFactor.activity_type == activity_type)
+    factor_code = ANALYTICAL_FACTOR_CODES.get(activity_type)
+    if factor_code is None:
+        return None
+    q = session.query(EmissionFactor).filter(EmissionFactor.code == factor_code)
     q = q.filter(
         and_(
             (EmissionFactor.valid_from.is_(None) | (EmissionFactor.valid_from <= ts)),
@@ -156,7 +198,9 @@ def select_valid_emission_factor(session: Session, activity_type: str, ts: datet
     q = q.order_by(EmissionFactor.valid_from.desc().nullslast(), EmissionFactor.id.desc())
     return q.first()
 
-def compute_total_ghg_tco2e_from_factors(session: Session, scenario_id: Optional[int]) -> Optional[float]:
+def compute_total_ghg_tco2e_from_factors(
+    session: Session, scenario_id: Optional[int], import_run_id: int | None = None
+) -> Optional[float]:
     """
     Sum MRV measurements where emission_factor.activity_type == measurement.variable_name.
     Factor value assumed: kgCO2e per unit of measurement. Return tCO2e.
@@ -164,6 +208,9 @@ def compute_total_ghg_tco2e_from_factors(session: Session, scenario_id: Optional
     q = session.query(Measurement)
     if scenario_id is not None:
         q = q.filter(Measurement.scenario_id == scenario_id)
+    if import_run_id is not None:
+        q = q.filter(Measurement.import_run_id == import_run_id)
+    q = q.filter(Measurement.variable_name.in_(list(ANALYTICAL_FACTOR_CODES)))
 
     total_kg = 0.0
     used_any = False
@@ -183,7 +230,8 @@ def compute_total_ghg_tco2e_from_factors(session: Session, scenario_id: Optional
 def compute_activity_ghg_tco2e_from_factors(
     session: Session,
     activity_names: List[str],
-    scenario_id: Optional[int]
+    scenario_id: Optional[int],
+    import_run_id: int | None = None,
 ) -> Optional[float]:
     """
     Computes tCO2e only for selected MRV activity variables.
@@ -193,6 +241,8 @@ def compute_activity_ghg_tco2e_from_factors(
     q = session.query(Measurement)
     if scenario_id is not None:
         q = q.filter(Measurement.scenario_id == scenario_id)
+    if import_run_id is not None:
+        q = q.filter(Measurement.import_run_id == import_run_id)
     q = q.filter(Measurement.variable_name.in_(activity_names))
 
     total_kg = 0.0
@@ -219,6 +269,7 @@ class Ctx:
     session: Session
     scenario_id: Optional[int]
     cache: Dict[Tuple[Optional[int], str], Optional[float]]
+    import_run_id: int | None = None
 
     def get_cached(self, formula_id: str) -> Optional[float]:
         return self.cache.get((self.scenario_id, formula_id))
@@ -227,16 +278,16 @@ class Ctx:
         self.cache[(self.scenario_id, formula_id)] = value
 
     def sum(self, var: str) -> Optional[float]:
-        return sum_var(self.session, var, self.scenario_id)
+        return sum_var(self.session, var, self.scenario_id, self.import_run_id)
 
     def avg(self, var: str) -> Optional[float]:
-        return avg_var(self.session, var, self.scenario_id)
+        return avg_var(self.session, var, self.scenario_id, self.import_run_id)
 
     def latest(self, var: str) -> Optional[float]:
-        return fetch_latest(self.session, var, self.scenario_id)
+        return fetch_latest(self.session, var, self.scenario_id, self.import_run_id)
 
     def direct(self, formula_id: str) -> Optional[float]:
-        return direct_or_none(self.session, formula_id, self.scenario_id)
+        return direct_or_none(self.session, formula_id, self.scenario_id, self.import_run_id)
 
     def pick_sum(self, *names: str) -> Optional[float]:
         for n in names:
@@ -268,7 +319,9 @@ def ghg_total_s1s2(ctx: Ctx) -> Optional[float]:
     v = ctx.direct("ghg_total_s1s2")
     if v is not None:
         return v
-    return compute_total_ghg_tco2e_from_factors(ctx.session, ctx.scenario_id)
+    return compute_total_ghg_tco2e_from_factors(
+        ctx.session, ctx.scenario_id, ctx.import_run_id
+    )
 
 def ghg_intensity_fu(ctx: Ctx) -> Optional[float]:
     v = ctx.direct("ghg_intensity_fu")
@@ -457,7 +510,14 @@ def customer_acceptance_index(ctx: Ctx) -> Optional[float]:
     renewal = ctx.pick_avg("contract_renewal_rate")
     if sales is None or survey is None or renewal is None:
         return None
-    idx = (0.3 * sales + 0.4 * survey + 0.3 * renewal) * 100.0
+    for name, value in (
+        ("sustainable_sales_share", sales),
+        ("customer_survey_score", survey),
+        ("contract_renewal_rate", renewal),
+    ):
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f"{name} must be a fraction between 0 and 1.")
+    idx = (sales + survey + renewal) / 3.0 * 100.0
     return clamp_0_100(idx)
 
 def digitalization_rate(ctx: Ctx) -> Optional[float]:
@@ -604,6 +664,7 @@ def transport_ghg_intensity_fu(ctx: Ctx) -> Optional[float]:
             ctx.session,
             ["transport_work_tkm"],
             ctx.scenario_id,
+            ctx.import_run_id,
         )
 
     # 3) If still none, try transport-specific diesel if available
@@ -612,6 +673,7 @@ def transport_ghg_intensity_fu(ctx: Ctx) -> Optional[float]:
             ctx.session,
             ["transport_diesel_kwh"],
             ctx.scenario_id,
+            ctx.import_run_id,
         )
 
     output = ctx.pick_sum("output_qty_fu")
@@ -694,6 +756,7 @@ FORMULAS: Dict[str, Callable[[Ctx], Optional[float]]] = {
 }
 
 def compute_formula(ctx: Ctx, formula_id: str) -> Optional[float]:
+    formula_id = resolve_formula_id(formula_id)
     cached = ctx.get_cached(formula_id)
     if cached is not None or (ctx.scenario_id, formula_id) in ctx.cache:
         return cached
@@ -709,11 +772,14 @@ def compute_formula(ctx: Ctx, formula_id: str) -> Optional[float]:
     return value
 
 
-def run_engine(debug_missing: bool = False) -> None:
+def run_engine(debug_missing: bool = False, import_run_id: int | None = None) -> None:
     session = SessionLocal()
     try:
-        kpis = session.query(KPI).all()
-        scenarios = list_scenarios(session)
+        kpis = session.query(KPI).filter(~KPI.code.in_(COMPOSITE_CODES)).all()
+        import_run_id = resolve_import_run_id(session, import_run_id)
+        if import_run_id is None:
+            raise RuntimeError("No active import run. Import a dataset before calculating KPIs.")
+        scenarios = list_scenarios(session, import_run_id)
 
         cache: Dict[Tuple[Optional[int], str], Optional[float]] = {}
         total_written = 0
@@ -722,9 +788,12 @@ def run_engine(debug_missing: bool = False) -> None:
             scenario_id = sc.id if sc is not None else None
 
             # IMPORTANT: compute timestamp per scenario based on last MRV measurement
-            computed_at = scenario_effective_timestamp(session, scenario_id)
+            computed_at = scenario_effective_timestamp(session, scenario_id, import_run_id)
 
-            ctx = Ctx(session=session, scenario_id=scenario_id, cache=cache)
+            ctx = Ctx(
+                session=session, scenario_id=scenario_id,
+                import_run_id=import_run_id, cache=cache
+            )
 
             for k in kpis:
                 fid = (k.formula_id or "").strip()
@@ -737,9 +806,15 @@ def run_engine(debug_missing: bool = False) -> None:
                         print(f"SKIP {k.code} ({fid}) -> missing input data")
                     continue
 
-                upsert_kpi_result(session, k.id, scenario_id, float(value), computed_at)
+                upsert_kpi_result(
+                    session, k.id, scenario_id, float(value), computed_at, import_run_id
+                )
                 total_written += 1
 
+        session.commit()
+        session.query(ImportRun).filter(ImportRun.id == import_run_id).update(
+            {"last_kpi_calculation": utc_now_naive()}, synchronize_session=False
+        )
         session.commit()
         print("=== KPI engine run completed ===")
         print(f"KPIs registered (sc_kpi): {len(kpis)}")
@@ -749,7 +824,7 @@ def run_engine(debug_missing: bool = False) -> None:
         session.close()
 
 
-def run_full_pipeline(debug_missing: bool = False) -> None:
+def run_full_pipeline(debug_missing: bool = False, import_run_id: int | None = None) -> None:
     """
     Orchestrates the complete pipeline:
     1. KPI engine (raw values)
@@ -757,20 +832,20 @@ def run_full_pipeline(debug_missing: bool = False) -> None:
     3. Composite indices (dimension + sustainability indices)
     """
     print("=== STEP 1/3: KPI engine ===")
-    run_engine(debug_missing=debug_missing)
+    run_engine(debug_missing=debug_missing, import_run_id=import_run_id)
 
     print("=== STEP 2/3: KPI normalization ===")
     if run_normalization is None:
         print("WARNING: normalization step skipped (module/function not found).")
     else:
-        run_normalization(context_id="aggregates")
+        run_normalization(context_id="aggregates_ton", import_run_id=import_run_id)
         print("=== KPI normalization completed ===")
 
     print("=== STEP 3/3: Composite indices ===")
     if run_composite_indices is None:
         print("WARNING: composite indices step skipped (module/function not found).")
     else:
-        run_composite_indices(context_id="aggregates_ton")
+        run_composite_indices(context_id="aggregates_ton", import_run_id=import_run_id)
         print("=== Composite indices completed ===")
 
 

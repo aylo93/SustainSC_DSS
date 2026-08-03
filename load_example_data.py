@@ -183,6 +183,7 @@ def load_emission_factors(session) -> None:
             continue
 
         ef = EmissionFactor(
+            code=(row.get("code") or "").strip() or None,
             name=(row.get("name") or activity_type),
             activity_type=activity_type,
             unit=(row.get("unit") or "").strip(),
@@ -190,6 +191,8 @@ def load_emission_factors(session) -> None:
             valid_from=parse_dt(row["valid_from"]) if row.get("valid_from") else None,
             valid_to=parse_dt(row["valid_to"]) if row.get("valid_to") else None,
             source=(row.get("source") or "").strip(),
+            analytical_role=(row.get("analytical_role") or "").strip() or None,
+            factor_set_id=(row.get("factor_set_id") or "").strip() or None,
         )
         session.add(ef)
         count += 1

@@ -1,5 +1,6 @@
 bridge_rule_id,source_module,native_variable,target_mrv_variable,operation,parameter,base_multiplier_variable,rule_status,case_validity,scientific_note
-BR_DES_LEAD_TIME,DES,des_native_lead_time_days,average_lead_time_days,DIVIDE_CONSTANT,183.5576470415475,,ACTIVE,Cuba case / transfer validation required,Active Cuba-case mapping; revalidate for another case.
+BR_DES_LEAD_TIME,DES,des_native_lead_time_days,average_lead_time,DIVIDE_CONSTANT,183.5576470415475,,ACTIVE,Cuba case / transfer validation required,Versioned Cuba-case L4 mapping to canonical DSS lead-time semantics; revalidate before transfer.
+BR_DES_SERVICE_LEVEL,DES,des_native_service_level_pct,service_level,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Versioned Cuba-case L4 mapping; native value is preserved separately and transfer requires validation.
 BR_DES_TRANSPORT_COST,DES,des_transport_cost_eur,logistics_cost_eur,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct DES logistics cost.
 BR_DES_TRANSPORT_GHG,DES,transport_ghg_total_tco2e,transport_ghg_tco2e,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct DES transport emissions.
 BR_DES_DEMAND,DES,des_demand_t,demand_qty_total,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct DES demand output.
@@ -9,6 +10,6 @@ BR_SD_RENEWABLE_SHARE,System Dynamics,model_renewable_share,renewable_energy_sha
 BR_SD_TOTAL_GHG,System Dynamics,model_total_ghg_tco2e,ghg_total_s1s2,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct SD GHG output.
 BR_SD_MRV_COVERAGE,System Dynamics,model_mrv_coverage_index,mrv_coverage,MULTIPLY_BASE,,mrv_coverage,ACTIVE,Cuba case / transfer validation required,Model index multiplied by BASE MRV coverage.
 BR_SD_WASTE_RATE,System Dynamics,model_waste_recovery_rate,waste_recovery_rate,MULTIPLY_CONSTANT,100.0,,ACTIVE,Cuba case / transfer validation required,Fraction converted to percent.
-BR_MILP_GHG,MILP,milp_location_based_co2_t,ghg_total_s1s2,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct MILP location-based GHG output.
+BR_MILP_GHG,MILP,milp_location_based_co2_t,ghg_total_s1s2,ALIAS,,,INACTIVE,Reference only; never used by analytical KPI calculation,Historical location-based comparison output.
 BR_VSMC_GHG,VSM-C,vsmc_location_based_co2e_t,ghg_total_s1s2,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Direct VSM-C location-based GHG output.
 BR_VSMC_OUTPUT,VSM-C,vsmc_annual_output_ton,output_qty_fu,ALIAS,,,ACTIVE,Cuba case / transfer validation required,Annual VSM-C output mapped to FU where FU = tonne.

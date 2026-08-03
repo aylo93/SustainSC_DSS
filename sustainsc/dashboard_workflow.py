@@ -9,6 +9,19 @@ import pandas as pd
 REQUIRED_DIMENSIONS = {"environmental", "economic", "social", "technological"}
 
 
+def format_reference_value(
+    reference_value: float | None,
+    normalization_type: str | None,
+) -> str:
+    """Format reference semantics without contaminating numeric persistence."""
+
+    if (normalization_type or "").strip() == "absolute_continuous":
+        return "N/A — absolute thresholds"
+    if reference_value is None or pd.isna(reference_value):
+        return "Not available"
+    return f"{float(reference_value):.6g}"
+
+
 @dataclass(frozen=True)
 class AnalysisReadiness:
     ready: bool

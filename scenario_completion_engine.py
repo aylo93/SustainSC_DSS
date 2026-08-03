@@ -105,11 +105,13 @@ class ScenarioCompletionEngine:
         engine_version: str = "1.0.0",
         rule_version: str = "1.0.0",
         strict_approval: bool = True,
+        numerical_tolerance: float = 1e-6,
     ) -> None:
         self.config_dir = Path(config_dir)
         self.engine_version = engine_version
         self.rule_version = rule_version
         self.strict_approval = strict_approval
+        self.numerical_tolerance = float(numerical_tolerance)
 
         self.dictionary = self._read_config("mrv_dictionary.csv")
         self.scope = self._read_config("strategy_scope.csv")
@@ -470,6 +472,33 @@ class ScenarioCompletionEngine:
                 source_reference=";".join(_rule_sources(rule)),
                 provenance=_text(rule.get("formula_description")) or "MRV identity recalculation.",
             )
+
+        # A direct customer-acceptance index remains authoritative, but its
+        # consistency with the canonical equal-weight formula is auditable.
+        if "customer_acceptance_index" in direct_map:
+            components = [
+                _float_or_none(state.get(name, {}).get("value"))
+                for name in (
+                    "sustainable_sales_share",
+                    "customer_survey_score",
+                    "contract_renewal_rate",
+                )
+            ]
+            if all(value is not None for value in components):
+                calculated = sum(components) / 3.0 * 100.0
+                difference = abs(direct_map["customer_acceptance_index"] - calculated)
+                if difference > self.numerical_tolerance:
+                    issue(
+                        "QA_CUSTOMER_ACCEPTANCE_CONFLICT",
+                        "Warning",
+                        "WARN",
+                        (
+                            "Direct customer acceptance differs from the canonical "
+                            f"equal-weight calculation by {difference:.12g} points; "
+                            "the approved L1 value was retained."
+                        ),
+                        variable="customer_acceptance_index",
+                    )
 
         # QA bounds and cross-variable consistency -----------------------
         for variable, record in state.items():

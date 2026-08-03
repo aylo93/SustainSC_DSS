@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from .config import SessionLocal
 from .models import KPIResult, KPINormalizedResult, KPI, Scenario
+from .dataset_scope import get_import_run_scenario_ids, resolve_import_run_id
 
 
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
@@ -64,7 +65,9 @@ def _clamp_0_100(x: Optional[float]) -> Optional[float]:
     return max(0.0, min(100.0, float(x)))
 
 
-def _get_base_scenario(session: Session, preferred_code: str = "BASE") -> Optional[Scenario]:
+def _get_base_scenario(
+    session: Session, preferred_code: str = "BASE", scenario_ids: list[int] | None = None
+) -> Optional[Scenario]:
     """
     Find the reference BASE scenario.
 
@@ -73,16 +76,22 @@ def _get_base_scenario(session: Session, preferred_code: str = "BASE") -> Option
     2. Exact BASE
     3. Any scenario containing BASE
     """
-    sc = session.query(Scenario).filter(Scenario.code == preferred_code).first()
+    query = session.query(Scenario)
+    if scenario_ids is not None:
+        query = query.filter(Scenario.id.in_(scenario_ids))
+    sc = query.filter(Scenario.code == preferred_code).first()
     if sc:
         return sc
 
-    sc = session.query(Scenario).filter(Scenario.code == "BASE").first()
+    query = session.query(Scenario)
+    if scenario_ids is not None:
+        query = query.filter(Scenario.id.in_(scenario_ids))
+    sc = query.filter(Scenario.code == "BASE").first()
     if sc:
         return sc
 
     return (
-        session.query(Scenario)
+        query
         .filter(Scenario.code.ilike("%BASE%"))
         .order_by(Scenario.code.asc())
         .first()
@@ -95,6 +104,7 @@ def _get_baseline_value(
     base_scenario_id: Optional[int],
     result_period_end=None,
     same_period: bool = False,
+    import_run_id: int | None = None,
 ) -> Optional[float]:
     """
     Retrieve BASE KPI value for the same KPI.
@@ -108,6 +118,7 @@ def _get_baseline_value(
     q = session.query(KPIResult).filter(
         KPIResult.kpi_id == kpi_id,
         KPIResult.scenario_id == base_scenario_id,
+        KPIResult.import_run_id == import_run_id,
     )
 
     if same_period and result_period_end is not None:
@@ -251,6 +262,7 @@ def run_normalization(
     base_scenario_code: str = "BASE",
     clear_existing: bool = True,
     same_period_baseline: bool = False,
+    import_run_id: int | None = None,
 ):
     """
     Run KPI normalization.
@@ -297,11 +309,19 @@ def run_normalization(
 
     with SessionLocal() as session:
         try:
+            import_run_id = resolve_import_run_id(session, import_run_id)
+            if import_run_id is None:
+                raise RuntimeError("No active import run. Import a dataset before normalization.")
+            scenario_ids = get_import_run_scenario_ids(session, import_run_id)
             if clear_existing:
-                session.query(KPINormalizedResult).delete(synchronize_session=False)
+                session.query(KPINormalizedResult).filter(
+                    KPINormalizedResult.import_run_id == import_run_id
+                ).delete(synchronize_session=False)
                 session.flush()
 
-            base_scenario = _get_base_scenario(session, preferred_code=base_scenario_code)
+            base_scenario = _get_base_scenario(
+                session, preferred_code=base_scenario_code, scenario_ids=scenario_ids
+            )
             base_scenario_id = base_scenario.id if base_scenario else None
 
             if base_scenario:
@@ -313,6 +333,10 @@ def run_normalization(
                 session.query(KPIResult)
                 .join(KPI, KPI.id == KPIResult.kpi_id)
                 .filter(~KPI.code.in_(list(COMPOSITE_CODES)))
+                .filter(
+                    KPIResult.import_run_id == import_run_id,
+                    KPIResult.scenario_id.in_(scenario_ids),
+                )
                 .all()
             )
 
@@ -346,6 +370,7 @@ def run_normalization(
                         base_scenario_id=base_scenario_id,
                         result_period_end=result.period_end,
                         same_period=same_period_baseline,
+                        import_run_id=import_run_id,
                     )
 
                 normalized_value, semaforo = normalize_value(
@@ -358,6 +383,7 @@ def run_normalization(
                     KPINormalizedResult(
                         kpi_id=result.kpi_id,
                         scenario_id=result.scenario_id,
+                        import_run_id=import_run_id,
                         period_end=result.period_end,
                         raw_value=result.value,
                         normalized_value=normalized_value,

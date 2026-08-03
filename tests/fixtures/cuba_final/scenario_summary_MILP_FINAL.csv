@@ -1,0 +1,5 @@
+﻿scenario_code,objective,co2_cap_tco2e,interpretation,operating_cost_eur,delta_cost_vs_base_pct,total_co2e_t,delta_co2_vs_base_pct,electricity_kwh,diesel_kwh,transport_work_tkm
+BASE,Observed FY2025 operating state,,Reference scenario for benchmarking and KPI comparison,4998960.0,0.0,749.5,0.0,1000000.0,500000.0,44928000.0
+MILP_MIN_COST,Minimize operating cost,,Cost-optimal annual dispatch under capacities and fleet limits,4970426.15,-0.5707957255108975,744.00134795,-0.733642701801207,993439.5,494540.0,43740050.0
+MILP_CO2CAP,Minimize operating cost,741.3,Cost-optimal dispatch under an analytical carbon cap approximately 1.095% below BASE,4973474.0,-0.5098260438171187,741.2999394,-1.0940707938625782,988866.0,494976.0,44175600.0
+MILP_MIN_CO2,Minimize total CO2e,implicit (lowest feasible),Emissions-optimal dispatch under capacities and fleet limits,4976306.8,-0.4531582569174408,738.7917659999999,-1.4287170113409076,984620.0,495380.0,44580000.0

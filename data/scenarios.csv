@@ -3,7 +3,7 @@ BASE	Baseline	Reference baseline scenario	Default baseline for comparison and no
 VSMC_KAIZEN	VSM-C Kaizen	Scenario derived from VSM-C hotspot improvements	Kaizen actions on process efficiency, dispatch and idle-time reduction
 SOCIAL_PUSH	Social Push	Scenario emphasizing workforce and community improvements	Training, participation, prevention and social performance improvements
 MILP_MIN_COST	MILP Minimum Cost	Optimization scenario minimizing operating cost	Directly derived from MILP/LP cost-minimization results
-MILP_CO2CAP_940	MILP CO2 Cap 940	Optimization scenario minimizing cost under a CO2 cap	Directly derived from MILP/LP results with CO2 cap = 940
+MILP_CO2CAP	MILP CO2 Cap	Optimization scenario minimizing cost under an analytical CO2 cap	Directly derived from MILP/LP results with a configured CO2 cap
 MILP_MIN_CO2	MILP Minimum CO2	Optimization scenario minimizing emissions	Directly derived from MILP/LP emission-minimization results
 SD_BAU_2035	SD BAU 2035	System dynamics business-as-usual scenario for 2035	Translated from SD outputs into a measurement-style snapshot
 SD_ENERGY_PUSH_2035	SD Energy Push 2035	System dynamics scenario emphasizing renewable/energy actions	Translated from SD outputs into a measurement-style snapshot

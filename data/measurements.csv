@@ -1,4 +1,4 @@
-﻿variable_name	value	unit	timestamp	scenario_code	source_system	comment
+variable_name	value	unit	timestamp	scenario_code	source_system	comment
 analytics_supported_decisions	66.666667	%	2025-12-31T00:00:00	BASE	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for analytics_supported_decisions.
 assets_connected	25	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 assets_total	50	count	2025-12-01T00:00:00	BASE	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -1076,111 +1076,111 @@ waste_recovered_t	8000	t	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / 
 waste_recovery_rate	40	%	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_recovery_rate.
 water_intensity_fu	0.305826	m3/FU	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for water_intensity_fu.
 water_withdrawn_m3	60000	m3	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Integrated MRV / MILP dataset	Harmonized annual MRV inventory inherited from canonical BASE; DES scenario changes are captured by network outputs.
-analytics_supported_decisions	91.666667	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for analytics_supported_decisions.
-assets_connected	35	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-assets_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-average_lead_time	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for average_lead_time.
-average_lead_time_days	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: average_lead_time_days.
-circularity_ratio	20.75	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for circularity_ratio.
-community_incidents_count	2	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-community_incidents_total	6	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for community_incidents_total.
-contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-core_processes_total	24	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-cost_per_fu	17.268903	EUR/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
-customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
-customer_survey_score	0.68	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
-decisions_supported	55	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-decisions_supported_by_analytics	55	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
-decisions_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
-diesel_kwh	494971.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-diesel_liters	46259	L	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: diesel_liters.
-digital_processes	18	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: digital_processes.
-digital_processes_count	18	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-digitalization_rate	75	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for digitalization_rate.
-dpp_coverage	84	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for dpp_coverage.
-dpp_valid_volume	241920	t	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: dpp_valid_volume.
-dpp_volume	241920	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
-electricity_cost_eur	395564.52	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
-electricity_kwh	988911.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-employees_avg	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-employees_health_checks	88	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-employees_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
-employees_with_health_checks	88	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: employees_with_health_checks.
-energy_cost_share	19.896275	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for energy_cost_share.
-energy_intensity_fu	5.15237	kWh/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for energy_intensity_fu.
-fuel_cost_eur	593965.56	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
-fuel_liters	46259	L	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: fuel_liters.
-fulfilled_orders	96	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: fulfilled_orders.
-ghg_intensity_fu	2.574051	kgCO2e/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ghg_intensity_fu.
-ghg_total_s1s2	741.326695	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ghg_total_s1s2.
-health_checks_coverage	73.333333	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for health_checks_coverage.
-hours_worked_h	2500000	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-iot_asset_connectivity	58.333333	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for iot_asset_connectivity.
-lead_time_days	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: lead_time_days.
-logistics_cost_eur	883426	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
-logistics_cost_per_tkm	0.02	EUR/tkm	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for logistics_cost_per_tkm.
-lti_count	5	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-ltifr	2	LTIs/1e6h	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ltifr.
-maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-maintenance_cost_per_hour	7	EUR/h	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for maintenance_cost_per_hour.
-material_circular_t	62250	t	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
-material_total_t	300000	t	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-mrv_coverage	75	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for mrv_coverage.
-mrv_points_active	150	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: mrv_points_active.
-mrv_points_active_valid	150	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
-mrv_points_required	200	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Estimated for DSS KPI denominator	Common MRV point denominator.
-number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
-number_of_shipments	60	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: number_of_shipments.
-oee	75.078	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for oee.
-oee_availability	0.86	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-oee_performance	0.9	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-oee_quality	0.97	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-on_time_orders	96	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: on_time_orders.
-operating_cost_eur	4973444	EUR	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-operating_hours_h	50000	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-orders_delivered_on_time	96	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
-orders_fulfilled	96	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: orders_fulfilled.
-orders_total	120	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
-ot_it_integration	3.5	index(1-5)	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ot_it_integration.
-ot_it_integration_score	3.5	score	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-output_qty_fu	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-processes_digital	18	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: processes_digital.
-renewable_energy_kwh	118669.36	kWh	2025-12-01T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
-renewable_energy_share	12	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for renewable_energy_share.
-rosi	-80	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for rosi.
-service_level	80	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for service_level.
-shipments_total	60	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: shipments_total.
-shipped_volume	288000	t	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: shipped_volume.
-shipped_volume_total	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
-substantiated_complaints_count	4	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-suggestions_count	150	count	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-suggestions_per_employee	1.25	sugg/employee	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for suggestions_per_employee.
-sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP/LP scenario totals from report	
-total_delivery_time_hours	510	h	2025-12-31T00:00:00	MILP_CO2CAP_940	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
-total_energy	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy.
-total_energy_consumption_kwh	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy_consumption_kwh.
-total_energy_kwh	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy_kwh.
-total_lead_time_days	21.25	days	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_lead_time_days.
-total_orders	120	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_orders.
-total_processes	24	count	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_processes.
-training_hours_h	2600	h	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-training_hours_per_employee	21.666667	h/employee	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for training_hours_per_employee.
-transport_emissions_tco2e	132.157337	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: transport_emissions_tco2e.
-transport_ghg_intensity_fu	0.45888	kgCO2e/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for transport_ghg_intensity_fu.
-transport_ghg_tco2e	132.157337	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: transport_ghg_tco2e.
-transport_work_tkm	44171300	tkm	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-waste_generated_t	19750	t	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-waste_generation_intensity_fu	0.068576	t/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_generation_intensity_fu.
-waste_recovered_t	8300	t	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
-waste_recovery_rate	42.025316	%	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_recovery_rate.
-water_intensity_fu	0.203125	m3/FU	2025-12-31T00:00:00	MILP_CO2CAP_940	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for water_intensity_fu.
-water_withdrawn_m3	58500	m3	2025-12-01T00:00:00	MILP_CO2CAP_940	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+analytics_supported_decisions	91.666667	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for analytics_supported_decisions.
+assets_connected	35	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+assets_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+average_lead_time	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for average_lead_time.
+average_lead_time_days	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: average_lead_time_days.
+circularity_ratio	20.75	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for circularity_ratio.
+community_incidents_count	2	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+community_incidents_total	6	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for community_incidents_total.
+contract_renewal_rate	0.75	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+core_processes_total	24	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+cost_per_fu	17.268903	EUR/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for cost_per_fu.
+customer_acceptance_index	55.00000000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for customer_acceptance_index. Corrected to 0-100 index scale.
+customer_survey_score	0.68	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+data_accuracy	0.85	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+data_completeness	0.92	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+data_consistency	0.88	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+data_quality_index	88.33330000000001	index(0-100)	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for data_quality_index. Corrected to 0-100 index scale.
+decisions_supported	55	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+decisions_supported_by_analytics	55	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: decisions_supported_by_analytics.
+decisions_total	60	count	2025-12-01T00:00:00	MILP_CO2CAP	Estimated for DSS KPI denominator	Common denominator for analytics-supported decisions; keeps T7 within 0â€“100%.
+diesel_kwh	494971.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+diesel_liters	46259	L	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: diesel_liters.
+digital_processes	18	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: digital_processes.
+digital_processes_count	18	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+digitalization_rate	75	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for digitalization_rate.
+dpp_coverage	84	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for dpp_coverage.
+dpp_valid_volume	241920	t	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: dpp_valid_volume.
+dpp_volume	241920	FU	2025-12-01T00:00:00	MILP_CO2CAP	Estimated for DPP-ready DSS testing	Estimated DPP-covered volume for technological KPI computation.
+electricity_cost_eur	395564.52	EUR	2025-12-01T00:00:00	MILP_CO2CAP	Derived from MILP workbook	electricity_kwh Ã— 0.4 EUR/kWh proxy.
+electricity_kwh	988911.3	kWh	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+employees_avg	120	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+employees_health_checks	88	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+employees_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Mapped from employees in MILP workbook.
+employees_with_health_checks	88	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: employees_with_health_checks.
+energy_cost_share	19.896275	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for energy_cost_share.
+energy_intensity_fu	5.15237	kWh/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for energy_intensity_fu.
+fuel_cost_eur	593965.56	EUR	2025-12-01T00:00:00	MILP_CO2CAP	Derived from MILP workbook	diesel_kwh Ã— 1.2 EUR/kWh proxy.
+fuel_liters	46259	L	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: fuel_liters.
+fulfilled_orders	96	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: fulfilled_orders.
+ghg_intensity_fu	2.574051	kgCO2e/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ghg_intensity_fu.
+ghg_total_s1s2	741.326695	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ghg_total_s1s2.
+health_checks_coverage	73.333333	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for health_checks_coverage.
+hours_worked_h	2500000	h	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+incremental_benefits_eur	240000	EUR	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+investment_cost_eur	1200000	EUR	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+iot_asset_connectivity	58.333333	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for iot_asset_connectivity.
+lead_time_days	0.354167	days	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: lead_time_days.
+logistics_cost_eur	883426	EUR	2025-12-01T00:00:00	MILP_CO2CAP	Derived from MILP workbook	transport_work_tkm Ã— 0.02 EUR/tkm proxy.
+logistics_cost_per_tkm	0.02	EUR/tkm	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for logistics_cost_per_tkm.
+lti_count	5	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+ltifr	2	LTIs/1e6h	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ltifr.
+maintenance_cost_eur	350000	EUR	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+maintenance_cost_per_hour	7	EUR/h	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for maintenance_cost_per_hour.
+material_circular_t	62250	t	2025-12-01T00:00:00	MILP_CO2CAP	Estimated from MILP material_total_t	Estimated circular material share aligned with MILP scenario logic.
+material_total_t	300000	t	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+mrv_coverage	75	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for mrv_coverage.
+mrv_points_active	150	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: mrv_points_active.
+mrv_points_active_valid	150	count	2025-12-01T00:00:00	MILP_CO2CAP	Estimated for DSS KPI computation	Estimated valid MRV points for MILP scenario.
+mrv_points_required	200	count	2025-12-01T00:00:00	MILP_CO2CAP	Estimated for DSS KPI denominator	Common MRV point denominator.
+number_of_deliveries	60	count	2025-12-31T00:00:00	MILP_CO2CAP	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+number_of_shipments	60	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: number_of_shipments.
+oee	75.078	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for oee.
+oee_availability	0.86	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+oee_performance	0.9	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+oee_quality	0.97	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+on_time_orders	96	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: on_time_orders.
+operating_cost_eur	4973444	EUR	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+operating_hours_h	50000	h	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+orders_delivered_on_time	96	count	2025-12-31T00:00:00	MILP_CO2CAP	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+orders_fulfilled	96	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: orders_fulfilled.
+orders_total	120	count	2025-12-31T00:00:00	MILP_CO2CAP	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+ot_it_integration	3.5	index(1-5)	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for ot_it_integration.
+ot_it_integration_score	3.5	score	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+output_qty_fu	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+processes_digital	18	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: processes_digital.
+renewable_energy_kwh	118669.36	kWh	2025-12-01T00:00:00	MILP_CO2CAP	Final DSS measurement integration	Estimated/derived renewable energy input added to avoid zero renewable-share KPI and support scenario comparison.
+renewable_energy_share	12	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for renewable_energy_share.
+rosi	-80	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for rosi.
+service_level	80	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for service_level.
+shipments_total	60	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: shipments_total.
+shipped_volume	288000	t	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: shipped_volume.
+shipped_volume_total	288000	FU	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Set equal to output_qty_fu for MILP scenario.
+substantiated_complaints_count	4	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+suggestions_count	150	count	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+suggestions_per_employee	1.25	sugg/employee	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for suggestions_per_employee.
+sustainable_sales_share	0.22	fraction	2025-12-01T00:00:00	MILP_CO2CAP	MILP/LP scenario totals from report	
+total_delivery_time_hours	510	h	2025-12-31T00:00:00	MILP_CO2CAP	Final DSS measurement integration	Estimated annual service-log variable added to ensure EC7/EC8 KPI calculation and scenario comparison.
+total_energy	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy.
+total_energy_consumption_kwh	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy_consumption_kwh.
+total_energy_kwh	1483882.6	kWh	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_energy_kwh.
+total_lead_time_days	21.25	days	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_lead_time_days.
+total_orders	120	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_orders.
+total_processes	24	count	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: total_processes.
+training_hours_h	2600	h	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+training_hours_per_employee	21.666667	h/employee	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for training_hours_per_employee.
+transport_emissions_tco2e	132.157337	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: transport_emissions_tco2e.
+transport_ghg_intensity_fu	0.45888	kgCO2e/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for transport_ghg_intensity_fu.
+transport_ghg_tco2e	132.157337	tCO2e	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Compatibility alias added for KPI engine naming variations: transport_ghg_tco2e.
+transport_work_tkm	44171300	tkm	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+waste_generated_t	19750	t	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+waste_generation_intensity_fu	0.068576	t/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_generation_intensity_fu.
+waste_recovered_t	8300	t	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
+waste_recovery_rate	42.025316	%	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for waste_recovery_rate.
+water_intensity_fu	0.203125	m3/FU	2025-12-31T00:00:00	MILP_CO2CAP	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for water_intensity_fu.
+water_withdrawn_m3	58500	m3	2025-12-01T00:00:00	MILP_CO2CAP	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 analytics_supported_decisions	100	%	2025-12-31T00:00:00	MILP_MIN_CO2	Final 100% KPI compatibility layer	Direct formula_id-compatible value calculated for analytics_supported_decisions.
 assets_connected	40	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
 assets_total	65	count	2025-12-01T00:00:00	MILP_MIN_CO2	MILP measurements_full_scenarios.xlsx	Integrated from uploaded MILP measurement workbook.
@@ -2629,8 +2629,8 @@ orders_on_time	76	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final compatibilit
 deliveries_total	90	count	2030-12-31T00:00:00	DES_MRV_PUSH_2030	Final compatibility alias	Alias for service_level formula.
 orders_on_time	69	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
 deliveries_total	82	count	2035-12-31T00:00:00	DES_MRV_PUSH_2035	Final compatibility alias	Alias for service_level formula.
-orders_on_time	96	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Final compatibility alias	Alias for service_level formula.
-deliveries_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP_940	Final compatibility alias	Alias for service_level formula.
+orders_on_time	96	count	2025-12-01T00:00:00	MILP_CO2CAP	Final compatibility alias	Alias for service_level formula.
+deliveries_total	120	count	2025-12-01T00:00:00	MILP_CO2CAP	Final compatibility alias	Alias for service_level formula.
 orders_on_time	96	count	2025-12-01T00:00:00	MILP_MIN_CO2	Final compatibility alias	Alias for service_level formula.
 deliveries_total	120	count	2025-12-01T00:00:00	MILP_MIN_CO2	Final compatibility alias	Alias for service_level formula.
 orders_on_time	98	count	2025-12-01T00:00:00	MILP_MIN_COST	Final compatibility alias	Alias for service_level formula.

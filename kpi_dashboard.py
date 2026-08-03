@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -28,7 +27,9 @@ def _default_db_url() -> str:
     if Path("/mount/src").exists() or os.getenv("STREAMLIT_SERVER_HEADLESS") == "true":
         return "sqlite:////tmp/sustainsc.db"
 
-    db_path = Path(tempfile.gettempdir()) / "sustainsc.db"
+    # Local CLI recalculation and the dashboard must use the same database.
+    # Deployed/headless environments retain the isolated /tmp database above.
+    db_path = Path(__file__).resolve().parent / "sustainsc.db"
     return f"sqlite:///{db_path.as_posix()}"
 
 
@@ -44,9 +45,40 @@ from sustainsc.dpp_service import (
     dpp_passport_to_json,
     summarize_dpp_mrv,
 )
+from sustainsc.dpp_import import (
+    DPPImportValidationError,
+    import_dpp_workbook,
+    read_dpp_workbook,
+)
 from sustainsc.kpi_engine import run_full_pipeline
-from sustainsc.models import Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult
-from sustainsc.dashboard_workflow import assess_analysis_readiness, has_restrictive_filters
+from sustainsc.models import (
+    Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult,
+    ImportRun, ImportRunScenario,
+)
+from sustainsc.dataset_scope import (
+    activate_import_run,
+    assert_scenario_integrity,
+    ensure_dataset_schema,
+    utc_now_naive,
+)
+from sustainsc.mrv_validation import (
+    canonicalize_common_mrv_units,
+    select_common_mrv,
+    validate_completed_mrv,
+)
+from sustainsc.dashboard_workflow import (
+    assess_analysis_readiness,
+    format_reference_value,
+    has_restrictive_filters,
+)
+from sustainsc.mcda import (
+    DIMENSION_ORDER,
+    build_mcda_input,
+    calculate_mcda,
+    canonical_dimension,
+    compute_complete_dimension_indices,
+    evaluate_scenario_eligibility,
+)
 from sustainsc.ui import (
     apply_design_system,
     render_data_status_panel,
@@ -57,7 +89,10 @@ from sustainsc.ui import (
     render_section_header,
     render_workflow_progress,
 )
-from sustainsc.ui.chart_theme import DIMENSION_COLOR_MAP
+from sustainsc.ui.chart_theme import (
+    DIMENSION_COLOR_MAP,
+    build_horizontal_ranking_chart,
+)
 from scenario_completion_page import render_scenario_completion_page
 
 
@@ -76,12 +111,21 @@ def ensure_schema():
     """
     Ensure all tables exist before any SELECT COUNT(*) calls.
     """
-    Base.metadata.create_all(bind=engine)
+    ensure_dataset_schema()
 
 
 def _safe_count(table_name: str) -> int:
     with engine.connect() as con:
         return int(con.execute(text(f"SELECT COUNT(*) FROM {table_name}")).scalar() or 0)
+
+
+def _has_active_import_run() -> bool:
+    with engine.connect() as con:
+        return bool(
+            con.execute(
+                text("SELECT 1 FROM sc_import_run WHERE is_active = 1 LIMIT 1")
+            ).scalar()
+        )
 
 
 @st.cache_resource(show_spinner=False)
@@ -339,8 +383,19 @@ def render_dpp_section() -> None:
     )
     session = SessionLocal()
     try:
+        active_run_id = st.session_state.get("active_import_run_id")
+        active_scenario_ids = [
+            row[0]
+            for row in session.query(ImportRunScenario.scenario_id)
+            .filter(ImportRunScenario.import_run_id == active_run_id)
+            .all()
+        ]
         batches = (
             session.query(ProductBatch)
+            .filter(
+                ProductBatch.scenario_id.in_(active_scenario_ids),
+                ProductBatch.import_run_id == active_run_id,
+            )
             .order_by(ProductBatch.batch_code)
             .all()
         )
@@ -373,10 +428,13 @@ def render_dpp_section() -> None:
             batch_code,
             include_raw_kpis=include_raw,
             include_normalized_kpis=include_normalized,
+            import_run_id=st.session_state.get("active_import_run_id"),
         )
         scenario_id = scenario_by_batch.get(batch_code)
         dpp_summary = (
-            summarize_dpp_mrv(session, scenario_id) if scenario_id is not None else None
+            summarize_dpp_mrv(
+                session, scenario_id, st.session_state.get("active_import_run_id")
+            ) if scenario_id is not None else None
         )
     finally:
         session.close()
@@ -423,14 +481,71 @@ def load_kpi_catalog():
     """
     df = pd.read_sql(q, engine)
     if not df.empty:
-        df["dimension"] = df["dimension"].fillna("unknown")
+        df["dimension"] = df["dimension"].map(canonical_dimension)
         df["decision_level"] = df["decision_level"].fillna("unknown")
         df["flow"] = df["flow"].fillna("unknown")
     return df
 
 
 @st.cache_data(ttl=30)
-def load_raw_kpi_results():
+def load_active_context(import_run_id: int) -> dict:
+    counts = pd.read_sql(
+        text(
+            "SELECT COUNT(*) AS measurement_count, "
+            "COUNT(DISTINCT scenario_id) AS scenario_count "
+            "FROM sc_measurement WHERE import_run_id = :import_run_id"
+        ),
+        engine,
+        params={"import_run_id": import_run_id},
+    ).iloc[0]
+    dictionary = pd.read_csv(Path(__file__).parent / "config" / "mrv_dictionary.csv")
+    common_count = int(
+        dictionary["common_upload_variable"]
+        .astype(str).str.strip().str.lower()
+        .isin({"yes", "true", "1"})
+        .sum()
+    )
+    scenario_count = int(counts["scenario_count"])
+    measurement_count = int(counts["measurement_count"])
+    expected = scenario_count * common_count
+    dpp_counts = pd.read_sql(
+        text(
+            "SELECT "
+            "(SELECT COUNT(*) FROM sc_product_batch WHERE import_run_id=:import_run_id) AS batches, "
+            "(SELECT COUNT(*) FROM sc_traceability_event WHERE import_run_id=:import_run_id) AS events"
+        ),
+        engine,
+        params={"import_run_id": import_run_id},
+    ).iloc[0]
+    dpp_ready = 0
+    scoped_session = SessionLocal()
+    try:
+        for (batch_code,) in (
+            scoped_session.query(ProductBatch.batch_code)
+            .filter(ProductBatch.import_run_id == import_run_id).all()
+        ):
+            passport = build_dpp_passport(
+                scoped_session, batch_code,
+                include_raw_kpis=False, include_normalized_kpis=False,
+                import_run_id=import_run_id,
+            )
+            dpp_ready += int(passport["validation"]["is_valid"])
+    finally:
+        scoped_session.close()
+    return {
+        "scenario_count": scenario_count,
+        "measurement_count": measurement_count,
+        "common_variable_count": common_count,
+        "expected_measurement_count": expected,
+        "integrity": "PASS" if measurement_count == expected else "FAIL",
+        "batch_count": int(dpp_counts["batches"]),
+        "event_count": int(dpp_counts["events"]),
+        "dpp_ready_count": dpp_ready,
+    }
+
+
+@st.cache_data(ttl=30)
+def load_raw_kpi_results(import_run_id: int):
     q = """
     SELECT
         s.code AS scenario_code,
@@ -441,8 +556,9 @@ def load_raw_kpi_results():
     JOIN sc_kpi k ON k.id = r.kpi_id
     JOIN sc_scenario s ON s.id = r.scenario_id
     WHERE k.code NOT IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+      AND r.import_run_id = :import_run_id
     """
-    df = pd.read_sql(q, engine)
+    df = pd.read_sql(q, engine, params={"import_run_id": import_run_id})
     if not df.empty:
         df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
         df["scenario_code"] = df["scenario_code"].fillna("NONE")
@@ -450,7 +566,7 @@ def load_raw_kpi_results():
 
 
 @st.cache_data(ttl=30)
-def load_normalized_results():
+def load_normalized_results(import_run_id: int):
     q = """
     SELECT
         n.scenario_id,
@@ -475,12 +591,13 @@ def load_normalized_results():
     JOIN sc_kpi k ON k.id = n.kpi_id
     JOIN sc_scenario s ON s.id = n.scenario_id
     WHERE k.code NOT IN ('ENV_INDEX','ECO_INDEX','SOC_INDEX','TECH_INDEX','SUSTAIN_INDEX')
+      AND n.import_run_id = :import_run_id
     """
-    df = pd.read_sql(q, engine)
+    df = pd.read_sql(q, engine, params={"import_run_id": import_run_id})
     if not df.empty:
         df["period_end"] = pd.to_datetime(df["period_end"], errors="coerce")
         df["scenario_code"] = df["scenario_code"].fillna("NONE")
-        df["dimension"] = df["dimension"].fillna("unknown")
+        df["dimension"] = df["dimension"].map(canonical_dimension)
         df["decision_level"] = df["decision_level"].fillna("unknown")
         df["flow"] = df["flow"].fillna("unknown")
     return df
@@ -495,7 +612,7 @@ def load_normalization_rules():
     rules = pd.read_csv(path)
     rules.columns = [c.strip().lower() for c in rules.columns]
     rules["kpi_code"] = rules["kpi_code"].astype(str).str.strip()
-    rules["dimension"] = rules["dimension"].astype(str).str.strip()
+    rules["dimension"] = rules["dimension"].map(canonical_dimension)
     rules["weight"] = pd.to_numeric(rules["weight"], errors="coerce")
     return rules
 
@@ -536,37 +653,9 @@ def compute_dimension_indices(norm_latest: pd.DataFrame, rules_df: pd.DataFrame,
     if norm_latest.empty or rules_df.empty:
         return pd.DataFrame(), pd.DataFrame()
 
-    weights = (
-        rules_df[["kpi_code", "dimension", "weight"]]
-        .dropna(subset=["kpi_code", "dimension", "weight"])
-        .drop_duplicates()
-        .rename(columns={"dimension": "rule_dimension", "weight": "local_weight"})
-    )
-
-    merged = norm_latest.merge(weights, on="kpi_code", how="inner")
-    if merged.empty:
-        return pd.DataFrame(), pd.DataFrame()
-
-    rows = []
-    for (scenario_code, rule_dimension), g in merged.groupby(["scenario_code", "rule_dimension"]):
-        gg = g.dropna(subset=["normalized_value", "local_weight"]).copy()
-        if gg.empty:
-            continue
-
-        x = gg["normalized_value"].astype(float).to_numpy()
-        w = gg["local_weight"].astype(float).to_numpy()
-        if w.sum() <= 0:
-            continue
-
-        score = float(np.average(x, weights=w))
-        rows.append({
-            "scenario_code": scenario_code,
-            "dimension": rule_dimension,
-            "dimension_index": score,
-            "kpis_used": len(gg),
-        })
-
-    dim_long = pd.DataFrame(rows)
+    metadata = rules_df[["kpi_code", "dimension"]].drop_duplicates()
+    weights = rules_df.drop_duplicates("kpi_code").set_index("kpi_code")["weight"]
+    dim_long, _ = compute_complete_dimension_indices(norm_latest, metadata, weights)
     if dim_long.empty:
         return pd.DataFrame(), pd.DataFrame()
 
@@ -840,12 +929,36 @@ def normalize_measurements_upload(df: pd.DataFrame) -> pd.DataFrame:
     out = out[out["scenario_code"] != ""].copy()
     out = out[out["variable_name"] != ""].copy()
 
+    dictionary_path = Path(__file__).resolve().parent / "config" / "mrv_dictionary.csv"
+    out = select_common_mrv(out, dictionary_path=dictionary_path)
+    out = canonicalize_common_mrv_units(out, dictionary_path=dictionary_path)
+    validate_completed_mrv(out, dictionary_path=dictionary_path)
     return out
 
 
-def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool = True):
+def write_measurements_to_db(
+    df: pd.DataFrame,
+    replace_uploaded_scenarios: bool = True,
+    *,
+    dataset_name: str = "Imported dataset",
+    source_filename: str | None = None,
+):
     session = SessionLocal()
     try:
+        import_run = ImportRun(
+            dataset_name=dataset_name,
+            source_filename=source_filename,
+            import_timestamp=utc_now_naive(),
+            status="importing",
+            reference_scenario_code=(
+                "BASE" if "BASE" in set(df["scenario_code"].astype(str)) else None
+            ),
+            scenario_count=0,
+            measurement_count=0,
+            is_active=False,
+        )
+        session.add(import_run)
+        session.flush()
         sc_map = {s.code: s.id for s in session.query(Scenario).all()}
 
         uploaded_codes = sorted(df["scenario_code"].dropna().astype(str).str.strip().unique().tolist())
@@ -861,36 +974,20 @@ def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool 
                 session.flush()
                 sc_map[scode] = sc.id
 
-        if replace_uploaded_scenarios and uploaded_codes:
-            ids_to_clear = [sc_map[c] for c in uploaded_codes if c in sc_map]
-            if ids_to_clear:
-                # IMPORTANT:
-                # If measurements are replaced, raw and normalized KPI results for those
-                # scenarios must also be removed. Otherwise the dashboard may display
-                # stale normalized rows such as "Need BASE" even after importing a
-                # corrected CSV.
-                session.query(Measurement).filter(Measurement.scenario_id.in_(ids_to_clear)).delete(
-                    synchronize_session=False
-                )
-                session.query(KPIResult).filter(KPIResult.scenario_id.in_(ids_to_clear)).delete(
-                    synchronize_session=False
-                )
-                session.query(KPINormalizedResult).filter(
-                    KPINormalizedResult.scenario_id.in_(ids_to_clear)
-                ).delete(synchronize_session=False)
-
-                # Relative-vs-BASE normalization depends on the reference scenario.
-                # If BASE changes, all normalized rows must be rebuilt.
-                if any(str(c).upper() == "BASE" for c in uploaded_codes):
-                    session.query(KPINormalizedResult).delete(synchronize_session=False)
-
-                session.flush()
+        # Historical data are preserved. Dataset membership, not scenario names,
+        # determines what belongs to the newly active import.
+        for scode in uploaded_codes:
+            session.add(
+                ImportRunScenario(import_run_id=import_run.id, scenario_id=sc_map[scode])
+            )
+        session.flush()
 
         written = 0
         for _, row in df.iterrows():
             session.add(
                 Measurement(
                     scenario_id=sc_map[row["scenario_code"]],
+                    import_run_id=import_run.id,
                     variable_name=str(row["variable_name"]).strip(),
                     value=float(row["value"]),
                     unit=str(row["unit"]).strip(),
@@ -905,8 +1002,12 @@ def write_measurements_to_db(df: pd.DataFrame, replace_uploaded_scenarios: bool 
             )
             written += 1
 
+        import_run.scenario_count = len(uploaded_codes)
+        import_run.measurement_count = written
+        assert_scenario_integrity(session, import_run.id, uploaded_codes)
+        activate_import_run(session, import_run)
         session.commit()
-        return written, uploaded_codes
+        return written, uploaded_codes, import_run.id
     finally:
         session.close()
 
@@ -923,32 +1024,18 @@ if not boot_ok:
     st.error(f"❌ Failed to bootstrap database: {boot_msg}")
     st.stop()
 
-def _load_uploaded_csv(uploaded_file, loader) -> int:
-    if uploaded_file is None:
-        return 0
-    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as temp:
-        temp.write(uploaded_file.getbuffer())
-        path = Path(temp.name)
-    try:
-        return int(loader(path))
-    finally:
-        path.unlink(missing_ok=True)
-
-
-def import_completed_mrv(result, *, batches_file=None, events_file=None):
+def import_completed_mrv(result):
     """Persist a validated completion result and refresh every KPI output."""
-    from load_product_batches import load_product_batches_file
-    from load_traceability_events import load_traceability_events_file
-
     completed = normalize_measurements_upload(result.software_upload)
-    written, imported_codes = write_measurements_to_db(
+    written, imported_codes, import_run_id = write_measurements_to_db(
         completed,
         replace_uploaded_scenarios=True,
+        dataset_name="Completed MRV import",
+        source_filename=getattr(result, "source_filename", None),
     )
-    batches_written = _load_uploaded_csv(batches_file, load_product_batches_file)
-    events_written = _load_uploaded_csv(events_file, load_traceability_events_file)
-    run_full_pipeline(debug_missing=False)
+    run_full_pipeline(debug_missing=False, import_run_id=import_run_id)
     load_kpi_catalog.clear()
+    load_active_context.clear()
     load_raw_kpi_results.clear()
     load_normalized_results.clear()
     load_normalization_rules.clear()
@@ -961,23 +1048,23 @@ def import_completed_mrv(result, *, batches_file=None, events_file=None):
     )
     st.session_state["import_completed"] = True
     st.session_state["active_scenario"] = imported_codes[0] if imported_codes else None
-    st.session_state["last_import_run_id"] = ",".join(run_ids) or str(uuid.uuid4())
+    st.session_state["active_import_run_id"] = import_run_id
+    st.session_state["last_import_run_id"] = import_run_id
     st.session_state["last_import_timestamp"] = datetime.utcnow().isoformat()
     st.session_state["selected_batch"] = None
     st.session_state["show_import_page"] = False
     st.success(
-        f"Imported {written} measurements, {batches_written} batches and "
-        f"{events_written} traceability events."
+        f"Imported {written} measurements."
     )
     st.rerun()
 
 
-if _safe_count("sc_measurement") == 0 or st.session_state.get("show_import_page", False):
+if not _has_active_import_run() or st.session_state.get("show_import_page", False):
     render_page_header(
         "SustainSCM DSS",
         "Data-driven decision support for sustainable supply-chain management, "
         "causal MRV completion, scenario evaluation and traceability.",
-        metadata="Data Import · No active analytical dataset" if _safe_count("sc_measurement") == 0 else "Data Import",
+        metadata="Data Import · No active analytical dataset" if not _has_active_import_run() else "Data Import",
     )
     render_workflow_progress(
         {
@@ -995,36 +1082,141 @@ if _safe_count("sc_measurement") == 0 or st.session_state.get("show_import_page"
     )
     render_section_header(
         "Guided data import",
-        "Step 1 — optional batch context. Step 2 — MRV workbook validation. "
+        "Step 1 — optional DPP and traceability workbook. "
+        "Step 2 — MRV scenario workbook validation. "
         "Step 3 — review and commit.",
     )
-    batches_upload = st.file_uploader(
-        "Product batches CSV (optional)",
-        type=["csv"],
-        key="initial_product_batches_csv",
-        help="Load this before traceability events so batch references can be resolved.",
+    render_section_header(
+        "DPP & Traceability Data",
+        "Upload one Excel workbook containing product batches and their event histories. "
+        "Accepted format: XLSX. Required sheets: 01_PRODUCT_BATCHES, 02_TRACEABILITY_EVENTS.",
     )
-    events_upload = st.file_uploader(
-        "Traceability events CSV (optional)",
-        type=["csv"],
-        key="initial_traceability_events_csv",
+    dpp_workbook = st.file_uploader(
+        "DPP & Traceability workbook",
+        type=["xlsx"],
+        key="dpp_traceability_workbook_upload",
+        help=("Upload one SustainSCM workbook containing the "
+              "01_PRODUCT_BATCHES and 02_TRACEABILITY_EVENTS sheets."),
     )
+    if dpp_workbook is not None:
+        try:
+            workbook_bytes = dpp_workbook.getvalue()
+            batch_preview, event_preview = read_dpp_workbook(workbook_bytes)
+            referenced_scenarios = sorted(
+                batch_preview.get("scenario_code", pd.Series(dtype=str))
+                .dropna().astype(str).str.strip().unique().tolist()
+            )
+            referenced_facilities = sorted(set(
+                batch_preview.get("origin_facility_code", pd.Series(dtype=str))
+                .dropna().astype(str).str.strip().tolist()
+                + event_preview.get("facility_code", pd.Series(dtype=str))
+                .dropna().astype(str).str.strip().tolist()
+            ))
+            st.write(f"File name: {dpp_workbook.name}")
+            c1, c2 = st.columns(2)
+            c1.metric("Product batches detected", len(batch_preview))
+            c2.metric("Traceability events detected", len(event_preview))
+            st.caption(
+                "Referenced scenarios: " + (", ".join(referenced_scenarios) or "none")
+                + " · Referenced facilities: " + (", ".join(referenced_facilities) or "none")
+            )
+            batch_columns = [
+                "batch_code", "product_code", "scenario_code", "origin_facility_code",
+                "production_date", "quantity", "unit", "status",
+            ]
+            event_columns = [
+                "event_code", "batch_code", "event_type", "timestamp", "facility_code",
+                "process_code", "transport_leg_code", "quantity", "unit",
+            ]
+            tab_batches, tab_events, tab_issues = st.tabs(
+                ["Product Batches", "Traceability Events", "Validation Issues"]
+            )
+            with tab_batches:
+                batch_display = batch_preview[
+                    [c for c in batch_columns if c in batch_preview]
+                ]
+                render_downloadable_table(
+                    batch_display, filename="dpp_batch_preview.csv",
+                    key="download_dpp_batch_preview",
+                )
+            with tab_events:
+                event_display = event_preview[
+                    [c for c in event_columns if c in event_preview]
+                ]
+                render_downloadable_table(
+                    event_display, filename="traceability_event_preview.csv",
+                    key="download_traceability_event_preview",
+                )
+            with tab_issues:
+                if not _has_active_import_run():
+                    st.warning("Import MRV data first so active scenario membership can be validated.")
+                else:
+                    st.info("Select Validate and Import DPP Data to run full relational validation.")
+            if st.button(
+                "Validate and Import DPP Data",
+                type="primary",
+                disabled=not _has_active_import_run(),
+                key="import_dpp_workbook",
+            ):
+                dpp_session = SessionLocal()
+                try:
+                    outcome = import_dpp_workbook(dpp_session, workbook_bytes)
+                finally:
+                    dpp_session.close()
+                run_full_pipeline(
+                    debug_missing=False,
+                    import_run_id=st.session_state.get("active_import_run_id"),
+                )
+                load_active_context.clear()
+                load_raw_kpi_results.clear()
+                load_normalized_results.clear()
+                st.session_state["dpp_import_summary"] = outcome.summaries
+                st.session_state["dpp_import_message"] = (
+                    f"Imported {outcome.product_batches.created} new and "
+                    f"{outcome.product_batches.updated} updated batches; "
+                    f"{outcome.traceability_events.created} new and "
+                    f"{outcome.traceability_events.updated} updated events."
+                )
+                st.session_state["show_import_page"] = False
+                st.rerun()
+        except DPPImportValidationError as exc:
+            st.error("Validation errors prevented import.")
+            issues = pd.DataFrame({"Validation issues": exc.result.errors})
+            render_downloadable_table(
+                issues, filename="dpp_validation_issues.csv",
+                key="download_dpp_validation_issues",
+            )
+        except (ValueError, OSError) as exc:
+            st.error(str(exc))
+
     render_scenario_completion_page(
         config_dir=Path(__file__).resolve().parent / "config",
-        on_commit=lambda result: import_completed_mrv(
-            result,
-            batches_file=batches_upload,
-            events_file=events_upload,
-        ),
+        on_commit=import_completed_mrv,
     )
     st.stop()
 
+dpp_import_message = st.session_state.pop("dpp_import_message", None)
+if dpp_import_message:
+    st.success(dpp_import_message)
+
 with engine.connect() as connection:
+    active_run_row = connection.execute(text(
+        "SELECT id, dataset_name, source_filename, import_timestamp, scenario_count, "
+        "measurement_count, reference_scenario_code, factor_set_id, last_kpi_calculation "
+        "FROM sc_import_run WHERE is_active = 1 "
+        "ORDER BY import_timestamp DESC, id DESC LIMIT 1"
+    )).mappings().first()
+    if active_run_row is None:
+        st.warning("No active imported dataset. Go to Data Import to create one.")
+        st.stop()
+    active_import_run_id = int(active_run_row["id"])
+    st.session_state["active_import_run_id"] = active_import_run_id
+    active_context = load_active_context(active_import_run_id)
     data_status = {
-        "scenarios": int(connection.execute(text("SELECT COUNT(*) FROM sc_scenario")).scalar() or 0),
-        "measurements": int(connection.execute(text("SELECT COUNT(*) FROM sc_measurement")).scalar() or 0),
-        "batches": int(connection.execute(text("SELECT COUNT(*) FROM sc_product_batch")).scalar() or 0),
-        "events": int(connection.execute(text("SELECT COUNT(*) FROM sc_traceability_event")).scalar() or 0),
+        "scenarios": active_context["scenario_count"],
+        "measurements": active_context["measurement_count"],
+        "batches": active_context["batch_count"],
+        "events": active_context["event_count"],
         "last_measurement": connection.execute(text("SELECT MAX(timestamp) FROM sc_measurement")).scalar(),
     }
 
@@ -1051,10 +1243,20 @@ render_section_header(
 )
 render_data_status_panel(
     {
-        "Scenarios": data_status["scenarios"],
-        "Measurements": data_status["measurements"],
-        "Batches": data_status["batches"],
+        "Active dataset": active_run_row["dataset_name"],
+        "Import/run ID": active_import_run_id,
+        "Source file": active_run_row["source_filename"] or "upload",
+        "Import timestamp": active_run_row["import_timestamp"],
+        "Scenario count": data_status["scenarios"],
+        "Measurement count": data_status["measurements"],
+        "Product batches": data_status["batches"],
         "Traceability events": data_status["events"],
+        "DPP-ready batches": active_context["dpp_ready_count"],
+        "Common variables/scenario": active_context["common_variable_count"],
+        "Dataset integrity": active_context["integrity"],
+        "Reference scenario": active_run_row["reference_scenario_code"] or "not set",
+        "Factor-set ID": active_run_row["factor_set_id"] or "default",
+        "Last KPI calculation": active_run_row["last_kpi_calculation"] or "pending",
     }
 )
 if st.button("Go to Data Import", key="go_to_data_import"):
@@ -1069,8 +1271,8 @@ st.sidebar.header("Controls")
 # -----------------------------------------------------------------------------
 
 catalog_df = load_kpi_catalog()
-raw_df = load_raw_kpi_results()
-norm_df = load_normalized_results()
+raw_df = load_raw_kpi_results(active_import_run_id)
+norm_df = load_normalized_results(active_import_run_id)
 rules_df = load_normalization_rules()
 
 if catalog_df.empty:
@@ -1087,6 +1289,11 @@ if norm_df.empty:
 raw_latest = latest_per_kpi_scenario(raw_df)
 norm_latest = latest_per_kpi_scenario(norm_df)
 full_dashboard_df = norm_latest.copy(deep=True)
+mcda_eligibility = evaluate_scenario_eligibility(
+    raw_latest,
+    norm_latest,
+    catalog_df[["kpi_code", "dimension"]],
+)
 
 # Sidebar filters from KPI catalog
 dimensions = ["All"] + sorted(catalog_df["dimension"].dropna().unique().tolist())
@@ -1156,7 +1363,15 @@ show_cols = [
 ]
 show_cols = [c for c in show_cols if c in filtered_table_df.columns]
 
-styled_main = filtered_table_df[show_cols].style.map(color_semaforo, subset=["semaforo"])
+display_table_df = filtered_table_df[show_cols].copy()
+display_table_df["baseline_value"] = display_table_df.apply(
+    lambda row: format_reference_value(
+        row.get("baseline_value"),
+        row.get("normalization_method"),
+    ),
+    axis=1,
+)
+styled_main = display_table_df.style.map(color_semaforo, subset=["semaforo"])
 render_downloadable_table(
     filtered_table_df[show_cols],
     filename=f"{sel_scenario}_detailed_kpis.csv",
@@ -1407,9 +1622,20 @@ else:
         key="download_dimension_indices",
     )
 
-    profile_long = dim_show.melt(
+    complete_profiles = dim_show.dropna(
+        subset=["environmental", "economic", "social", "technological"]
+    ).copy()
+    incomplete_profiles = dim_show[
+        ~dim_show["scenario_code"].isin(complete_profiles["scenario_code"])
+    ]
+    if not incomplete_profiles.empty:
+        st.warning(
+            f"{len(incomplete_profiles)} scenarios excluded because their "
+            "four-dimensional profile is incomplete."
+        )
+    profile_long = complete_profiles.melt(
         id_vars="scenario_code",
-        value_vars=["environmental", "economic", "social", "technological"],
+        value_vars=list(DIMENSION_ORDER),
         var_name="dimension",
         value_name="score",
     )
@@ -1500,8 +1726,8 @@ else:
 
     st.markdown("### MCDA (normalized KPI scores)")
     st.caption(
-        "WSM uses the normalized KPI scores and the rule weights. "
-        "TOPSIS is computed on the subset of KPI that are complete across the selected scenarios."
+        "WSM and TOPSIS use the same validated, complete 30-KPI scenario matrix. "
+        "Normalized scores are already benefit-oriented."
     )
 
     default_mcda = [reference_scenario] + compare_scenarios if compare_scenarios else [reference_scenario]
@@ -1513,10 +1739,45 @@ else:
     )
 
     global_weights = build_global_kpi_weights(rules_df, dim_weights)
-    wsm_df = compute_wsm_scores(full_dashboard_df, global_weights, mcda_scenarios)
-    topsis_df = compute_topsis_scores(full_dashboard_df, global_weights, mcda_scenarios)
-
-    mcda_df = pd.merge(wsm_df, topsis_df, on="scenario_code", how="outer")
+    weight_series = (
+        global_weights.drop_duplicates("kpi_code")
+        .set_index("kpi_code")["global_weight"]
+        .reindex(catalog_df["kpi_code"])
+    )
+    mcda_input = build_mcda_input(
+        full_dashboard_df,
+        weight_series,
+        mcda_eligibility,
+        mcda_scenarios,
+    )
+    mcda_result = calculate_mcda(mcda_input, mcda_eligibility)
+    mcda_df = pd.merge(
+        mcda_result.wsm,
+        mcda_result.topsis,
+        on="scenario_code",
+        how="inner",
+        validate="one_to_one",
+    )
+    excluded_count = len(mcda_input.excluded_scenarios)
+    st.caption(f"Excluded from MCDA: {excluded_count} scenario(s).")
+    with st.expander("MCDA data completeness"):
+        diagnostic_columns = [
+            "scenario_code", "raw_kpi_count", "normalized_kpi_count",
+            "environmental_count", "economic_count", "social_count",
+            "technological_count", "wsm_eligible", "topsis_eligible",
+            "status", "reason",
+        ]
+        render_downloadable_table(
+            mcda_eligibility[diagnostic_columns],
+            filename="mcda_data_completeness.csv",
+            key="download_mcda_completeness",
+        )
+        removed = mcda_result.diagnostics.get("zero_variance_criteria", [])
+        if removed:
+            st.caption(
+                "TOPSIS removed non-discriminating zero-variance criteria and "
+                f"renormalized their weights: {', '.join(removed)}"
+            )
     if not mcda_df.empty:
         mcda_df["Rank_WSM"] = mcda_df["WSM_score"].rank(ascending=False, method="dense")
         if "TOPSIS_score" in mcda_df.columns:
@@ -1531,35 +1792,27 @@ else:
 
         if "WSM_score" in mcda_df.columns:
             st.write("**WSM ranking**")
-            wsm_plot = mcda_df.sort_values("WSM_score", ascending=True)
-            wsm_fig = px.bar(
-                wsm_plot,
-                x="WSM_score",
-                y="scenario_code",
-                orientation="h",
+            wsm_fig = build_horizontal_ranking_chart(
+                mcda_df,
+                scenario_col="scenario_code",
+                score_col="WSM_score",
                 title="Weighted-sum ranking",
-                labels={"WSM_score": "WSM score", "scenario_code": "Scenario"},
-                template="sustainscm",
-                color_discrete_sequence=["#2F6B9A"],
+                x_title="WSM score",
+                color="#2F6B9A",
+                decimals=3,
             )
-            wsm_fig.update_traces(hovertemplate="<b>%{y}</b><br>WSM: %{x:.3f}<extra></extra>")
             st.plotly_chart(wsm_fig, width="stretch", config={"displaylogo": False})
 
         if "TOPSIS_score" in mcda_df.columns:
             st.write("**TOPSIS ranking**")
-            topsis_plot = mcda_df.sort_values("TOPSIS_score", ascending=True)
-            topsis_fig = px.bar(
-                topsis_plot,
-                x="TOPSIS_score",
-                y="scenario_code",
-                orientation="h",
+            topsis_fig = build_horizontal_ranking_chart(
+                mcda_df,
+                scenario_col="scenario_code",
+                score_col="TOPSIS_score",
                 title="TOPSIS closeness ranking",
-                labels={"TOPSIS_score": "TOPSIS closeness", "scenario_code": "Scenario"},
-                template="sustainscm",
-                color_discrete_sequence=["#6657A6"],
-            )
-            topsis_fig.update_traces(
-                hovertemplate="<b>%{y}</b><br>TOPSIS: %{x:.3f}<extra></extra>"
+                x_title="TOPSIS closeness",
+                color="#6657A6",
+                decimals=3,
             )
             st.plotly_chart(topsis_fig, width="stretch", config={"displaylogo": False})
     else:
