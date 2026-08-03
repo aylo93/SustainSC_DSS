@@ -101,3 +101,13 @@ def test_ranking_layout_scales_for_many_and_long_scenarios():
     assert ranking_chart_height(24) == 956
     assert ranking_chart_height(100) == 1100
     assert ranking_left_margin(["A", "A_VERY_LONG_SCENARIO_IDENTIFIER"]) > 120
+
+
+def test_geometric_ranking_uses_shared_visible_label_builder():
+    dashboard = open("kpi_dashboard.py", encoding="utf-8").read()
+    section = dashboard.split('title="Geometric sustainability index ranking"', 1)[0]
+    section = section.rsplit("st.markdown(\"### Corrected Sustain Index ranking\")", 1)[-1]
+
+    assert "build_horizontal_ranking_chart(" in section
+    assert 'score_col="SUSTAIN_INDEX_GEOM"' in section
+    assert "px.bar(" not in section
