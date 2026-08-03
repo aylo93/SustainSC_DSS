@@ -34,6 +34,14 @@ class BatchCompletionResult:
     comparison_report: pd.DataFrame
 
     @property
+    def production_qa_report(self) -> pd.DataFrame:
+        return self.qa_report
+
+    @property
+    def regression_comparison_report(self) -> pd.DataFrame:
+        return self.comparison_report
+
+    @property
     def has_critical_failures(self) -> bool:
         if self.qa_report.empty:
             return False
@@ -144,35 +152,50 @@ class BatchScenarioCompletionEngine:
             )
             qa_all = pd.concat([qa_all, completion_qa], ignore_index=True)
 
+        expected_columns = expected.loc[:, ["scenario_code", "variable_name", "expected_value", "unit"]].rename(
+            columns={"unit": "expected_unit"}
+        )
         comparison = upload_all.merge(
-            expected.loc[:, ["scenario_code", "variable_name", "expected_value"]],
+            expected_columns,
             on=["scenario_code", "variable_name"],
             how="left",
         )
         comparison["expected_value"] = pd.to_numeric(comparison["expected_value"], errors="coerce")
         comparison["absolute_difference"] = (comparison["value"] - comparison["expected_value"]).abs()
-        comparison["within_tolerance"] = comparison["absolute_difference"] <= comparison_tolerance
+        scale = comparison[["value", "expected_value"]].abs().max(axis=1).clip(lower=1.0)
+        unit_absolute_tolerance = comparison["unit"].map(
+            {"%": 1e-4, "EUR": 1e-2, "tCO2e": 1e-3, "index": 1e-4}
+        ).fillna(comparison_tolerance)
+        comparison["tolerance"] = unit_absolute_tolerance.combine(
+            scale * 1e-9, max
+        )
+        comparison["relative_difference"] = comparison["absolute_difference"] / scale
+        comparison["within_tolerance"] = comparison["absolute_difference"] <= comparison["tolerance"]
+        comparison["comparison_status"] = "UNRESOLVED_DIFFERENCE"
+        comparison.loc[comparison["expected_value"].isna(), "comparison_status"] = "MISSING_EXPECTED_VALUE"
+        comparison.loc[comparison["within_tolerance"], "comparison_status"] = "MATCH"
+        rounding = (
+            ~comparison["within_tolerance"]
+            & comparison["expected_value"].notna()
+            & (comparison["relative_difference"] <= 1e-6)
+        )
+        comparison.loc[rounding, "comparison_status"] = "ROUNDING_ONLY"
+        comparison["reason"] = comparison["comparison_status"].map({
+            "MATCH": "Current result agrees with the validation baseline within the unit-aware tolerance.",
+            "ROUNDING_ONLY": "Difference is limited to numeric representation or display precision.",
+            "MISSING_EXPECTED_VALUE": "No historical comparison value is available; production QA is unaffected.",
+            "UNRESOLVED_DIFFERENCE": "Historical value differs and requires regression review; production QA is evaluated separately.",
+        })
         comparison = comparison.loc[:, [
             "scenario_code", "variable_name", "value", "expected_value",
-            "absolute_difference", "within_tolerance", "source_system", "comment"
+            "absolute_difference", "relative_difference", "tolerance",
+            "within_tolerance", "comparison_status", "reason", "source_system", "comment"
         ]]
 
-        # Differences are validation findings, not automatic critical failures. The
-        # Chapter 7 file includes legacy aliases and case-specific bridge values that
-        # may differ from the new versioned MRV rule engine.
-        mismatch_rows = comparison[~comparison["within_tolerance"] & comparison["expected_value"].notna()]
-        if not mismatch_rows.empty:
-            comparison_qa = pd.DataFrame({
-                "check_id": "QA_CH7_COMPARISON",
-                "severity": "Warning",
-                "status": "WARN",
-                "affected_variable": mismatch_rows["variable_name"],
-                "message": "Completed value differs from the legacy Chapter 7 validation value.",
-                "required_action": "Review whether the new rule is an intentional methodological correction or whether a case-specific bridge is required.",
-                "scenario_code": mismatch_rows["scenario_code"],
-                "run_id": "batch_comparison",
-            })
-            qa_all = pd.concat([qa_all, comparison_qa], ignore_index=True)
+        if not qa_all.empty:
+            qa_all = qa_all.drop_duplicates(
+                subset=["scenario_code", "affected_variable", "check_id"], keep="first"
+            ).reset_index(drop=True)
 
         return BatchCompletionResult(
             scenario_results=results,
