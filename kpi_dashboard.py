@@ -1037,11 +1037,25 @@ def import_completed_mrv(result, *, dpp_workbook_bytes: bytes | None = None):
     if dpp_workbook_bytes is not None:
         dpp_session = SessionLocal()
         try:
-            dpp_outcome = import_dpp_workbook(
-                dpp_session,
-                dpp_workbook_bytes,
-                active_import_run_id=import_run_id,
-            )
+            try:
+                dpp_outcome = import_dpp_workbook(
+                    dpp_session,
+                    dpp_workbook_bytes,
+                    active_import_run_id=import_run_id,
+                )
+            except DPPImportValidationError as exc:
+                st.session_state["show_import_page"] = True
+                st.error(
+                    "The MRV dataset was created, but DPP validation prevented the "
+                    "batch/event transaction. Correct the issues below and reimport "
+                    "the DPP workbook into this active dataset."
+                )
+                render_downloadable_table(
+                    pd.DataFrame({"Validation issue": exc.result.errors}),
+                    filename="dpp_commit_validation_issues.csv",
+                    key="download_dpp_commit_validation_issues",
+                )
+                return
         finally:
             dpp_session.close()
     run_full_pipeline(debug_missing=False, import_run_id=import_run_id)
