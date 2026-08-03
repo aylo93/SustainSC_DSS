@@ -146,6 +146,42 @@ def _maps(session: Session):
     )
 
 
+def _ensure_workbook_masters(
+    session: Session, batch_df: pd.DataFrame, event_df: pd.DataFrame,
+    result: DPPWorkbookImportResult,
+) -> None:
+    """Create only unambiguous code-keyed masters carried by the workbook."""
+    existing_products = {code for (code,) in session.query(Product.code)}
+    for product_code in sorted(batch_df["product_code"].dropna().astype(str).str.strip().unique()):
+        if product_code and product_code not in existing_products:
+            units = sorted(
+                batch_df.loc[
+                    batch_df["product_code"].astype(str).str.strip() == product_code,
+                    "unit",
+                ].dropna().astype(str).str.strip().unique()
+            )
+            session.add(Product(
+                code=product_code,
+                name=product_code,
+                fu_unit=units[0] if len(units) == 1 else None,
+            ))
+            result.warnings.append(
+                f"Created product master {product_code} from the integrated workbook code."
+            )
+
+    existing_facilities = {code for (code,) in session.query(Facility.code)}
+    facility_values = pd.concat([
+        batch_df["origin_facility_code"], event_df["facility_code"]
+    ], ignore_index=True).dropna().astype(str).str.strip().unique()
+    for facility_code in sorted(code for code in facility_values if code):
+        if facility_code not in existing_facilities:
+            session.add(Facility(code=facility_code, name=facility_code))
+            result.warnings.append(
+                f"Created facility master {facility_code} from the integrated workbook code."
+            )
+    session.flush()
+
+
 def _filter_examples(batch_df, event_df, result):
     bmask = batch_df.get("batch_code", pd.Series(index=batch_df.index, dtype=object)).astype(str).str.startswith("EXAMPLE-")
     emask = event_df.get("event_code", pd.Series(index=event_df.index, dtype=object)).astype(str).str.startswith("EXAMPLE-")
@@ -189,6 +225,7 @@ def import_dpp_workbook(
             result.errors.append("No active dataset with scenario membership is available.")
             raise DPPImportValidationError(result)
 
+        _ensure_workbook_masters(session, batch_df, event_df, result)
         products, scenarios, facilities, processes, legs = _maps(session)
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         batch_rows: list[dict] = []
@@ -265,10 +302,16 @@ def import_dpp_workbook(
                 result.errors.append(f"Unknown facility: {facility_code}")
             if process_code and process_code not in processes:
                 result.references["unknown_processes"].add(process_code)
-                result.errors.append(f"Unknown process: {process_code}")
+                result.warnings.append(
+                    f"{tag}: optional process {process_code} was not resolved and was omitted."
+                )
+                process_code = None
             if leg_code and leg_code not in legs:
                 result.references["unknown_transport_legs"].add(leg_code)
-                result.errors.append(f"Unknown transport leg: {leg_code}")
+                result.warnings.append(
+                    f"{tag}: optional transport leg {leg_code} was not resolved and was omitted."
+                )
+                leg_code = None
             raw_quantity = row.quantity
             if not pd.isna(raw_quantity) and quantity is None:
                 result.errors.append(f"{tag}: quantity must be positive when supplied.")

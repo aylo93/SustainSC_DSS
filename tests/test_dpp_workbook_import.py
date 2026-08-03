@@ -144,23 +144,7 @@ def test_cuba_workbook_commits_complete_active_dataset_transaction():
     db = sessionmaker(bind=engine, future=True)()
     try:
         scenario = Scenario(code="BASE", name="Cuba baseline")
-        facilities = {
-            code: Facility(code=code, name=code)
-            for code in (
-                "BARIAY", "LOS_CALICHES", "PILON", "RIO_SAGUA", "BUENAVENTURA"
-            )
-        }
-        db.add_all([
-            scenario,
-            Product(code="AGG_0_20", name="Aggregate 0-20", fu_unit="t"),
-            *facilities.values(),
-        ])
-        db.flush()
-        db.add(TransportLeg(
-            code="BARIAY_TO_Z1",
-            name="Bariay to zone 1",
-            from_facility_id=facilities["BARIAY"].id,
-        ))
+        db.add(scenario)
         run = ImportRun(
             dataset_name="Cuba regression",
             import_timestamp=pd.Timestamp("2026-08-03").to_pydatetime(),
@@ -193,6 +177,9 @@ def test_cuba_workbook_commits_complete_active_dataset_transaction():
         assert outcome.traceability_events.created == 24
         assert outcome.product_batches.rejected == 0
         assert outcome.traceability_events.rejected == 0
+        assert db.query(Product).filter_by(code="AGG_0_20").one().fu_unit == "t"
+        assert db.query(Facility).count() == 5
+        assert "BARIAY_TO_Z1" in outcome.references["unknown_transport_legs"]
         assert db.query(ProductBatch).filter_by(import_run_id=run.id).count() == 18
         assert db.query(TraceabilityEvent).filter_by(import_run_id=run.id).count() == 24
         assert db.query(TraceabilityEvent).filter(TraceabilityEvent.batch_id.is_(None)).count() == 0
