@@ -350,6 +350,35 @@ def import_dpp_workbook(
                 summary, scenario_code=scenario_code, timestamp=now,
                 run_id=f"import-run-{run_id}",
             )
+            shipped_volume = (
+                session.query(Measurement.value)
+                .filter(
+                    Measurement.import_run_id == run_id,
+                    Measurement.scenario_id == scenario.id,
+                    Measurement.variable_name == "shipped_volume_total",
+                )
+                .order_by(Measurement.timestamp.desc(), Measurement.id.desc())
+                .limit(1)
+                .scalar()
+            )
+            if shipped_volume is not None and float(shipped_volume) > 0:
+                coverage = (
+                    float(summary["dpp_valid_volume"])
+                    / float(shipped_volume)
+                    * 100.0
+                )
+                records.append({
+                    "variable_name": "dpp_coverage",
+                    "value": coverage,
+                    "unit": "%",
+                    "timestamp": now,
+                    "scenario_code": scenario_code,
+                    "source_system": "dpp_generation_module",
+                    "comment": (
+                        "DPP-valid volume divided by active-run shipped volume; "
+                        f"import-run-{run_id}."
+                    ),
+                })
             variable_names = [record["variable_name"] for record in records]
             if variable_names:
                 (
@@ -359,7 +388,7 @@ def import_dpp_workbook(
                         Measurement.scenario_id == scenario.id,
                         Measurement.variable_name.in_(variable_names),
                     )
-                    .delete(synchronize_session=False)
+                    .delete(synchronize_session="fetch")
                 )
             for record in records:
                 session.add(Measurement(

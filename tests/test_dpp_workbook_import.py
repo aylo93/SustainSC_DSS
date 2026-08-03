@@ -11,7 +11,7 @@ from sustainsc.dpp_import import (
 )
 from sustainsc.dpp_service import build_dpp_core
 from sustainsc.models import (
-    Facility, ImportRun, ImportRunScenario, Product, ProductBatch, Scenario,
+    Facility, ImportRun, ImportRunScenario, Measurement, Product, ProductBatch, Scenario,
     TraceabilityEvent, TransportLeg,
 )
 
@@ -172,6 +172,15 @@ def test_cuba_workbook_commits_complete_active_dataset_transaction():
         db.add(run)
         db.flush()
         db.add(ImportRunScenario(import_run_id=run.id, scenario_id=scenario.id))
+        db.add(Measurement(
+            variable_name="shipped_volume_total",
+            value=288000,
+            unit="t",
+            timestamp=pd.Timestamp("2026-08-03").to_pydatetime(),
+            scenario_id=scenario.id,
+            import_run_id=run.id,
+            source_system="regression",
+        ))
         db.commit()
 
         fixture = "tests/fixtures/dpp/SustainSCM_DPP_Traceability_CUBA_FILLED.xlsx"
@@ -191,6 +200,13 @@ def test_cuba_workbook_commits_complete_active_dataset_transaction():
         assert outcome.summaries["BASE"]["dpp_traceability_events_total"] == 24
         assert outcome.summaries["BASE"]["dpp_volume"] == pytest.approx(230400)
         assert outcome.summaries["BASE"]["dpp_valid_volume"] == pytest.approx(230400)
+        coverage = db.query(Measurement).filter_by(
+            import_run_id=run.id,
+            scenario_id=scenario.id,
+            variable_name="dpp_coverage",
+        ).one()
+        assert coverage.value == pytest.approx(80.0)
+        assert coverage.source_system == "dpp_generation_module"
         assert build_dpp_core(
             db, "BATCH_BASE_001", import_run_id=run.id
         )["traceability_events"]
