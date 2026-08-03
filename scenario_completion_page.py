@@ -63,6 +63,11 @@ def render_scenario_completion_page(
 
     fail_count = int(((result.qa_report["severity"] == "Critical") & (result.qa_report["status"] == "FAIL")).sum())
     warn_count = int((result.qa_report["status"] == "WARN").sum())
+    regression_count = int(
+        result.comparison_report["comparison_status"].isin(
+            ["UNRESOLVED_DIFFERENCE", "MISSING_EXPECTED_VALUE"]
+        ).sum()
+    )
     l6_count = int((result.completion_review["rule_level"] == "L6").sum())
 
     level_counts = result.completion_review["rule_level"].value_counts().to_dict()
@@ -71,6 +76,7 @@ def render_scenario_completion_page(
             "Scenarios": len(result.scenario_results),
             "Critical failures": fail_count,
             "Warnings": warn_count,
+            "Regression differences": regression_count,
             "L1 Direct": int(level_counts.get("L1", 0)),
             "L2 Derived": int(level_counts.get("L2", 0)),
             "L3 Scaled": int(level_counts.get("L3", 0)),
@@ -80,7 +86,7 @@ def render_scenario_completion_page(
         }
     )
 
-    tabs = st.tabs(["Causal completion", "QA and conflicts", "Review and commit", "Validation comparison"])
+    tabs = st.tabs(["Causal completion", "Production QA", "Review and commit", "Regression comparison"])
     with tabs[0]:
         review = result.completion_review.copy()
         levels = sorted(review["rule_level"].dropna().unique().tolist())
@@ -108,6 +114,30 @@ def render_scenario_completion_page(
             height=430,
         )
     with tabs[1]:
+        critical = result.qa_report[
+            (result.qa_report["severity"] == "Critical")
+            & (result.qa_report["status"] == "FAIL")
+        ]
+        with st.expander("Critical failure details", expanded=not critical.empty):
+            if critical.empty:
+                st.success("The dataset passed production-critical QA.")
+            else:
+                st.error(f"Commit blocked by {len(critical)} production-critical failures.")
+                render_downloadable_table(
+                    critical,
+                    filename="mrv_production_critical_failures.csv",
+                    key="download_mrv_production_critical_failures",
+                )
+        warnings = result.qa_report[result.qa_report["status"] == "WARN"]
+        with st.expander("Warnings by category"):
+            if warnings.empty:
+                st.info("No production QA warnings.")
+            else:
+                render_downloadable_table(
+                    warnings.groupby("check_id", as_index=False).size(),
+                    filename="mrv_warnings_by_category.csv",
+                    key="download_mrv_warnings_by_category",
+                )
         statuses = sorted(result.qa_report["status"].dropna().unique().tolist())
         selected_statuses = st.multiselect(
             "QA status",
@@ -123,6 +153,16 @@ def render_scenario_completion_page(
             height=430,
         )
     with tabs[2]:
+        if result.has_critical_failures:
+            st.error(f"Commit blocked by {fail_count} production-critical failures.")
+        elif regression_count:
+            st.warning(
+                "The dataset passed production QA. Historical regression comparison "
+                f"contains {regression_count} differences. Review the comparison report "
+                "before accepting a new baseline."
+            )
+        else:
+            st.success("The dataset passed production QA and regression comparison.")
         render_downloadable_table(
             result.software_upload,
             filename="completed_mrv_scenarios.csv",
@@ -137,8 +177,15 @@ def render_scenario_completion_page(
             disabled=result.has_critical_failures,
         )
     with tabs[3]:
+        differences = result.comparison_report[
+            result.comparison_report["comparison_status"] != "MATCH"
+        ]
+        st.caption(
+            "Historical/reference comparison only. These rows do not block commit "
+            "unless a separate strict-regression workflow is configured."
+        )
         render_downloadable_table(
-            result.comparison_report,
+            differences,
             filename="mrv_validation_comparison.csv",
             key="download_mrv_validation_comparison",
         )
