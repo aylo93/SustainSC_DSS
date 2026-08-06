@@ -62,6 +62,12 @@ def render_scenario_completion_page(
         temp_path.unlink(missing_ok=True)
 
     parsed = result.parsed_workbook
+    if parsed and parsed.schema.workbook_type == "LEGACY_MRV_ADAPTER":
+        st.warning(
+            "This is a recognized legacy workbook, not a native MRV v2 workbook. "
+            "Case ID and Dataset ID cannot be resolved, and legacy direct-input "
+            "classifications remain subject to causal-scope validation."
+        )
     fail_count = int(((result.qa_report["severity"] == "Critical") & (result.qa_report["status"] == "FAIL")).sum())
     warn_count = int((result.qa_report["status"] == "WARN").sum())
     regression_count = int(

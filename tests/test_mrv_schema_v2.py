@@ -54,6 +54,11 @@ def test_empty_v2_template_reports_configuration_failure_not_parser_failure():
     assert "QA_SCENARIO_CONFIGURATION" in set(result.qa_report["check_id"])
 
 
+def test_strict_comparison_path_does_not_reference_undefined_state():
+    result = BatchScenarioCompletionEngine("config").complete_batch_from_excel(V2)
+    assert result.comparison_report.empty
+
+
 @pytest.mark.parametrize(("expression", "expected"), [
     ("L1-L5", {"L1", "L2", "L3", "L4", "L5"}),
     ("L1, L4, L6", {"L1", "L4", "L6"}),

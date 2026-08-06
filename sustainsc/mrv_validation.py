@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-
 import pandas as pd
 
 MRV_COLUMNS = [
@@ -30,9 +29,16 @@ class CompletedMRVValidation:
     report: pd.DataFrame
 
 
-def load_common_variable_units(dictionary_path: str | Path) -> dict[str, str]:
+def load_common_variable_units(
+    dictionary_path: str | Path | None = None,
+    *,
+    dictionary: pd.DataFrame | None = None,
+) -> dict[str, str]:
     """Return the active common MRV contract from the dictionary."""
-    dictionary = pd.read_csv(dictionary_path)
+    if dictionary is None:
+        if dictionary_path is None:
+            raise ValueError("A workbook dictionary or dictionary_path is required.")
+        dictionary = pd.read_csv(dictionary_path)
     common = dictionary[
         dictionary["common_upload_variable"].astype(str).str.strip().str.lower().isin(
             {"yes", "true", "1"}
@@ -64,12 +70,13 @@ def canonicalize_common_mrv_units(
 def validate_completed_mrv(
     completed: pd.DataFrame,
     *,
-    dictionary_path: str | Path,
+    dictionary_path: str | Path | None = None,
+    dictionary: pd.DataFrame | None = None,
     raise_on_error: bool = True,
 ) -> CompletedMRVValidation:
     """Validate completeness, uniqueness, values and canonical units per scenario."""
 
-    required_units = load_common_variable_units(dictionary_path)
+    required_units = load_common_variable_units(dictionary_path, dictionary=dictionary)
     required = set(required_units)
     missing_columns = set(MRV_COLUMNS) - set(completed.columns)
     if missing_columns:

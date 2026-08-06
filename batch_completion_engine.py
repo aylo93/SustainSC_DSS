@@ -144,7 +144,7 @@ class BatchScenarioCompletionEngine:
             }])
         completed_validation = validate_completed_mrv(
             upload_all,
-            dictionary_path=self.engine.config_dir / "mrv_dictionary.csv",
+            dictionary=parsed.variable_dictionary,
             raise_on_error=False,
         )
         validation_failures = completed_validation.report[
@@ -207,6 +207,10 @@ class BatchScenarioCompletionEngine:
             "absolute_difference", "relative_difference", "tolerance",
             "within_tolerance", "comparison_status", "reason", "source_system", "comment"
         ]]
+        mismatch_rows = comparison[
+            comparison["expected_value"].notna()
+            & ~comparison["comparison_status"].isin(["MATCH", "ROUNDING_ONLY"])
+        ]
 
         if not qa_all.empty:
             qa_all = qa_all.drop_duplicates(

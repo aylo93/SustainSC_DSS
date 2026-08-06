@@ -525,6 +525,24 @@ class ScenarioCompletionEngine:
         self._relationship_check(state, "material_circular_t", "material_total_t", "Circular material exceeds total material.", issue)
         dpp_valid = state.get("dpp_valid_volume", {})
         shipped = state.get("shipped_volume_total", {})
+        retained_dpp_valid = _float_or_none(base_values.get("dpp_valid_volume"))
+        shipped_value = _float_or_none(shipped.get("value"))
+        # A MIN accounting identity can bound a preliminary value, but cannot
+        # prove batch/event validity. Keep the pre-DPP fallback explicit until
+        # the DPP service supplies authoritative evidence in pass 2.
+        if (
+            retained_dpp_valid is not None
+            and shipped_value is not None
+            and retained_dpp_valid > shipped_value + self.numerical_tolerance
+        ):
+            issue(
+                "QA_DPP_VALIDATION_PENDING",
+                "Warning",
+                "WARN",
+                "Reference DPP-valid volume exceeds scenario shipped volume; the bounded L2 value remains provisional until validated batch/event evidence overwrites it.",
+                variable="dpp_valid_volume",
+                action="Import validated DPP batches for this scenario before final KPI publication.",
+            )
         if (
             _float_or_none(dpp_valid.get("value")) is not None
             and _float_or_none(shipped.get("value")) is not None
