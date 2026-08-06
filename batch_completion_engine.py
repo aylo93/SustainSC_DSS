@@ -14,6 +14,7 @@ import zipfile
 import pandas as pd
 
 from scenario_completion_engine import ScenarioCompletionEngine, CompletionResult, UPLOAD_COLUMNS
+from sustainsc.mrv_schema_v2 import ParsedMRVWorkbook, parse_mrv_workbook
 from sustainsc.mrv_validation import validate_completed_mrv
 
 BATCH_INPUT_SHEETS = {
@@ -32,6 +33,8 @@ class BatchCompletionResult:
     software_upload: pd.DataFrame
     qa_report: pd.DataFrame
     comparison_report: pd.DataFrame
+    parsed_workbook: ParsedMRVWorkbook | None = None
+    source_filename: str | None = None
 
     @property
     def has_critical_failures(self) -> bool:
@@ -78,16 +81,27 @@ class BatchScenarioCompletionEngine:
         if not workbook_path.exists():
             raise FileNotFoundError(workbook_path)
 
-        frames = {name: self._read_sheet(workbook_path, sheet) for name, sheet in BATCH_INPUT_SHEETS.items()}
-        scenarios = frames["scenarios"]
+        parsed = parse_mrv_workbook(workbook_path)
+        self.engine = ScenarioCompletionEngine(
+            self.engine.config_dir,
+            strict_approval=self.engine.strict_approval,
+            config_frames={
+                "dictionary": parsed.variable_dictionary,
+                "scope": parsed.strategy_scope,
+                "overrides": parsed.variable_overrides,
+                "rules": parsed.mrv_rules,
+                "bridges": parsed.bridge_rules,
+            },
+        )
+        scenarios = parsed.scenarios
         if "batch_enabled" in scenarios.columns:
             scenarios = scenarios[scenarios["batch_enabled"].astype(str).str.strip().str.lower().isin({"yes", "true", "1"})]
 
-        reference = frames["reference"]
-        direct = frames["direct"]
-        native = frames["native"]
-        assumptions = frames["assumptions"]
-        expected = frames["expected"]
+        reference = parsed.base_reference
+        direct = parsed.direct_inputs
+        native = parsed.native_outputs
+        assumptions = parsed.assumptions
+        expected = parsed.expected_case_mrv if parsed.expected_case_mrv is not None else pd.DataFrame()
 
         results: dict[str, CompletionResult] = {}
         review_frames: list[pd.DataFrame] = []
@@ -113,6 +127,13 @@ class BatchScenarioCompletionEngine:
         review_all = pd.concat(review_frames, ignore_index=True) if review_frames else pd.DataFrame()
         upload_all = pd.concat(upload_frames, ignore_index=True) if upload_frames else pd.DataFrame(columns=UPLOAD_COLUMNS)
         qa_all = pd.concat(qa_frames, ignore_index=True) if qa_frames else pd.DataFrame()
+        if scenarios.empty:
+            qa_all = pd.DataFrame([{
+                "check_id": "QA_SCENARIO_CONFIGURATION", "severity": "Critical", "status": "FAIL",
+                "affected_variable": "", "message": "No enabled scenarios are configured.",
+                "required_action": "Configure and enable at least one scenario before completion.",
+                "scenario_code": "", "run_id": "batch_configuration",
+            }])
         completed_validation = validate_completed_mrv(
             upload_all,
             dictionary_path=self.engine.config_dir / "mrv_dictionary.csv",
@@ -144,11 +165,9 @@ class BatchScenarioCompletionEngine:
             )
             qa_all = pd.concat([qa_all, completion_qa], ignore_index=True)
 
-        comparison = upload_all.merge(
-            expected.loc[:, ["scenario_code", "variable_name", "expected_value"]],
-            on=["scenario_code", "variable_name"],
-            how="left",
-        )
+        expected_columns = ["scenario_code", "variable_name", "expected_value"]
+        expected_values = expected.loc[:, expected_columns] if set(expected_columns).issubset(expected.columns) else pd.DataFrame(columns=expected_columns)
+        comparison = upload_all.merge(expected_values, on=["scenario_code", "variable_name"], how="left")
         comparison["expected_value"] = pd.to_numeric(comparison["expected_value"], errors="coerce")
         comparison["absolute_difference"] = (comparison["value"] - comparison["expected_value"]).abs()
         comparison["within_tolerance"] = comparison["absolute_difference"] <= comparison_tolerance
@@ -174,10 +193,27 @@ class BatchScenarioCompletionEngine:
             })
             qa_all = pd.concat([qa_all, comparison_qa], ignore_index=True)
 
+        if "comparison_mode" in expected.columns and not mismatch_rows.empty:
+            strict_keys = expected[
+                expected["comparison_mode"].astype(str).str.upper() == "STRICT_REGRESSION"
+            ][["scenario_code", "variable_name"]]
+            strict_mismatches = mismatch_rows.merge(strict_keys, on=["scenario_code", "variable_name"])
+            if not strict_mismatches.empty:
+                strict_qa = pd.DataFrame({
+                    "check_id": "QA_STRICT_REGRESSION", "severity": "Critical", "status": "FAIL",
+                    "affected_variable": strict_mismatches["variable_name"],
+                    "message": "Completed value differs from a STRICT_REGRESSION expected value.",
+                    "required_action": "Reconcile the method or explicitly change the regression mode.",
+                    "scenario_code": strict_mismatches["scenario_code"], "run_id": "batch_comparison",
+                })
+                qa_all = pd.concat([qa_all, strict_qa], ignore_index=True)
+
         return BatchCompletionResult(
             scenario_results=results,
             completion_review=review_all,
             software_upload=upload_all,
             qa_report=qa_all,
             comparison_report=comparison,
+            parsed_workbook=parsed,
+            source_filename=workbook_path.name,
         )
