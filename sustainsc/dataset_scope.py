@@ -29,6 +29,11 @@ def ensure_dataset_schema() -> None:
     if engine.dialect.name != "sqlite":
         return
     additions = {
+        "sc_import_run": [
+            ("case_id", "VARCHAR(255)"),
+            ("dataset_id", "VARCHAR(255)"),
+            ("schema_version", "VARCHAR(30)"),
+        ],
         "sc_measurement": [("import_run_id", "INTEGER")],
         "sc_kpi_result": [("import_run_id", "INTEGER")],
         "sc_kpi_normalized_result": [("import_run_id", "INTEGER")],

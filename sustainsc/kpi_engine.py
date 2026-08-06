@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, Tuple, Callable, List
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 
 from .config import SessionLocal
 from .models import KPI, KPIResult, Measurement, EmissionFactor, CostFactor, Scenario, ImportRun
@@ -166,12 +166,6 @@ def upsert_kpi_result(
 # Factors (optional use)
 # -----------------------------
 
-ANALYTICAL_FACTOR_CODES = {
-    "electricity_kwh": "EF_ELECTRICITY_CASE",
-    "diesel_kwh": "EF_DIESEL",
-}
-
-
 def get_factor_by_code(session: Session, factor_code: str, ts: datetime | None = None) -> Optional[EmissionFactor]:
     q = session.query(EmissionFactor).filter(EmissionFactor.code == factor_code)
     if ts is not None:
@@ -184,11 +178,18 @@ def get_factor_by_code(session: Session, factor_code: str, ts: datetime | None =
     return q.order_by(EmissionFactor.valid_from.desc().nullslast(), EmissionFactor.id.desc()).first()
 
 
-def select_valid_emission_factor(session: Session, activity_type: str, ts: datetime) -> Optional[EmissionFactor]:
-    factor_code = ANALYTICAL_FACTOR_CODES.get(activity_type)
-    if factor_code is None:
-        return None
-    q = session.query(EmissionFactor).filter(EmissionFactor.code == factor_code)
+def select_valid_emission_factor(
+    session: Session, activity_type: str, ts: datetime,
+    import_run_id: int | None = None,
+) -> Optional[EmissionFactor]:
+    q = session.query(EmissionFactor).filter(EmissionFactor.activity_type == activity_type)
+    if import_run_id is not None:
+        run = session.query(ImportRun).filter(ImportRun.id == import_run_id).first()
+        if run is not None and run.factor_set_id:
+            q = q.filter(EmissionFactor.factor_set_id == run.factor_set_id)
+    q = q.filter(
+        ~func.lower(func.coalesce(EmissionFactor.analytical_role, "")).like("%reference%")
+    )
     q = q.filter(
         and_(
             (EmissionFactor.valid_from.is_(None) | (EmissionFactor.valid_from <= ts)),
@@ -210,13 +211,18 @@ def compute_total_ghg_tco2e_from_factors(
         q = q.filter(Measurement.scenario_id == scenario_id)
     if import_run_id is not None:
         q = q.filter(Measurement.import_run_id == import_run_id)
-    q = q.filter(Measurement.variable_name.in_(list(ANALYTICAL_FACTOR_CODES)))
+    activity_names = [
+        row[0] for row in session.query(EmissionFactor.activity_type).filter(
+            ~func.lower(func.coalesce(EmissionFactor.analytical_role, "")).like("%reference%")
+        ).distinct().all()
+    ]
+    q = q.filter(Measurement.variable_name.in_(activity_names))
 
     total_kg = 0.0
     used_any = False
 
     for m in q.all():
-        ef = select_valid_emission_factor(session, m.variable_name, m.timestamp)
+        ef = select_valid_emission_factor(session, m.variable_name, m.timestamp, import_run_id)
         if ef is None:
             continue
         used_any = True
@@ -249,7 +255,7 @@ def compute_activity_ghg_tco2e_from_factors(
     used_any = False
 
     for m in q.all():
-        ef = select_valid_emission_factor(session, m.variable_name, m.timestamp)
+        ef = select_valid_emission_factor(session, m.variable_name, m.timestamp, import_run_id)
         if ef is None:
             continue
         used_any = True

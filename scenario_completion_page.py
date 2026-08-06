@@ -23,7 +23,7 @@ def render_scenario_completion_page(
     on_commit: Optional[Callable[[BatchCompletionResult], None]] = None,
 ) -> None:
     render_section_header(
-        "MRV Scenario Workbook v2",
+        "MRV Scenario Workbook",
         "Auditable L1–L6 completion and conflict validation before KPI calculation.",
     )
     render_workflow_progress(
@@ -43,8 +43,8 @@ def render_scenario_completion_page(
     )
     if uploaded is None:
         st.info(
-            "Native v2 workbooks declare template_schema_version in 18_CASE_METADATA. "
-            "Recognized legacy workbooks are handled only through the compatibility adapter."
+            "Current workbooks declare their schema in 18_CASE_METADATA. "
+            "Recognized earlier workbooks are handled through an explicit compatibility adapter."
         )
         return
 
@@ -62,6 +62,11 @@ def render_scenario_completion_page(
         temp_path.unlink(missing_ok=True)
 
     parsed = result.parsed_workbook
+    if parsed and parsed.schema.migration_required:
+        st.warning(
+            "This recognized earlier workbook was migrated to the current internal "
+            "measurement contract. Deprecated evidence labels remain visible in diagnostics."
+        )
     fail_count = int(((result.qa_report["severity"] == "Critical") & (result.qa_report["status"] == "FAIL")).sum())
     warn_count = int((result.qa_report["status"] == "WARN").sum())
     regression_count = int(
@@ -74,7 +79,10 @@ def render_scenario_completion_page(
     level_counts = result.completion_review["rule_level"].value_counts().to_dict()
     render_data_status_panel(
         {
-            "Schema": parsed.schema.version if parsed else "unknown",
+            "Schema": (
+                "Compatible legacy" if parsed and parsed.schema.migration_required
+                else "Current" if parsed else "Unsupported"
+            ),
             "Case ID": parsed.metadata.get("case_id", "") if parsed else "",
             "Dataset ID": parsed.metadata.get("dataset_id", "") if parsed else "",
             "Scenarios": len(result.scenario_results),
@@ -93,6 +101,43 @@ def render_scenario_completion_page(
             "L6 BASE": l6_count,
         }
     )
+
+    structure = result.structural_summary or {}
+    if structure.get("complete"):
+        st.success("MRV completion structure: Complete")
+    else:
+        st.error("MRV completion structure: Incomplete")
+
+    with st.expander("Import diagnostics", expanded=False):
+        diagnostics = {
+            "Detected workbook family": parsed.schema.schema_family if parsed else "unsupported",
+            "Detected schema version": parsed.schema.schema_version if parsed else "unknown",
+            "Detection source": parsed.schema.detected_from if parsed else "",
+            "Migration adapter used": parsed.migration_adapter or "None" if parsed else "None",
+            "Case ID": parsed.metadata.get("case_id", "") if parsed else "",
+            "Dataset ID": parsed.metadata.get("dataset_id", "") if parsed else "",
+            "Required sheets found": len(parsed.schema.required_sheets) if parsed else 0,
+            "Parsed scenario count": len(parsed.scenarios) if parsed else 0,
+            "Parsed dictionary variables": len(parsed.variable_dictionary) if parsed else 0,
+            "Direct evidence count": len(parsed.direct_inputs) if parsed else 0,
+            "Native output count": len(parsed.native_outputs) if parsed else 0,
+            "Assumption count": len(parsed.assumptions) if parsed else 0,
+            "Production QA failures": fail_count,
+            "Regression differences": regression_count,
+        }
+        render_data_status_panel(diagnostics)
+        if result.evidence_outcomes is not None and not result.evidence_outcomes.empty:
+            render_downloadable_table(
+                result.evidence_outcomes.groupby("outcome", as_index=False).size(),
+                filename="mrv_evidence_outcomes.csv",
+                key="download_mrv_evidence_outcomes",
+            )
+        if result.failure_diagnostics is not None and not result.failure_diagnostics.empty:
+            render_downloadable_table(
+                result.failure_diagnostics,
+                filename="mrv_import_failure_diagnostics.csv",
+                key="download_mrv_import_failure_diagnostics",
+            )
 
     tabs = st.tabs(["Causal completion", "Production QA", "Review and commit", "Regression comparison"])
     with tabs[0]:
@@ -182,7 +227,7 @@ def render_scenario_completion_page(
             data=csv_bytes,
             file_name="completed_mrv_scenarios.csv",
             mime="text/csv",
-            disabled=result.has_critical_failures,
+            disabled=not result.can_commit,
         )
     with tabs[3]:
         differences = result.comparison_report[
@@ -202,7 +247,7 @@ def render_scenario_completion_page(
         if st.button(
             "Import scenarios and run KPI pipeline",
             type="primary",
-            disabled=result.has_critical_failures,
+            disabled=not result.can_commit,
         ):
             on_commit(result)
     else:

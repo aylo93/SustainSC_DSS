@@ -14,6 +14,9 @@ class ImportRun(Base):
     __tablename__ = "sc_import_run"
     id = Column(Integer, primary_key=True)
     dataset_name = Column(String(255), nullable=False)
+    case_id = Column(String(255), nullable=True, index=True)
+    dataset_id = Column(String(255), nullable=True, index=True)
+    schema_version = Column(String(30), nullable=True)
     source_filename = Column(String(500), nullable=True)
     import_timestamp = Column(DateTime, nullable=False)
     status = Column(String(30), nullable=False, default="importing")

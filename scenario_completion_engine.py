@@ -314,8 +314,23 @@ class ScenarioCompletionEngine:
                 continue
             permission = self.resolve_permission(selected_strategies, variable)
             if permission.blocks_change or not permission.allows("L1"):
-                issue("QA_UNAUTHORIZED_DIRECT_INPUT", "Critical", "FAIL", f"Selected strategies do not permit an L1 change to {variable}.", variable=variable, action="Remove the value or add a scientifically defensible strategy/rule.")
-                rejected.append({"input_type": "direct", "variable_name": variable, "value": value, "reason": "Outside causal scope"})
+                migrated_audit = _text(row.get("migration_disposition")) == "AUDIT_IF_OUTSIDE_CAUSAL_SCOPE"
+                issue(
+                    "QA_LEGACY_EVIDENCE_AUDIT_ONLY" if migrated_audit else "QA_UNAUTHORIZED_DIRECT_INPUT",
+                    "Warning" if migrated_audit else "Critical",
+                    "WARN" if migrated_audit else "FAIL",
+                    (
+                        f"Migrated legacy evidence for {variable} was preserved for audit but not selected as L1 because the declared strategies do not permit that causal change."
+                        if migrated_audit else
+                        f"Selected strategies do not permit an L1 change to {variable}."
+                    ),
+                    variable=variable,
+                    action="Retain the completed BASE/derived value or configure a scientifically defensible strategy rule.",
+                )
+                rejected.append({
+                    "input_type": "direct", "variable_name": variable, "value": value,
+                    "reason": "Preserved for audit only" if migrated_audit else "Outside causal scope",
+                })
                 continue
             state[variable].update(
                 value=value,
@@ -525,6 +540,24 @@ class ScenarioCompletionEngine:
         self._relationship_check(state, "material_circular_t", "material_total_t", "Circular material exceeds total material.", issue)
         dpp_valid = state.get("dpp_valid_volume", {})
         shipped = state.get("shipped_volume_total", {})
+        retained_dpp_valid = _float_or_none(base_values.get("dpp_valid_volume"))
+        shipped_value = _float_or_none(shipped.get("value"))
+        # A MIN accounting identity can bound a preliminary value, but cannot
+        # prove batch/event validity. Keep the pre-DPP fallback explicit until
+        # the DPP service supplies authoritative evidence in pass 2.
+        if (
+            retained_dpp_valid is not None
+            and shipped_value is not None
+            and retained_dpp_valid > shipped_value + self.numerical_tolerance
+        ):
+            issue(
+                "QA_DPP_VALIDATION_PENDING",
+                "Warning",
+                "WARN",
+                "Reference DPP-valid volume exceeds scenario shipped volume; the bounded L2 value remains provisional until validated batch/event evidence overwrites it.",
+                variable="dpp_valid_volume",
+                action="Import validated DPP batches for this scenario before final KPI publication.",
+            )
         if (
             _float_or_none(dpp_valid.get("value")) is not None
             and _float_or_none(shipped.get("value")) is not None
@@ -760,6 +793,12 @@ class ScenarioCompletionEngine:
                 raise ValueError(f"{name} configuration is missing columns: {sorted(missing)}")
         if self.dictionary["variable_name"].duplicated().any():
             raise ValueError("mrv_dictionary.csv contains duplicate variable_name values.")
+        for frame_name, frame in (("strategy scope", self.scope), ("variable overrides", self.overrides)):
+            for value in frame.get("permitted_rules", pd.Series(dtype=object)).dropna().unique():
+                try:
+                    parse_completion_levels(value)
+                except ValueError as exc:
+                    raise ValueError(f"Malformed {frame_name} permitted_rules {value!r}: {exc}") from exc
 
     def _topological_rule_order(self) -> list[str]:
         active = self.rules[self.rules["rule_status"].astype(str).str.upper() == "ACTIVE"]
@@ -969,11 +1008,21 @@ def _selected_strategies(scenario: pd.Series) -> list[str]:
 
 
 def _expand_rule_expression(expression: Any) -> set[str]:
+    return parse_completion_levels(expression)
+
+
+def parse_completion_levels(expression: Any) -> set[str]:
+    """Parse explicit levels and inclusive ranges without substring matching."""
     text = _text(expression).upper().replace(" ", "")
+    if not text:
+        return set()
     result: set[str] = set()
-    for start, end in re.findall(r"L([1-6])(?:-L?([1-6]))?", text):
-        first = int(start)
-        last = int(end) if end else first
+    for token in re.split(r"[,/;]", text):
+        match = re.fullmatch(r"L([1-6])(?:-L?([1-6]))?", token)
+        if not match:
+            raise ValueError(f"Unsupported completion-level expression: {expression!r}")
+        first = int(match.group(1))
+        last = int(match.group(2)) if match.group(2) else first
         for number in range(min(first, last), max(first, last) + 1):
             result.add(f"L{number}")
     return result
