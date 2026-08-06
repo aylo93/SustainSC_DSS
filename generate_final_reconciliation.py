@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import re
 
 import pandas as pd
 from sqlalchemy import text
@@ -33,7 +34,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         """), connection, params={"run": run_id})
         norm = pd.read_sql(text("""
             SELECT s.code scenario_code, k.code kpi_code, k.name kpi_name,
-                   k.dimension, n.normalized_value, n.semaforo
+                   k.dimension, n.normalized_value, n.semaforo, n.notes
             FROM sc_kpi_normalized_result n JOIN sc_scenario s ON s.id=n.scenario_id
             JOIN sc_kpi k ON k.id=n.kpi_id WHERE n.import_run_id=:run
         """), connection, params={"run": run_id})
@@ -75,6 +76,20 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
 
     ref = norm[norm.scenario_code == reference].set_index("kpi_code")
     details = []
+    def diagnostic(notes: object, key: str) -> str | float | bool | None:
+        match = re.search(rf"(?:^|; )({re.escape(key)})=([^;]+)", str(notes or ""))
+        if not match:
+            return None
+        value = match.group(2).strip()
+        if value in {"True", "False"}:
+            return value == "True"
+        if value == "None":
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            return value
+
     for scenario in sorted(set(norm.scenario_code) - {reference}):
         current = norm[norm.scenario_code == scenario].set_index("kpi_code")
         for code in rules.kpi_code:
@@ -83,6 +98,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
             scenario_light = current.at[code, "semaforo"]
             if effect == "Same":
                 scenario_light = ref.at[code, "semaforo"]
+            notes = current.at[code, "notes"]
             details.append({
                 "scenario": scenario, "kpi_code": code,
                 "kpi_name": current.at[code, "kpi_name"], "dimension": current.at[code, "dimension"],
@@ -90,6 +106,11 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
                 "scenario_score": current.at[code, "normalized_value"], "delta_pts": delta,
                 "reference_semaforo": ref.at[code, "semaforo"],
                 "scenario_semaforo": scenario_light, "effect": effect,
+                "denominator_effect_flag": diagnostic(notes, "denominator_effect_flag") if code == "EC2" else False,
+                "energy_cost_per_fu_reference": diagnostic(notes, "energy_cost_per_fu_reference") if code == "EC2" else None,
+                "energy_cost_per_fu_scenario": diagnostic(notes, "energy_cost_per_fu_scenario") if code == "EC2" else None,
+                "raw_EC2_score": diagnostic(notes, "raw_EC2_score") if code == "EC2" else None,
+                "guarded_EC2_score": diagnostic(notes, "guarded_EC2_score") if code == "EC2" else None,
             })
     detail = pd.DataFrame(details)
     summary = detail.groupby("scenario").apply(lambda g: pd.Series({

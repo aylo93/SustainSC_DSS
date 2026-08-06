@@ -9,7 +9,7 @@ from scenario_completion_engine import ScenarioCompletionEngine
 from sustainsc.mrv_schema_v2 import parse_mrv_workbook
 
 
-FIXTURE = Path("tests/fixtures/mrv_final/SustainSCM_Cuba_MRV_Scenario_Completion_FINAL.xlsx")
+FIXTURE = Path("tests/fixtures/mrv_final/SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_RECONCILED.xlsx")
 
 
 def _complete_cuba():
@@ -27,8 +27,8 @@ def test_corrected_cuba_completion_is_structurally_complete():
     assert completed["value"].notna().all()
     assert np.isfinite(completed["value"].astype(float)).all()
     assert result.completion_review["rule_level"].value_counts().to_dict() == {
-        "L2": 1355, "L6": 817, "L3": 124, "BASE": 107,
-        "L1": 71, "L4": 68, "L5": 26,
+        "L2": 1355, "L6": 826, "L3": 124, "BASE": 107,
+        "L1": 71, "L4": 59, "L5": 26,
     }
 
 

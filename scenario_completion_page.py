@@ -132,6 +132,17 @@ def render_scenario_completion_page(
     })
 
     with st.expander("Import diagnostics", expanded=False):
+        review_provenance = result.completion_review["provenance"].fillna("").astype(str)
+        exact_l3 = int(review_provenance.str.contains("permission_source=exact override", regex=False).sum())
+        scoped_l3 = int(review_provenance.str.contains("permission_source=strategy scope", regex=False).sum())
+        factor_rows = int(result.completion_review["rule_id"].eq("MRV_R_GHG_S1S2_FACTORS").sum())
+        bridge_status = "not configured"
+        if parsed is not None and not parsed.bridge_rules.empty:
+            sd_bridge = parsed.bridge_rules[
+                parsed.bridge_rules["bridge_rule_id"].astype(str).eq("BR_SD_MRV_COVERAGE")
+            ]
+            if not sd_bridge.empty and str(sd_bridge.iloc[0]["rule_status"]).upper() != "ACTIVE":
+                bridge_status = "inactive — native index retained for audit"
         diagnostics = {
             "Detected workbook family": parsed.schema.schema_family if parsed else "unsupported",
             "Detected schema version": parsed.schema.schema_version if parsed else "unknown",
@@ -147,6 +158,11 @@ def render_scenario_completion_page(
             "Assumption count": len(parsed.assumptions) if parsed else 0,
             "Production QA failures": fail_count,
             "Regression differences": regression_count,
+            "L3 permission source — exact override": exact_l3,
+            "L3 permission source — strategy scope": scoped_l3,
+            "Factor-based GHG status": f"executed for {factor_rows} scenarios" if factor_rows else "direct evidence preserved / configuration missing",
+            "SD MRV bridge status": bridge_status,
+            "EC2 denominator guard": "applied during KPI normalization when corroboration fails",
         }
         render_data_status_panel(diagnostics)
         if result.evidence_outcomes is not None and not result.evidence_outcomes.empty:

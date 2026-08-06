@@ -9,8 +9,8 @@ from sustainsc.mrv_schema_v2 import detect_mrv_workbook_schema, parse_mrv_workbo
 
 
 FIXTURES = Path("tests/fixtures/mrv_final")
-V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL.xlsx"
-FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL.xlsx"
+V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL_RECONCILED.xlsx"
+FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_RECONCILED.xlsx"
 
 
 def test_v2_is_detected_from_metadata_and_empty_template_is_structurally_valid():
@@ -41,7 +41,7 @@ def test_final_cuba_is_current_and_never_uses_legacy_adapter():
     assert parsed.metadata.get("case_id") == "CUBA_HOLGUIN_AGGREGATES"
     assert parsed.metadata.get("dataset_id") == "CUBA_HOLGUIN_SCENARIOS_FINAL"
     assert (len(parsed.scenarios), len(parsed.variable_dictionary)) == (24, 107)
-    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (122, 182, 26)
+    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (113, 182, 26)
     assert result.can_commit
     assert result.structural_summary == {
         "scenario_count": 24, "required_variable_count": 107,

@@ -61,6 +61,7 @@ class Permission:
     permitted_rules: str
     priority: int
     justification: str
+    resolution_source: str = "denied"
 
     def allows(self, level: str) -> bool:
         return level.upper() in _expand_rule_expression(self.permitted_rules)
@@ -484,12 +485,16 @@ class ScenarioCompletionEngine:
                     # Scaling applies to activity-dependent primary quantities,
                     # never to percentages, indices, identities, aliases,
                     # order/service counters, or capital/benefit assumptions.
-                    if not _is_activity_dependent_primary(meta):
-                        continue
                     if state[variable]["rule_level"] != "L6":
                         continue
                     permission = self.resolve_permission(selected_strategies, variable, "L3")
-                    if not permission.blocks_change and permission.allows("L3"):
+                    explicitly_configured = permission.resolution_source == "exact override"
+                    dictionary_eligible = _is_activity_dependent_primary(meta)
+                    if (
+                        not permission.blocks_change
+                        and permission.allows("L3")
+                        and (explicitly_configured or dictionary_eligible)
+                    ):
                         state[variable].update(
                             value=float(base_values[variable]) * ratio,
                             rule_level="L3",
@@ -500,7 +505,8 @@ class ScenarioCompletionEngine:
                             provenance=(
                                 f"L3 scaling: BASE numerator={float(base_values[variable]):.12g}; "
                                 f"BASE driver={base_driver:.12g}; scenario driver={scenario_driver:.12g}; "
-                                f"ratio={ratio:.12g}; result={float(base_values[variable]) * ratio:.12g}."
+                                f"ratio={ratio:.12g}; result={float(base_values[variable]) * ratio:.12g}; "
+                                f"permission_source={permission.resolution_source}; strategy={permission.strategy_code}."
                             ),
                         )
         else:
@@ -570,6 +576,15 @@ class ScenarioCompletionEngine:
             except Exception as exc:
                 issue("QA_MRV_RULE_ERROR", "Critical", "FAIL", f"MRV rule {_text(rule['rule_id'])} failed: {exc}", variable=target)
                 continue
+            provenance = _text(rule.get("formula_description")) or "MRV identity recalculation."
+            if _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS":
+                config = json.loads(_text(rule.get("parameter")))
+                provenance = (
+                    f"{provenance} factor_set_id={_text(scenario.get('emission_factor_set_id')) or self.default_factor_set_id}; "
+                    f"electricity_factor_code={config['electricity_factor']}; diesel_factor_code={config['diesel_factor']}; "
+                    f"electricity_kwh={state['electricity_kwh']['value']:.12g}; diesel_kwh={state['diesel_kwh']['value']:.12g}; "
+                    f"result={value:.12g}."
+                )
             state[target].update(
                 value=value,
                 rule_level="L2",
@@ -774,6 +789,7 @@ class ScenarioCompletionEngine:
             return Permission("", variable_name, "Retain_BASE", "L6", 0, "Unknown variable.")
         group = _text(self.dictionary.loc[variable_name, "variable_group"])
         candidates: list[Permission] = []
+        exact_candidates: list[Permission] = []
         for strategy in selected_strategies:
             if not strategy:
                 continue
@@ -786,7 +802,7 @@ class ScenarioCompletionEngine:
                 # Exact variable row wins over wildcard row.
                 exact = exact.assign(_specific=(exact["variable_name"] == variable_name).astype(int))
                 row = exact.sort_values(["_specific", "priority"], ascending=False).iloc[0]
-                candidates.append(
+                exact_candidates.append(
                     Permission(
                         strategy,
                         variable_name,
@@ -794,6 +810,7 @@ class ScenarioCompletionEngine:
                         _text(row["permitted_rules"]),
                         int(row["priority"]),
                         _text(row["scientific_justification"]),
+                        "exact override",
                     )
                 )
                 continue
@@ -811,8 +828,14 @@ class ScenarioCompletionEngine:
                         _text(row["permitted_rules"]),
                         int(row["priority"]),
                         _text(row["scientific_interpretation"]),
+                        "strategy scope",
                     )
                 )
+        # Exact rows are exceptional declarations, not a whitelist.  Resolve
+        # contradictory exact declarations by priority, while strategies with
+        # no exact row retain their independently resolved group permission.
+        if exact_candidates:
+            candidates.append(sorted(exact_candidates, key=lambda p: p.priority, reverse=True)[0])
         if rule_level:
             permitting = [
                 candidate for candidate in candidates
