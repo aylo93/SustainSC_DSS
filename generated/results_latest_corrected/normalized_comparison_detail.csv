@@ -1,0 +1,691 @@
+scenario,kpi_code,kpi_name,dimension,reference_score,scenario_score,delta_pts,reference_semaforo,scenario_semaforo,effect
+DES_BASE_2025,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2025,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_BASE_2025,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_BASE_2025,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_BASE_2025,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_BASE_2025,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_BASE_2025,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_BASE_2025,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2025,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+DES_BASE_2025,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_BASE_2025,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_BASE_2025,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_BASE_2025,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_BASE_2025,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_BASE_2025,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_BASE_2025,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2025,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_BASE_2025,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_BASE_2025,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_BASE_2025,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_BASE_2030,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2030,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_BASE_2030,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_BASE_2030,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_BASE_2030,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_BASE_2030,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_BASE_2030,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_BASE_2030,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2030,EC7,Service level,economic,35.714285714285715,37.5,1.7857142857142847,Red,Red,Improved
+DES_BASE_2030,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2030,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_BASE_2030,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_BASE_2030,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_BASE_2030,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_BASE_2030,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_BASE_2030,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_BASE_2030,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2030,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_BASE_2030,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_BASE_2030,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_BASE_2030,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_BASE_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2035,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_BASE_2035,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_BASE_2035,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_BASE_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_BASE_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_BASE_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_BASE_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2035,EC7,Service level,economic,35.714285714285715,39.285714285714285,3.5714285714285694,Red,Red,Improved
+DES_BASE_2035,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_BASE_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_BASE_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_BASE_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_BASE_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_BASE_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_BASE_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_BASE_2035,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+DES_BASE_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_BASE_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_BASE_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_BASE_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_INTEGRATED_2030,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_INTEGRATED_2030,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_INTEGRATED_2030,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_INTEGRATED_2030,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_INTEGRATED_2030,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_INTEGRATED_2030,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_INTEGRATED_2030,EC7,Service level,economic,35.714285714285715,42.857142857142854,7.142857142857139,Red,Red,Improved
+DES_INTEGRATED_2030,EC8,Average lead time,economic,50.0,69.0355333317408,19.035533331740794,Amber,Amber,Improved
+DES_INTEGRATED_2030,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_INTEGRATED_2030,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_INTEGRATED_2030,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_INTEGRATED_2030,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_INTEGRATED_2030,T3,MRV measurement coverage,technological,50.0,58.333333333333336,8.333333333333336,Amber,Amber,Improved
+DES_INTEGRATED_2030,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_INTEGRATED_2030,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_INTEGRATED_2030,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_INTEGRATED_2035,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_INTEGRATED_2035,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_INTEGRATED_2035,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_INTEGRATED_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_INTEGRATED_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_INTEGRATED_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_INTEGRATED_2035,EC7,Service level,economic,35.714285714285715,50.0,14.285714285714285,Red,Amber,Improved
+DES_INTEGRATED_2035,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_INTEGRATED_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_INTEGRATED_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_INTEGRATED_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_INTEGRATED_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_INTEGRATED_2035,T3,MRV measurement coverage,technological,50.0,66.66666666666666,16.666666666666657,Amber,Amber,Improved
+DES_INTEGRATED_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_INTEGRATED_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_INTEGRATED_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_MAINT_PUSH_2030,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_MAINT_PUSH_2030,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MAINT_PUSH_2030,EC7,Service level,economic,35.714285714285715,42.857142857142854,7.142857142857139,Red,Red,Improved
+DES_MAINT_PUSH_2030,EC8,Average lead time,economic,50.0,69.0355333317408,19.035533331740794,Amber,Amber,Improved
+DES_MAINT_PUSH_2030,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_MAINT_PUSH_2030,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_MAINT_PUSH_2030,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_MAINT_PUSH_2030,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2030,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_MAINT_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_MAINT_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MAINT_PUSH_2035,EC7,Service level,economic,35.714285714285715,48.214285714285715,12.5,Red,Red,Improved
+DES_MAINT_PUSH_2035,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MAINT_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_MAINT_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_MAINT_PUSH_2035,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_MAINT_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_MAINT_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2030,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_MRV_PUSH_2030,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2030,EC7,Service level,economic,35.714285714285715,41.07142857142857,5.357142857142854,Red,Red,Improved
+DES_MRV_PUSH_2030,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2030,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_MRV_PUSH_2030,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_MRV_PUSH_2030,T3,MRV measurement coverage,technological,50.0,58.333333333333336,8.333333333333336,Amber,Amber,Improved
+DES_MRV_PUSH_2030,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_MRV_PUSH_2030,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2030,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+DES_MRV_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,EC2,Energy cost share,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2035,EC7,Service level,economic,35.714285714285715,44.642857142857146,8.92857142857143,Red,Red,Improved
+DES_MRV_PUSH_2035,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+DES_MRV_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+DES_MRV_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+DES_MRV_PUSH_2035,T3,MRV measurement coverage,technological,50.0,66.66666666666666,16.666666666666657,Amber,Amber,Improved
+DES_MRV_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+DES_MRV_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+DES_MRV_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+MILP_CO2CAP,E1,Total GHG emissions (Scope 1+2),environmental,50.0,53.646902646208595,3.646902646208595,Amber,Amber,Improved
+MILP_CO2CAP,E2,Specific GHG emissions per FU,environmental,50.0,53.64690264620854,3.646902646208538,Amber,Amber,Improved
+MILP_CO2CAP,E3,Energy intensity,environmental,50.0,54.48833333333333,4.48833333333333,Amber,Amber,Improved
+MILP_CO2CAP,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+MILP_CO2CAP,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+MILP_CO2CAP,E7,Transport GHG emissions intensity,environmental,50.0,56.977831196580794,6.977831196580794,Amber,Amber,Improved
+MILP_CO2CAP,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+MILP_CO2CAP,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,EC1,Total cost per FU,economic,50.0,52.54913021908559,2.5491302190855905,Amber,Amber,Improved
+MILP_CO2CAP,EC2,Energy cost share,economic,50.0,53.38233123165033,3.3823312316503333,Amber,Amber,Improved
+MILP_CO2CAP,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+MILP_CO2CAP,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+MILP_CO2CAP,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+MILP_CO2CAP,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+MILP_CO2CAP,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+MILP_CO2CAP,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+MILP_CO2CAP,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+MILP_CO2CAP,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+MILP_CO2CAP,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+MILP_CO2CAP,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+MILP_CO2CAP,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+MILP_CO2CAP,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+MILP_CO2CAP,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+MILP_CO2CAP,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+MILP_MIN_CO2,E1,Total GHG emissions (Scope 1+2),environmental,50.0,54.76239003780301,4.762390037803009,Amber,Amber,Improved
+MILP_MIN_CO2,E2,Specific GHG emissions per FU,environmental,50.0,54.762390037802945,4.762390037802945,Amber,Amber,Improved
+MILP_MIN_CO2,E3,Energy intensity,environmental,50.0,55.5555555555555,5.5555555555555,Amber,Amber,Improved
+MILP_MIN_CO2,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+MILP_MIN_CO2,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+MILP_MIN_CO2,E7,Transport GHG emissions intensity,environmental,50.0,53.22738603988563,3.22738603988563,Amber,Amber,Improved
+MILP_MIN_CO2,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+MILP_MIN_CO2,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,EC1,Total cost per FU,economic,50.0,52.26579128458726,2.2657912845872588,Amber,Amber,Improved
+MILP_MIN_CO2,EC2,Energy cost share,economic,50.0,54.498144607965216,4.498144607965216,Amber,Amber,Improved
+MILP_MIN_CO2,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+MILP_MIN_CO2,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+MILP_MIN_CO2,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+MILP_MIN_CO2,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+MILP_MIN_CO2,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+MILP_MIN_CO2,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+MILP_MIN_CO2,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+MILP_MIN_CO2,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+MILP_MIN_CO2,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+MILP_MIN_CO2,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_CO2,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+MILP_MIN_CO2,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+MILP_MIN_CO2,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+MILP_MIN_CO2,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+MILP_MIN_COST,E1,Total GHG emissions (Scope 1+2),environmental,50.0,52.44547567267068,2.445475672670682,Amber,Amber,Improved
+MILP_MIN_COST,E2,Specific GHG emissions per FU,environmental,50.0,52.4454756726706,2.4454756726705966,Amber,Amber,Improved
+MILP_MIN_COST,E3,Energy intensity,environmental,50.0,53.33902777777773,3.33902777777773,Amber,Amber,Improved
+MILP_MIN_COST,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+MILP_MIN_COST,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+MILP_MIN_COST,E7,Transport GHG emissions intensity,environmental,50.0,61.01716450023699,11.017164500236987,Amber,Amber,Improved
+MILP_MIN_COST,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+MILP_MIN_COST,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,EC1,Total cost per FU,economic,50.0,52.85397862755458,2.853978627554582,Amber,Amber,Improved
+MILP_MIN_COST,EC2,Energy cost share,economic,50.0,52.18009560810003,2.1800956081000322,Amber,Amber,Improved
+MILP_MIN_COST,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+MILP_MIN_COST,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+MILP_MIN_COST,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+MILP_MIN_COST,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+MILP_MIN_COST,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+MILP_MIN_COST,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+MILP_MIN_COST,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+MILP_MIN_COST,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+MILP_MIN_COST,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+MILP_MIN_COST,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+MILP_MIN_COST,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+MILP_MIN_COST,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+MILP_MIN_COST,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+MILP_MIN_COST,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_BAU_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_BAU_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_BAU_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_BAU_2035,E4,Share of renewable energy,environmental,37.5,63.74999999999999,26.249999999999993,Red,Amber,Improved
+SD_BAU_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_BAU_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363639,68.1818181818182,Red,Green,Improved
+SD_BAU_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_BAU_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_BAU_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_BAU_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,87.29714285714286,29.93142857142856,Amber,Green,Improved
+SD_BAU_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_BAU_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_BAU_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_BAU_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_BAU_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_BAU_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_BAU_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_BAU_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_BAU_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_BAU_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_BAU_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_BAU_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_BAU_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_BAU_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_CIRC_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,10.609786011616968,-39.39021398838303,Amber,Red,Worse
+SD_CIRC_PUSH_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CIRC_PUSH_2035,E4,Share of renewable energy,environmental,37.5,63.500000000000014,26.000000000000014,Red,Amber,Improved
+SD_CIRC_PUSH_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CIRC_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,100.0,81.81818181818181,Red,Green,Improved
+SD_CIRC_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CIRC_PUSH_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_CIRC_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,87.29714285714286,29.93142857142856,Amber,Green,Improved
+SD_CIRC_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_CIRC_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_CIRC_PUSH_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_CIRC_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_CIRC_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_CIRC_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_CO2_LENIENT_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_LENIENT_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_LENIENT_2035,E4,Share of renewable energy,environmental,37.5,62.250000000000014,24.750000000000014,Red,Amber,Improved
+SD_CO2_LENIENT_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_LENIENT_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363639,68.1818181818182,Red,Green,Improved
+SD_CO2_LENIENT_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,EC2,Energy cost share,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_LENIENT_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,84.80285714285714,27.437142857142838,Amber,Green,Improved
+SD_CO2_LENIENT_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_CO2_LENIENT_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_CO2_LENIENT_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_CO2_LENIENT_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_CO2_LENIENT_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_CO2_LENIENT_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_CO2_STRICT_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_STRICT_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_STRICT_2035,E4,Share of renewable energy,environmental,37.5,65.0,27.5,Red,Amber,Improved
+SD_CO2_STRICT_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_STRICT_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363636,68.18181818181817,Red,Green,Improved
+SD_CO2_STRICT_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,EC1,Total cost per FU,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,EC2,Energy cost share,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_CO2_STRICT_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,87.29714285714286,29.93142857142856,Amber,Green,Improved
+SD_CO2_STRICT_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_CO2_STRICT_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_CO2_STRICT_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_CO2_STRICT_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_CO2_STRICT_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_CO2_STRICT_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_ENERGY_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,63.91168713216673,13.911687132166733,Amber,Amber,Improved
+SD_ENERGY_PUSH_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_ENERGY_PUSH_2035,E4,Share of renewable energy,environmental,37.5,98.74999999999996,61.24999999999996,Red,Green,Improved
+SD_ENERGY_PUSH_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_ENERGY_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363636,68.18181818181817,Red,Green,Improved
+SD_ENERGY_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_ENERGY_PUSH_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_ENERGY_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,84.80285714285714,27.437142857142838,Amber,Green,Improved
+SD_ENERGY_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_ENERGY_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_ENERGY_PUSH_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_ENERGY_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_ENERGY_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_ENERGY_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_INTEGRATED_2035,E2,Specific GHG emissions per FU,environmental,50.0,77.53816224636387,27.538162246363868,Amber,Amber,Improved
+SD_INTEGRATED_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_INTEGRATED_2035,E4,Share of renewable energy,environmental,37.5,99.0,61.5,Red,Green,Improved
+SD_INTEGRATED_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_INTEGRATED_2035,E6,Waste recovery rate,environmental,18.181818181818183,100.0,81.81818181818181,Red,Green,Improved
+SD_INTEGRATED_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_INTEGRATED_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_INTEGRATED_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_INTEGRATED_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,92.28571428571428,34.91999999999998,Amber,Green,Improved
+SD_INTEGRATED_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_INTEGRATED_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_INTEGRATED_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_INTEGRATED_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_INTEGRATED_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_INTEGRATED_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_INTEGRATED_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_INTEGRATED_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_INTEGRATED_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_INTEGRATED_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_MAINT_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MAINT_PUSH_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MAINT_PUSH_2035,E4,Share of renewable energy,environmental,37.5,64.24999999999999,26.749999999999986,Red,Amber,Improved
+SD_MAINT_PUSH_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MAINT_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363636,68.18181818181817,Red,Green,Improved
+SD_MAINT_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MAINT_PUSH_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_MAINT_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,92.28571428571428,34.91999999999998,Amber,Green,Improved
+SD_MAINT_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_MAINT_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_MAINT_PUSH_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_MAINT_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_MAINT_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_MAINT_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_MRV_PUSH_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MRV_PUSH_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MRV_PUSH_2035,E4,Share of renewable energy,environmental,37.5,64.0,26.5,Red,Amber,Improved
+SD_MRV_PUSH_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MRV_PUSH_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363636,68.18181818181817,Red,Green,Improved
+SD_MRV_PUSH_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_MRV_PUSH_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_MRV_PUSH_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,92.28571428571428,34.91999999999998,Amber,Green,Improved
+SD_MRV_PUSH_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_MRV_PUSH_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_MRV_PUSH_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_MRV_PUSH_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_MRV_PUSH_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_MRV_PUSH_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,E1,Total GHG emissions (Scope 1+2),environmental,50.0,100.0,50.0,Amber,Green,Improved
+SD_REALITY_CHECK_2035,E2,Specific GHG emissions per FU,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_REALITY_CHECK_2035,E3,Energy intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_REALITY_CHECK_2035,E4,Share of renewable energy,environmental,37.5,61.0,23.5,Red,Amber,Improved
+SD_REALITY_CHECK_2035,E5,Waste generation intensity,environmental,50.0,0.0,-50.0,Amber,Red,Worse
+SD_REALITY_CHECK_2035,E6,Waste recovery rate,environmental,18.181818181818183,86.36363636363639,68.1818181818182,Red,Green,Improved
+SD_REALITY_CHECK_2035,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,EC1,Total cost per FU,economic,50.0,0.0,-50.0,Amber,Red,Worse
+SD_REALITY_CHECK_2035,EC2,Energy cost share,economic,50.0,100.0,50.0,Amber,Green,Improved
+SD_REALITY_CHECK_2035,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,79.81428571428569,22.44857142857139,Amber,Amber,Improved
+SD_REALITY_CHECK_2035,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SD_REALITY_CHECK_2035,S3,Suggestions per employee,social,64.28571428571429,64.28571428571429,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SD_REALITY_CHECK_2035,T3,MRV measurement coverage,technological,50.0,100.0,50.0,Amber,Green,Improved
+SD_REALITY_CHECK_2035,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SD_REALITY_CHECK_2035,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SD_REALITY_CHECK_2035,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E1,Total GHG emissions (Scope 1+2),environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E2,Specific GHG emissions per FU,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E3,Energy intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+SOCIAL_PUSH,E5,Waste generation intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E6,Waste recovery rate,environmental,18.181818181818183,18.181818181818183,0.0,Red,Red,Same
+SOCIAL_PUSH,E7,Transport GHG emissions intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,E8,Circularity ratio,environmental,11.11111111111111,11.11111111111111,0.0,Red,Red,Same
+SOCIAL_PUSH,E9,Water consumption intensity,environmental,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,EC1,Total cost per FU,economic,50.0,48.799750348072465,-1.2002496519275354,Amber,Red,Worse
+SOCIAL_PUSH,EC2,Energy cost share,economic,50.0,51.49671919153224,1.496719191532243,Amber,Amber,Improved
+SOCIAL_PUSH,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,57.3657142857143,0.0,Amber,Amber,Same
+SOCIAL_PUSH,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+SOCIAL_PUSH,EC5,Maintenance cost per operating hour,economic,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,EC7,Service level,economic,35.714285714285715,35.714285714285715,0.0,Red,Red,Same
+SOCIAL_PUSH,EC8,Average lead time,economic,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,S1,LTIFR,social,50.0,91.66666666666666,41.66666666666666,Amber,Green,Improved
+SOCIAL_PUSH,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+SOCIAL_PUSH,S3,Suggestions per employee,social,64.28571428571429,71.42857142857143,7.142857142857139,Amber,Amber,Improved
+SOCIAL_PUSH,S4,Community incidents and complaints,social,50.0,85.71428571428571,35.71428571428571,Amber,Green,Improved
+SOCIAL_PUSH,S5,Health checks coverage,social,16.666666666666643,37.5,20.833333333333357,Red,Red,Improved
+SOCIAL_PUSH,S6,Customer acceptance index,social,30.000000000000014,36.0,5.999999999999986,Red,Red,Improved
+SOCIAL_PUSH,T1,Digitalization rate of core processes,technological,69.23076923076923,69.23076923076923,0.0,Amber,Amber,Same
+SOCIAL_PUSH,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+SOCIAL_PUSH,T3,MRV measurement coverage,technological,50.0,50.0,0.0,Amber,Amber,Same
+SOCIAL_PUSH,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+SOCIAL_PUSH,T5,Data quality index,technological,76.66666666666666,76.66666666666666,0.0,Amber,Amber,Same
+SOCIAL_PUSH,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+SOCIAL_PUSH,T7,Decisions supported by analytics,technological,66.66666666666666,66.66666666666666,0.0,Amber,Amber,Same
+VSMC_KAIZEN,E1,Total GHG emissions (Scope 1+2),environmental,50.0,87.62508338892596,37.62508338892596,Amber,Green,Improved
+VSMC_KAIZEN,E2,Specific GHG emissions per FU,environmental,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,E3,Energy intensity,environmental,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,E4,Share of renewable energy,environmental,37.5,37.5,0.0,Red,Red,Same
+VSMC_KAIZEN,E5,Waste generation intensity,environmental,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,E6,Waste recovery rate,environmental,18.181818181818183,29.370629371428574,11.18881118961039,Red,Red,Improved
+VSMC_KAIZEN,E7,Transport GHG emissions intensity,environmental,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,E8,Circularity ratio,environmental,11.11111111111111,14.814814814814817,3.703703703703706,Red,Red,Improved
+VSMC_KAIZEN,E9,Water consumption intensity,environmental,50.0,81.74603174603169,31.74603174603169,Amber,Green,Improved
+VSMC_KAIZEN,EC1,Total cost per FU,economic,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,EC2,Energy cost share,economic,50.0,73.93617021276611,23.936170212766115,Amber,Amber,Improved
+VSMC_KAIZEN,EC3,Overall Equipment Effectiveness (OEE),economic,57.3657142857143,73.51428571428572,16.148571428571422,Amber,Amber,Improved
+VSMC_KAIZEN,EC4,Return on sustainability investments (ROSI),economic,0.0,0.0,0.0,Red,Red,Same
+VSMC_KAIZEN,EC5,Maintenance cost per operating hour,economic,50.0,35.7142857142857,-14.285714285714299,Amber,Red,Worse
+VSMC_KAIZEN,EC6,Logistics cost per tkm,economic,50.0,50.0,0.0,Amber,Amber,Same
+VSMC_KAIZEN,EC7,Service level,economic,35.714285714285715,56.12244897959181,20.408163265306094,Red,Amber,Improved
+VSMC_KAIZEN,EC8,Average lead time,economic,50.0,100.0,50.0,Amber,Green,Improved
+VSMC_KAIZEN,S1,LTIFR,social,50.0,50.0,0.0,Amber,Amber,Same
+VSMC_KAIZEN,S2,Training hours per employee,social,100.0,100.0,0.0,Green,Green,Same
+VSMC_KAIZEN,S3,Suggestions per employee,social,64.28571428571429,82.14285714285714,17.857142857142847,Amber,Green,Improved
+VSMC_KAIZEN,S4,Community incidents and complaints,social,50.0,50.0,0.0,Amber,Amber,Same
+VSMC_KAIZEN,S5,Health checks coverage,social,16.666666666666643,16.666666666666643,0.0,Red,Red,Same
+VSMC_KAIZEN,S6,Customer acceptance index,social,30.000000000000014,30.000000000000014,0.0,Red,Red,Same
+VSMC_KAIZEN,T1,Digitalization rate of core processes,technological,69.23076923076923,75.64102564102562,6.410256410256395,Amber,Amber,Improved
+VSMC_KAIZEN,T2,Assets connected to IoT,technological,42.857142857142854,42.857142857142854,0.0,Red,Red,Same
+VSMC_KAIZEN,T3,MRV measurement coverage,technological,50.0,58.333333333333336,8.333333333333336,Amber,Amber,Improved
+VSMC_KAIZEN,T4,DPP coverage,technological,80.0,80.0,0.0,Green,Green,Same
+VSMC_KAIZEN,T5,Data quality index,technological,76.66666666666666,80.66666666666666,4.0,Amber,Green,Improved
+VSMC_KAIZEN,T6,OT-IT integration level,technological,62.5,62.5,0.0,Amber,Amber,Same
+VSMC_KAIZEN,T7,Decisions supported by analytics,technological,66.66666666666666,78.57142857142857,11.904761904761912,Amber,Amber,Improved

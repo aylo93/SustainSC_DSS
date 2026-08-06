@@ -106,6 +106,8 @@ class BatchScenarioCompletionEngine:
                 "overrides": parsed.variable_overrides,
                 "rules": parsed.mrv_rules,
                 "bridges": parsed.bridge_rules,
+                "factor_register": parsed.factor_register,
+                "default_factor_set_id": parsed.metadata.get("default_emission_factor_set_id"),
             },
         )
         scenarios = parsed.scenarios

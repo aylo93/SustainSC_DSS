@@ -239,9 +239,13 @@ def build_mcda_input(
     weights: pd.Series,
     eligibility: pd.DataFrame,
     selected_scenarios: Iterable[str] | None = None,
+    reference_scenario_code: str | None = None,
 ) -> MCDAInput:
     selected = tuple(dict.fromkeys(str(v).strip() for v in (selected_scenarios or ())))
     eligible_table = eligibility[eligibility["mcda_eligible"]].copy()
+    reference = str(reference_scenario_code or "").strip()
+    if reference:
+        eligible_table = eligible_table[eligible_table["scenario_code"] != reference]
     if selected:
         eligible_table = eligible_table[eligible_table["scenario_code"].isin(selected)]
         excluded = eligibility[
@@ -249,6 +253,9 @@ def build_mcda_input(
         ].copy()
     else:
         excluded = eligibility[~eligibility["mcda_eligible"]].copy()
+    if reference:
+        reference_rows = eligibility[eligibility["scenario_code"] == reference]
+        excluded = pd.concat([excluded, reference_rows], ignore_index=True).drop_duplicates("scenario_code")
     eligible = tuple(eligible_table["scenario_code"])
 
     work = normalized_results[normalized_results["scenario_code"].isin(eligible)].copy()

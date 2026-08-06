@@ -1,0 +1,7 @@
+check_id,scenario_code,variable_or_kpi,expected_logic,actual_value,status,message
+FACTOR_GHG_RECALCULATED,,ghg_total_s1s2,Weak GHG totals use the configured analytical factors,10,PASS,Factor-rule measurements in active run
+MAINTENANCE_L6_RETENTION,,maintenance_cost_eur,Unsupported maintenance changes retain reference value,22,PASS,L6 maintenance values compared with reference
+MCDA_REFERENCE_EXCLUDED,BASE,MCDA,Reference excluded before WSM/TOPSIS,True,PASS,23 alternatives
+TRAFFIC_LIGHT_TOLERANCE,,traffic light,Same effects cannot have contradictory lights from numeric noise,0,PASS,Contradictory Same/light rows
+NORMALIZED_COMPARISON_COMPLETE,,normalized comparison,23 alternatives x 30 KPI,690,PASS,Complete alternative/KPI matrix
+KPI_COMPLETENESS,,raw and normalized KPI,24 scenarios x 30 KPI,raw=720; normalized=720,PASS,Active-run KPI population

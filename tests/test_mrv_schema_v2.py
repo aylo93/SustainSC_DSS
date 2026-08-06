@@ -53,6 +53,24 @@ def test_final_cuba_is_current_and_never_uses_legacy_adapter():
     assert not result.has_critical_failures
 
 
+def test_factor_rule_and_maintenance_override_are_synchronized_between_templates():
+    cuba = parse_mrv_workbook(FINAL_CUBA)
+    generic = parse_mrv_workbook(V2)
+    for parsed, expected_status in ((cuba, "ACTIVE"), (generic, "CONFIG_REQUIRED")):
+        rule = parsed.mrv_rules[parsed.mrv_rules["rule_id"] == "MRV_R_GHG_S1S2_FACTORS"].iloc[0]
+        assert rule["operation"] == "GHG_FROM_ENERGY_FACTORS"
+        assert rule["rule_status"] == expected_status
+        override = parsed.variable_overrides[
+            (parsed.variable_overrides["strategy_code"] == "LOGISTICS_REDESIGN")
+            & (parsed.variable_overrides["variable_name"] == "maintenance_cost_eur")
+        ].iloc[0]
+        assert override["permitted_rules"] == "L1,L5,L6"
+        assert int(override["priority"]) == 100
+        dictionary = parsed.variable_dictionary.set_index("variable_name")
+        assert dictionary.at["electricity_kwh", "l3_scaling_eligible"] == "Yes"
+        assert dictionary.at["maintenance_cost_eur", "l3_scaling_eligible"] == "No"
+
+
 def test_empty_v2_template_reports_configuration_failure_not_parser_failure():
     result = BatchScenarioCompletionEngine("config").complete_batch_from_excel(V2)
     assert result.scenario_results == {}
