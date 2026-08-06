@@ -269,14 +269,15 @@ class ScenarioCompletionEngine:
         self._check_duplicates(native_outputs, "native_variable", "native output", issue)
         self._check_duplicates(assumptions, "assumption_id", "assumption", issue)
 
-        # Every common variable begins as an L6 reference value. Higher evidence
-        # levels replace it only when the causal scope permits the change.
+        # Start from the validated reference so every variable has a candidate,
+        # but do not let that candidate conceal rejected competing evidence.
+        # L6 is finalized only after all stronger evidence paths are evaluated.
         state: dict[str, dict[str, Any]] = {}
         for variable in common_variables:
             state[variable] = {
                 "value": _float_or_none(base_values.get(variable)),
-                "rule_level": "L6",
-                "rule_id": "BASE_RETENTION",
+                "rule_level": "BASE" if scenario_code == reference_code else "L6",
+                "rule_id": "BASE_REFERENCE" if scenario_code == reference_code else "BASE_RETENTION",
                 "selected_strategy": "",
                 "source_module": "Reference MRV",
                 "source_reference": reference_code,
@@ -285,12 +286,29 @@ class ScenarioCompletionEngine:
                 "provenance": f"Reference value retained from {reference_code}.",
             }
 
-        # L1 direct inputs -------------------------------------------------
+        # Direct/common-MRV evidence --------------------------------------
+        # Evidence class determines the rule level; a row's sheet location
+        # does not turn translated or model-derived evidence into L1.
         direct_map: dict[str, float] = {}
         for _, row in direct_inputs.iterrows():
             variable = _text(row.get("variable_name"))
             value = _float_or_none(row.get("scenario_value"))
             if not variable or value is None:
+                continue
+            evidence_class = _text(
+                row.get("normalized_evidence_class") or row.get("evidence_type")
+            ).upper()
+            evidence_level = {
+                "DIRECT_MEASUREMENT": "L1",
+                "DIRECT_MODEL_OUTPUT": "L1",
+                "DERIVED_FROM_MODEL_OUTPUT": "L2",
+                "CASE_SPECIFIC_BRIDGE": "L4",
+                "APPROVED_ASSUMPTION": "L5",
+                "BASE_RETENTION": "L6",
+            }.get(evidence_class)
+            if evidence_level is None:
+                issue("QA_UNKNOWN_EVIDENCE_CLASS", "Critical", "FAIL", f"Unsupported evidence class: {evidence_class or 'blank'}.", variable=variable)
+                rejected.append({"input_type": "direct", "variable_name": variable, "value": value, "reason": "Unsupported evidence class"})
                 continue
             direct_map[variable] = value
             if variable not in self.dictionary.index:
@@ -298,7 +316,7 @@ class ScenarioCompletionEngine:
                 rejected.append({"input_type": "direct", "variable_name": variable, "value": value, "reason": "Unknown variable"})
                 continue
             meta = self.dictionary.loc[variable]
-            if not _yes(meta.get("user_input_allowed")):
+            if evidence_level != "L2" and not _yes(meta.get("user_input_allowed")):
                 issue("QA_DERIVED_DIRECT_INPUT", "Critical", "FAIL", "Direct input is not allowed for a derived/alias variable.", variable=variable)
                 rejected.append({"input_type": "direct", "variable_name": variable, "value": value, "reason": "User input not allowed"})
                 continue
@@ -312,17 +330,17 @@ class ScenarioCompletionEngine:
                 issue("QA_UNAPPROVED_DIRECT_INPUT", "Warning", "WARN", "Direct input was ignored because it is not approved.", variable=variable, action="Approve the input or remove it.")
                 rejected.append({"input_type": "direct", "variable_name": variable, "value": value, "reason": "Not approved"})
                 continue
-            permission = self.resolve_permission(selected_strategies, variable)
-            if permission.blocks_change or not permission.allows("L1"):
+            permission = self.resolve_permission(selected_strategies, variable, evidence_level)
+            if permission.blocks_change or not permission.allows(evidence_level):
                 migrated_audit = _text(row.get("migration_disposition")) == "AUDIT_IF_OUTSIDE_CAUSAL_SCOPE"
                 issue(
                     "QA_LEGACY_EVIDENCE_AUDIT_ONLY" if migrated_audit else "QA_UNAUTHORIZED_DIRECT_INPUT",
                     "Warning" if migrated_audit else "Critical",
                     "WARN" if migrated_audit else "FAIL",
                     (
-                        f"Migrated legacy evidence for {variable} was preserved for audit but not selected as L1 because the declared strategies do not permit that causal change."
+                        f"Migrated legacy evidence for {variable} was preserved for audit but not selected as {evidence_level} because the declared strategies do not permit that causal change."
                         if migrated_audit else
-                        f"Selected strategies do not permit an L1 change to {variable}."
+                        f"Selected strategies do not permit an {evidence_level} change to {variable}."
                     ),
                     variable=variable,
                     action="Retain the completed BASE/derived value or configure a scientifically defensible strategy rule.",
@@ -332,15 +350,19 @@ class ScenarioCompletionEngine:
                     "reason": "Preserved for audit only" if migrated_audit else "Outside causal scope",
                 })
                 continue
+            if evidence_level == "L6":
+                # An explicit BASE-retention row is audit evidence, not a
+                # competing scenario change.
+                continue
             state[variable].update(
                 value=value,
-                rule_level="L1",
-                rule_id="DIRECT_INPUT",
+                rule_level=evidence_level,
+                rule_id=evidence_class,
                 selected_strategy=permission.strategy_code,
                 source_module=_text(row.get("source_module")) or "Direct MRV",
                 source_reference=_text(row.get("source_reference")),
                 direct_input=value,
-                provenance=f"Approved direct input under {permission.strategy_code}.",
+                provenance=f"Approved {evidence_class} evidence under {permission.strategy_code}.",
             )
 
         # L4 bridge transformations ---------------------------------------
@@ -363,11 +385,21 @@ class ScenarioCompletionEngine:
                 rejected.append({"input_type": "native", "variable_name": native_variable, "value": native_value, "reason": "Missing bridge"})
                 continue
             target = _text(bridge["target_mrv_variable"])
-            permission = self.resolve_permission(selected_strategies, target)
-            if permission.blocks_change or not permission.allows("L4"):
-                issue("QA_UNAUTHORIZED_BRIDGE", "Critical", "FAIL", f"Selected strategies do not permit an L4 bridge to {target}.", variable=target)
-                rejected.append({"input_type": "native", "variable_name": native_variable, "value": native_value, "reason": "Bridge outside causal scope"})
+            # Reference-scenario native rows are reconciliation/audit records;
+            # the validated BASE reference remains authoritative.
+            if scenario_code == reference_code:
                 continue
+            permission = self.resolve_permission(selected_strategies, target, "L4")
+            if permission.blocks_change or not permission.allows("L4"):
+                # An ACTIVE, approved, explicitly selected bridge is itself a
+                # variable-level causal authorization. Group scope remains the
+                # fallback for ordinary evidence and never authorizes a bridge
+                # that is inactive, unapproved, or absent.
+                permission = Permission(
+                    _text(bridge.get("source_module")), target,
+                    "Approved_active_bridge", "L4", 100,
+                    _text(bridge.get("case_validity")),
+                )
             try:
                 transformed = self._evaluate_bridge(bridge, native_value, base_values)
             except Exception as exc:
@@ -417,7 +449,7 @@ class ScenarioCompletionEngine:
             if strategy and strategy not in selected_strategies:
                 issue("QA_UNUSED_ASSUMPTION", "Warning", "WARN", "Approved assumption was not used because its strategy is not selected.", variable=variable)
                 continue
-            permission = self.resolve_permission(selected_strategies, variable)
+            permission = self.resolve_permission(selected_strategies, variable, "L5")
             if permission.blocks_change or not permission.allows("L5"):
                 issue("QA_UNAUTHORIZED_ASSUMPTION", "Critical", "FAIL", "The approved assumption is outside the selected causal domain.", variable=variable)
                 rejected.append({"input_type": "assumption", "variable_name": variable, "value": value, "reason": "Outside causal scope"})
@@ -444,14 +476,25 @@ class ScenarioCompletionEngine:
                 issue("QA_SCALING_DRIVER", "Critical", "FAIL", "Baseline scaling was enabled but the scaling driver is unavailable or zero.", variable=driver)
             else:
                 ratio = scenario_driver / base_driver
-                for _, row in direct_inputs.iterrows():
-                    variable = _text(row.get("variable_name"))
-                    if not variable or not _yes(row.get("allow_l3_scaling")) or variable not in state:
+                for variable in common_variables:
+                    meta = self.dictionary.loc[variable]
+                    # Scaling applies to activity-dependent primary quantities,
+                    # never to percentages, indices, identities, aliases,
+                    # order/service counters, or capital/benefit assumptions.
+                    if not _is_activity_dependent_primary(meta):
                         continue
                     if state[variable]["rule_level"] != "L6":
                         continue
-                    permission = self.resolve_permission(selected_strategies, variable)
-                    if permission.allows("L3") and not permission.blocks_change:
+                    permission = self.resolve_permission(selected_strategies, variable, "L3")
+                    physical_activity = _text(meta.get("variable_group")) in {
+                        "Energy", "Circularity", "Water"
+                    }
+                    explicitly_scaled = "scaled" in permission.influence_status.lower()
+                    if (
+                        not permission.blocks_change
+                        and (permission.allows("L3") or physical_activity)
+                        and (physical_activity or explicitly_scaled)
+                    ):
                         state[variable].update(
                             value=float(base_values[variable]) * ratio,
                             rule_level="L3",
@@ -459,14 +502,47 @@ class ScenarioCompletionEngine:
                             selected_strategy=permission.strategy_code,
                             source_module="Baseline scaling",
                             source_reference=driver,
-                            provenance=f"BASE intensity scaled by {driver}; activity ratio={ratio:.8g}.",
+                            provenance=(
+                                f"L3 scaling: BASE numerator={float(base_values[variable]):.12g}; "
+                                f"BASE driver={base_driver:.12g}; scenario driver={scenario_driver:.12g}; "
+                                f"ratio={ratio:.12g}; result={float(base_values[variable]) * ratio:.12g}."
+                            ),
                         )
         else:
             issue("QA_SCALING_SETTING", "Information", "PASS", "Baseline scaling is disabled.")
 
+        # Configured L3 identities (notably provisional coverage-preserving
+        # volume rules) apply independently of general resource scaling.
+        for _, rule in self.rules[self.rules["rule_level"].astype(str).str.upper() == "L3"].iterrows():
+            target = _text(rule.get("target_variable"))
+            if scenario_code == reference_code or target not in state:
+                continue
+            if state[target]["rule_level"] != "L6":
+                continue
+            permission = self.resolve_permission(selected_strategies, target, "L3")
+            if permission.blocks_change or not permission.allows("L3"):
+                continue
+            try:
+                value = self._evaluate_mrv_rule(rule, state, base_values)
+            except Exception as exc:
+                issue("QA_MRV_RULE_ERROR", "Critical", "FAIL", f"MRV rule {_text(rule['rule_id'])} failed: {exc}", variable=target)
+                continue
+            state[target].update(
+                value=value,
+                rule_level="L3",
+                rule_id=_text(rule.get("rule_id")),
+                selected_strategy=permission.strategy_code,
+                source_module="Provisional baseline scaling",
+                source_reference=";".join(_rule_sources(rule)),
+                provenance=_text(rule.get("formula_description")),
+                provisional=True,
+            )
+
         # L2 MRV identities and aliases in topological order -------------
         rules_by_target = self.rules.set_index("target_variable", drop=False)
         for target in self._rule_order:
+            if scenario_code == reference_code:
+                continue
             if target not in state or target not in rules_by_target.index:
                 continue
             # Stronger explicit evidence is never silently overwritten.
@@ -475,6 +551,16 @@ class ScenarioCompletionEngine:
             rule = rules_by_target.loc[target]
             if isinstance(rule, pd.DataFrame):
                 rule = rule.iloc[0]
+            if _text(rule.get("rule_level")) != "L2":
+                continue
+            # Documented model-equation evidence is already an L2 result. It
+            # takes precedence over a configured fallback identity whose note
+            # explicitly applies only when no scenario value is supplied.
+            if (
+                state[target]["rule_level"] == "L2"
+                and state[target].get("rule_id") == "DERIVED_FROM_MODEL_OUTPUT"
+            ):
+                continue
             try:
                 value = self._evaluate_mrv_rule(rule, state, base_values)
             except Exception as exc:
@@ -616,6 +702,7 @@ class ScenarioCompletionEngine:
                     "source_module": record.get("source_module"),
                     "source_reference": record.get("source_reference"),
                     "provenance": record.get("provenance"),
+                    "provisional": bool(record.get("provisional", False)),
                     "qa_status": qa_status,
                     "qa_message": qa_message,
                     "timestamp": timestamp,
@@ -658,7 +745,12 @@ class ScenarioCompletionEngine:
             rejected_inputs=rejected_df,
         )
 
-    def resolve_permission(self, selected_strategies: Iterable[str], variable_name: str) -> Permission:
+    def resolve_permission(
+        self,
+        selected_strategies: Iterable[str],
+        variable_name: str,
+        rule_level: str | None = None,
+    ) -> Permission:
         if variable_name not in self.dictionary.index:
             return Permission("", variable_name, "Retain_BASE", "L6", 0, "Unknown variable.")
         group = _text(self.dictionary.loc[variable_name, "variable_group"])
@@ -702,6 +794,21 @@ class ScenarioCompletionEngine:
                         _text(row["scientific_interpretation"]),
                     )
                 )
+        if rule_level:
+            permitting = [
+                candidate for candidate in candidates
+                if not candidate.blocks_change and candidate.allows(rule_level)
+            ]
+            if permitting:
+                if rule_level.upper() == "L3":
+                    scaling = [
+                        candidate for candidate in permitting
+                        if "scaled" in candidate.influence_status.lower()
+                        or "scaling" in candidate.influence_status.lower()
+                    ]
+                    if scaling:
+                        permitting = scaling
+                return sorted(permitting, key=lambda p: p.priority, reverse=True)[0]
         if not candidates:
             return Permission("", variable_name, "Retain_BASE", "L6", 0, "No selected strategy supplied a causal permission.")
         return sorted(candidates, key=lambda p: p.priority, reverse=True)[0]
@@ -1005,6 +1112,31 @@ def _selected_strategies(scenario: pd.Series) -> list[str]:
         _text(scenario.get("secondary_strategy_2")),
     ]
     return list(dict.fromkeys(v for v in values if v))
+
+
+def _is_activity_dependent_primary(meta: Mapping[str, Any]) -> bool:
+    """Return whether a primary quantity scales with the configured activity driver.
+
+    The decision is based on the common-MRV semantic contract, not a case or
+    scenario. Ratios, indices, headcounts, service counters, capital investment,
+    and benefit assumptions are deliberately excluded.
+    """
+    if _text(meta.get("data_role")) != "PRIMARY_MRV":
+        return False
+    variable = _text(meta.get("variable_name"))
+    group = _text(meta.get("variable_group"))
+    unit = _text(meta.get("canonical_unit"))
+    if unit in {"%", "fraction", "index", "index(0-100)", "score", "count", "h"}:
+        return False
+    if group in {"Energy", "Circularity", "Water"}:
+        return True
+    return variable in {
+        "dpp_volume",
+        "shipped_volume_total",
+        "transport_work_tkm",
+        "operating_cost_eur",
+        "maintenance_cost_eur",
+    }
 
 
 def _expand_rule_expression(expression: Any) -> set[str]:
