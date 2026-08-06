@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from .config import SessionLocal
 from .models import KPIResult, KPINormalizedResult, KPI, Scenario
 from .dataset_scope import get_import_run_scenario_ids, resolve_import_run_id
+from .numerical import NUMERICAL_COMPARISON, snap_to_threshold
 
 
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
@@ -243,6 +244,11 @@ def normalize_value(
         if normalized is None:
             return None, "Missing"
 
+        normalized = snap_to_threshold(
+            normalized,
+            (amber_threshold, green_threshold),
+            NUMERICAL_COMPARISON.score_tolerance,
+        )
         if normalized >= green_threshold:
             semaforo = "Green"
         elif normalized >= amber_threshold:

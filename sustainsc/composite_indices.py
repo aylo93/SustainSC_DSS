@@ -18,6 +18,28 @@ COMPOSITE_KPIS = [
 ]
 
 
+def corrected_sustain_index(
+    dimension_scores: dict[str, float],
+    dimension_weights: dict[str, float],
+    method: str = "geometric",
+) -> float | None:
+    dimensions = ["environmental", "economic", "social", "technological"]
+    values, weights = [], []
+    for dimension in dimensions:
+        value = dimension_scores.get(dimension)
+        weight = float(dimension_weights.get(dimension, 0.0))
+        if value is None or pd.isna(value) or weight <= 0:
+            continue
+        values.append(float(value)); weights.append(weight)
+    if not values or sum(weights) <= 0:
+        return None
+    normalized_weights = np.asarray(weights) / sum(weights)
+    scores = np.asarray(values)
+    if method == "arithmetic":
+        return float(np.sum(normalized_weights * scores))
+    return float(100.0 * np.prod((np.maximum(scores, 1e-6) / 100.0) ** normalized_weights))
+
+
 def ensure_composite_kpis(session):
     for code, name, dimension in COMPOSITE_KPIS:
         existing = session.query(KPI).filter_by(code=code).first()

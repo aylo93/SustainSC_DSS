@@ -10,6 +10,7 @@ from typing import Callable, Optional
 import streamlit as st
 
 from batch_completion_engine import BatchCompletionResult, BatchScenarioCompletionEngine
+from sustainsc.numerical import NUMERICAL_COMPARISON
 from sustainsc.ui import (
     render_data_status_panel,
     render_downloadable_table,
@@ -51,11 +52,15 @@ def render_scenario_completion_page(
 
     payload = uploaded.getvalue()
     checksum = hashlib.sha256(payload).hexdigest()
-    parser_key = f"{checksum}:schema-2.0:parser-2:completion-2"
+    parser_key = (
+        f"{checksum}:schema-2.0:parser-2:completion-3:"
+        f"tolerance-{NUMERICAL_COMPARISON.version}"
+    )
     if st.session_state.get("mrv_workbook_key") != parser_key:
         for key in (
             "mrv_completion_result", "mrv_commit_result", "kpi_result",
             "mcda_result", "dpp_import_summary", "last_import_run_id",
+            "normalization_result", "traffic_light_result",
         ):
             st.session_state.pop(key, None)
         st.session_state["mrv_workbook_key"] = parser_key

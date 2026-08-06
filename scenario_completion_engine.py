@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Optional
+import json
 import math
 import re
 import uuid
@@ -120,6 +121,8 @@ class ScenarioCompletionEngine:
         self.overrides = _clean_frame(supplied.get("overrides", self._read_config("variable_overrides.csv")))
         self.rules = _clean_frame(supplied.get("rules", self._read_config("mrv_rules.csv")))
         self.bridges = _clean_frame(supplied.get("bridges", self._read_config("bridge_rules.csv")))
+        self.factor_register = _clean_frame(supplied.get("factor_register", pd.DataFrame()))
+        self.default_factor_set_id = _text(supplied.get("default_factor_set_id"))
 
         self._validate_config()
         self.dictionary = self.dictionary.set_index("variable_name", drop=False)
@@ -486,15 +489,7 @@ class ScenarioCompletionEngine:
                     if state[variable]["rule_level"] != "L6":
                         continue
                     permission = self.resolve_permission(selected_strategies, variable, "L3")
-                    physical_activity = _text(meta.get("variable_group")) in {
-                        "Energy", "Circularity", "Water"
-                    }
-                    explicitly_scaled = "scaled" in permission.influence_status.lower()
-                    if (
-                        not permission.blocks_change
-                        and (permission.allows("L3") or physical_activity)
-                        and (physical_activity or explicitly_scaled)
-                    ):
+                    if not permission.blocks_change and permission.allows("L3"):
                         state[variable].update(
                             value=float(base_values[variable]) * ratio,
                             rule_level="L3",
@@ -523,10 +518,19 @@ class ScenarioCompletionEngine:
             if permission.blocks_change or not permission.allows("L3"):
                 continue
             try:
-                value = self._evaluate_mrv_rule(rule, state, base_values)
+                value = self._evaluate_mrv_rule(rule, state, base_values, scenario=scenario)
             except Exception as exc:
                 issue("QA_MRV_RULE_ERROR", "Critical", "FAIL", f"MRV rule {_text(rule['rule_id'])} failed: {exc}", variable=target)
                 continue
+            provenance = _text(rule.get("formula_description")) or "MRV identity recalculation."
+            if _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS":
+                config = json.loads(_text(rule.get("parameter")))
+                provenance = (
+                    f"{provenance} factor_set_id={_text(scenario.get('emission_factor_set_id')) or self.default_factor_set_id}; "
+                    f"electricity_factor_code={config['electricity_factor']}; diesel_factor_code={config['diesel_factor']}; "
+                    f"electricity_kwh={state['electricity_kwh']['value']:.12g}; diesel_kwh={state['diesel_kwh']['value']:.12g}; "
+                    f"result={value:.12g}."
+                )
             state[target].update(
                 value=value,
                 rule_level="L3",
@@ -562,7 +566,7 @@ class ScenarioCompletionEngine:
             ):
                 continue
             try:
-                value = self._evaluate_mrv_rule(rule, state, base_values)
+                value = self._evaluate_mrv_rule(rule, state, base_values, scenario=scenario)
             except Exception as exc:
                 issue("QA_MRV_RULE_ERROR", "Critical", "FAIL", f"MRV rule {_text(rule['rule_id'])} failed: {exc}", variable=target)
                 continue
@@ -573,7 +577,7 @@ class ScenarioCompletionEngine:
                 selected_strategy="",
                 source_module="MRV calculation",
                 source_reference=";".join(_rule_sources(rule)),
-                provenance=_text(rule.get("formula_description")) or "MRV identity recalculation.",
+                provenance=provenance,
             )
 
         # A direct customer-acceptance index remains authoritative, but its
@@ -662,6 +666,21 @@ class ScenarioCompletionEngine:
             else:
                 issue("QA_RELATIONSHIP", "Critical", "FAIL", "DPP-valid volume exceeds shipped volume.", variable="dpp_valid_volume")
         self._relationship_check(state, "mrv_points_active_valid", "mrv_points_required", "Valid MRV points exceed required MRV points.", issue)
+
+        energy_changed = any(
+            abs(float(state[name]["value"]) - float(base_values[name])) > self.numerical_tolerance
+            for name in ("electricity_kwh", "diesel_kwh")
+            if name in state and name in base_values
+        )
+        if energy_changed and state.get("ghg_total_s1s2", {}).get("rule_level") == "L6":
+            issue(
+                "QA_STALE_DERIVED_GHG",
+                "Critical",
+                "FAIL",
+                "Electricity or diesel differs from BASE, but total Scope 1-2 GHG was retained through L6.",
+                variable="ghg_total_s1s2",
+                action="Execute an approved factor-dependent L2 rule after final energy resolution.",
+            )
 
         if state.get("ghg_total_s1s2", {}).get("rule_level") in {"L1", "L4"} and state.get("transport_ghg_tco2e", {}).get("rule_level") in {"L1", "L4"}:
             issue(
@@ -992,8 +1011,14 @@ class ScenarioCompletionEngine:
             return float(native_value) * base_value
         raise ValueError(f"Unsupported bridge operation: {operation}")
 
-    @staticmethod
-    def _evaluate_mrv_rule(rule: pd.Series, state: Mapping[str, Mapping[str, Any]], base_values: Mapping[str, float]) -> float:
+    def _evaluate_mrv_rule(
+        self,
+        rule: pd.Series,
+        state: Mapping[str, Mapping[str, Any]],
+        base_values: Mapping[str, float],
+        *,
+        scenario: Mapping[str, Any] | None = None,
+    ) -> float:
         operation = _text(rule["operation"]).upper()
         sources = _rule_sources(rule)
         values = []
@@ -1003,6 +1028,24 @@ class ScenarioCompletionEngine:
                 raise ValueError(f"Source variable {source!r} is unavailable.")
             values.append(value)
         parameter = _float_or_none(rule.get("parameter"))
+        if operation == "GHG_FROM_ENERGY_FACTORS":
+            try:
+                config = json.loads(_text(rule.get("parameter")))
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise ValueError("GHG_FROM_ENERGY_FACTORS requires a valid JSON parameter object") from exc
+            if not isinstance(config, dict):
+                raise ValueError("GHG_FROM_ENERGY_FACTORS parameter must be a JSON object")
+            scenario_values = scenario if scenario is not None else {}
+            factor_set_id = _text(scenario_values.get("emission_factor_set_id")) or self.default_factor_set_id
+            electricity_code = _text(config.get("electricity_factor"))
+            diesel_code = _text(config.get("diesel_factor"))
+            divisor = _float_or_none(config.get("output_divisor"))
+            if not factor_set_id or not electricity_code or not diesel_code or divisor in (None, 0):
+                raise ValueError("Factor set, electricity factor, diesel factor, and nonzero output divisor are required")
+            timestamp = pd.to_datetime(scenario_values.get("evaluation_timestamp"), errors="coerce")
+            electricity_factor = self._resolve_analytical_factor(factor_set_id, electricity_code, timestamp)
+            diesel_factor = self._resolve_analytical_factor(factor_set_id, diesel_code, timestamp)
+            return (values[0] * electricity_factor + values[1] * diesel_factor) / divisor
         if operation == "ALIAS":
             return values[0]
         if operation == "SUM":
@@ -1038,6 +1081,38 @@ class ScenarioCompletionEngine:
         if operation == "ROSI_PCT":
             return _safe_divide(values[0] - values[1], values[1]) * 100.0
         raise ValueError(f"Unsupported MRV operation: {operation}")
+
+    def _resolve_analytical_factor(
+        self, factor_set_id: str, factor_code: str, timestamp: pd.Timestamp
+    ) -> float:
+        if self.factor_register.empty:
+            raise ValueError(f"Factor register is unavailable for {factor_code}")
+        factors = self.factor_register[
+            (self.factor_register["factor_set_id"].astype(str).str.strip() == factor_set_id)
+            & (self.factor_register["factor_code"].astype(str).str.strip() == factor_code)
+        ]
+        if len(factors) != 1:
+            raise ValueError(f"Expected exactly one factor {factor_set_id}/{factor_code}; found {len(factors)}")
+        factor = factors.iloc[0]
+        if _text(factor.get("approval_status")).lower() != "approved":
+            raise ValueError(f"Factor {factor_code} is not approved")
+        role = _text(factor.get("analytical_role")).lower()
+        if "active analytical" not in role:
+            raise ValueError(f"Factor {factor_code} is not authorized for analytical calculation")
+        if _text(factor.get("unit")) != "kgCO2e/kWh":
+            raise ValueError(f"Factor {factor_code} must use kgCO2e/kWh")
+        if pd.isna(timestamp):
+            raise ValueError("Scenario timestamp is required for factor validity validation")
+        valid_from = pd.to_datetime(factor.get("valid_from"), errors="coerce")
+        valid_to = pd.to_datetime(factor.get("valid_to"), errors="coerce")
+        if (not pd.isna(valid_from) and timestamp < valid_from) or (
+            not pd.isna(valid_to) and timestamp > valid_to
+        ):
+            raise ValueError(f"Factor {factor_code} is not valid at {timestamp.date()}")
+        value = _float_or_none(factor.get("value"))
+        if value is None:
+            raise ValueError(f"Factor {factor_code} has no finite value")
+        return value
 
     @staticmethod
     def _relationship_check(
@@ -1123,20 +1198,7 @@ def _is_activity_dependent_primary(meta: Mapping[str, Any]) -> bool:
     """
     if _text(meta.get("data_role")) != "PRIMARY_MRV":
         return False
-    variable = _text(meta.get("variable_name"))
-    group = _text(meta.get("variable_group"))
-    unit = _text(meta.get("canonical_unit"))
-    if unit in {"%", "fraction", "index", "index(0-100)", "score", "count", "h"}:
-        return False
-    if group in {"Energy", "Circularity", "Water"}:
-        return True
-    return variable in {
-        "dpp_volume",
-        "shipped_volume_total",
-        "transport_work_tkm",
-        "operating_cost_eur",
-        "maintenance_cost_eur",
-    }
+    return _yes(meta.get("l3_scaling_eligible"))
 
 
 def _expand_rule_expression(expression: Any) -> set[str]:

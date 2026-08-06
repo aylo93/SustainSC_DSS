@@ -79,6 +79,8 @@ from sustainsc.mcda import (
     compute_complete_dimension_indices,
     evaluate_scenario_eligibility,
 )
+from sustainsc.composite_indices import corrected_sustain_index
+from sustainsc.numerical import NUMERICAL_COMPARISON, comparison_effect
 from sustainsc.ui import (
     apply_design_system,
     render_data_status_panel,
@@ -207,14 +209,15 @@ def _normalized_delta(ref_score, other_score):
         return None
 
 
-def _effect_from_normalized_delta(delta_pts, tol=0.5):
+def _effect_from_normalized_delta(delta_pts, tol=None):
     if delta_pts is None or pd.isna(delta_pts):
         return "Missing"
-    if float(delta_pts) > tol:
-        return "Improved"
-    if float(delta_pts) < -tol:
-        return "Worse"
-    return "Same"
+    tolerance = NUMERICAL_COMPARISON.score_tolerance
+    if tol is not None:
+        tolerance = min(float(tol), tolerance)
+    if abs(float(delta_pts)) <= tolerance:
+        return "Same"
+    return comparison_effect(float(delta_pts))
 
 
 def normalize_dim_weights(raw_weights: dict) -> dict:
@@ -224,32 +227,6 @@ def normalize_dim_weights(raw_weights: dict) -> dict:
         n = len(cleaned)
         return {k: 1.0 / n for k in cleaned}
     return {k: v / total for k, v in cleaned.items()}
-
-
-def corrected_sustain_index(dim_scores: dict, dim_weights: dict, method: str = "geometric"):
-    dims = ["environmental", "economic", "social", "technological"]
-
-    vals = []
-    ws = []
-    for d in dims:
-        v = dim_scores.get(d, None)
-        w = dim_weights.get(d, 0.0)
-        if v is None or pd.isna(v) or w <= 0:
-            continue
-        vals.append(float(v))
-        ws.append(float(w))
-
-    if not vals or sum(ws) <= 0:
-        return None
-
-    ws = np.array(ws, dtype=float)
-    ws = ws / ws.sum()
-    vals = np.array(vals, dtype=float)
-
-    if method == "arithmetic":
-        return float(np.sum(ws * vals))
-
-    return float(100.0 * np.prod((np.maximum(vals, 1e-6) / 100.0) ** ws))
 
 
 def _semaforo_badge(val: str) -> str:
@@ -730,6 +707,8 @@ def build_normalized_comparison(norm_latest, reference_scenario, selected_scenar
             axis=1,
         )
         merged["effect"] = merged["delta_pts"].apply(lambda x: _effect_from_normalized_delta(x, tol=tol))
+        same = merged["effect"] == "Same"
+        merged.loc[same, "scenario_semaforo"] = merged.loc[same, "reference_semaforo"]
         detailed_frames.append(merged)
 
     if not detailed_frames:
@@ -1832,10 +1811,10 @@ else:
         "Normalized scores are already benefit-oriented."
     )
 
-    default_mcda = [reference_scenario] + compare_scenarios if compare_scenarios else [reference_scenario]
+    default_mcda = [s for s in scenario_options if s != reference_scenario]
     mcda_scenarios = st.multiselect(
         "Scenarios for MCDA ranking",
-        options=scenario_options,
+        options=[s for s in scenario_options if s != reference_scenario],
         default=[s for s in default_mcda if s in scenario_options],
         key="mcda_scenarios"
     )
@@ -1851,6 +1830,7 @@ else:
         weight_series,
         mcda_eligibility,
         mcda_scenarios,
+        reference_scenario_code=reference_scenario,
     )
     mcda_result = calculate_mcda(mcda_input, mcda_eligibility)
     mcda_df = pd.merge(

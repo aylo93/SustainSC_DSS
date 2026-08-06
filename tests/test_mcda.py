@@ -103,6 +103,21 @@ def test_wsm_and_topsis_share_population_and_are_finite():
     assert result.topsis["TOPSIS_score"].between(0, 100).all()
 
 
+def test_reference_is_excluded_before_wsm_and_topsis_construction():
+    rows = result_rows(("REFERENCE", "A", "B"))
+    raw = rows[["scenario_code", "kpi_code", "raw_value"]]
+    norm = rows[["scenario_code", "kpi_code", "normalized_value"]]
+    eligibility = evaluate_scenario_eligibility(raw, norm, metadata())
+    weights = pd.Series(1 / 30, index=metadata()["kpi_code"])
+    mcda_input = build_mcda_input(
+        norm, weights, eligibility, reference_scenario_code="REFERENCE"
+    )
+    result = calculate_mcda(mcda_input, eligibility)
+    assert tuple(mcda_input.matrix.index) == ("A", "B")
+    assert set(result.wsm["scenario_code"]) == set(result.topsis["scenario_code"]) == {"A", "B"}
+    assert "REFERENCE" in mcda_input.diagnostics["excluded_scenarios"]
+
+
 def test_weight_alignment_and_validation_are_label_based():
     rows = result_rows()
     raw = rows[["scenario_code", "kpi_code", "raw_value"]]
