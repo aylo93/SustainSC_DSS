@@ -513,13 +513,35 @@ class ScenarioCompletionEngine:
             max_value = _float_or_none(meta.get("max_value"))
             if min_value is not None and value < min_value:
                 issue("QA_MIN_BOUND", "Critical", "FAIL", f"Value {value} is below minimum {min_value}.", variable=variable)
-            if max_value is not None and value > max_value:
+            provisional_dpp_coverage = (
+                variable == "dpp_coverage"
+                and state.get("dpp_valid_volume", {}).get("rule_level") == "L6"
+            )
+            if max_value is not None and value > max_value and not provisional_dpp_coverage:
                 issue("QA_MAX_BOUND", "Critical", "FAIL", f"Value {value} is above maximum {max_value}.", variable=variable)
 
         self._relationship_check(state, "renewable_energy_kwh", "electricity_kwh", "Renewable energy exceeds total electricity.", issue)
         self._relationship_check(state, "waste_recovered_t", "waste_generated_t", "Recovered waste exceeds waste generated.", issue)
         self._relationship_check(state, "material_circular_t", "material_total_t", "Circular material exceeds total material.", issue)
-        self._relationship_check(state, "dpp_valid_volume", "shipped_volume_total", "DPP-valid volume exceeds shipped volume.", issue)
+        dpp_valid = state.get("dpp_valid_volume", {})
+        shipped = state.get("shipped_volume_total", {})
+        if (
+            _float_or_none(dpp_valid.get("value")) is not None
+            and _float_or_none(shipped.get("value")) is not None
+            and _float_or_none(dpp_valid.get("value"))
+            > _float_or_none(shipped.get("value")) + self.numerical_tolerance
+        ):
+            if dpp_valid.get("rule_level") == "L6":
+                issue(
+                    "QA_DPP_VALIDATION_PENDING",
+                    "Warning",
+                    "WARN",
+                    "The retained reference DPP-valid volume exceeds scenario shipped volume; replace it with validated DPP batch evidence before interpreting DPP coverage.",
+                    variable="dpp_valid_volume",
+                    action="Import validated DPP batches for this scenario; the provisional L6 value does not block MRV scenario completion.",
+                )
+            else:
+                issue("QA_RELATIONSHIP", "Critical", "FAIL", "DPP-valid volume exceeds shipped volume.", variable="dpp_valid_volume")
         self._relationship_check(state, "mrv_points_active_valid", "mrv_points_required", "Valid MRV points exceed required MRV points.", issue)
 
         if state.get("ghg_total_s1s2", {}).get("rule_level") in {"L1", "L4"} and state.get("transport_ghg_tco2e", {}).get("rule_level") in {"L1", "L4"}:

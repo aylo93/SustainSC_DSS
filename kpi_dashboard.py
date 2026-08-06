@@ -1701,19 +1701,14 @@ else:
     st.plotly_chart(profile_fig, width="stretch", config={"displaylogo": False})
 
     st.markdown("### Corrected Sustain Index ranking")
-    ranking = dim_show.sort_values("SUSTAIN_INDEX_GEOM", ascending=True)
-    ranking_fig = px.bar(
-        ranking,
-        x="SUSTAIN_INDEX_GEOM",
-        y="scenario_code",
-        orientation="h",
+    ranking_fig = build_horizontal_ranking_chart(
+        dim_show,
+        scenario_col="scenario_code",
+        score_col="SUSTAIN_INDEX_GEOM",
         title="Geometric sustainability index ranking",
-        labels={"SUSTAIN_INDEX_GEOM": "Index score", "scenario_code": "Scenario"},
-        template="sustainscm",
-        color_discrete_sequence=["#087F78"],
-    )
-    ranking_fig.update_traces(
-        hovertemplate="<b>%{y}</b><br>Geometric index: %{x:.2f}<extra></extra>"
+        x_title="Index score",
+        color="#087F78",
+        decimals=2,
     )
     ranking_fig.update_xaxes(range=[0, 100])
     st.plotly_chart(ranking_fig, width="stretch", config={"displaylogo": False})
