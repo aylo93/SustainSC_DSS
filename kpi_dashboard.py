@@ -53,7 +53,7 @@ from sustainsc.dpp_import import (
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.models import (
     Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult,
-    ImportRun, ImportRunScenario,
+    ImportRun, ImportRunScenario, EmissionFactor,
 )
 from sustainsc.dataset_scope import (
     activate_import_run,
@@ -891,7 +891,9 @@ def build_one_way_sensitivity(selected_dim_row: pd.Series):
 # Measurements import
 # -----------------------------------------------------------------------------
 
-def normalize_measurements_upload(df: pd.DataFrame) -> pd.DataFrame:
+def normalize_measurements_upload(
+    df: pd.DataFrame, *, dictionary: pd.DataFrame | None = None
+) -> pd.DataFrame:
     out = df.copy()
     out.columns = [str(c).strip().lower() for c in out.columns]
 
@@ -930,9 +932,24 @@ def normalize_measurements_upload(df: pd.DataFrame) -> pd.DataFrame:
     out = out[out["variable_name"] != ""].copy()
 
     dictionary_path = Path(__file__).resolve().parent / "config" / "mrv_dictionary.csv"
-    out = select_common_mrv(out, dictionary_path=dictionary_path)
-    out = canonicalize_common_mrv_units(out, dictionary_path=dictionary_path)
-    validate_completed_mrv(out, dictionary_path=dictionary_path)
+    if dictionary is None:
+        out = select_common_mrv(out, dictionary_path=dictionary_path)
+        out = canonicalize_common_mrv_units(out, dictionary_path=dictionary_path)
+        validate_completed_mrv(out, dictionary_path=dictionary_path)
+    else:
+        required_units = dict(zip(
+            dictionary.loc[
+                dictionary["common_upload_variable"].astype(str).str.strip().str.lower().isin({"yes", "true", "1"}),
+                "variable_name",
+            ],
+            dictionary.loc[
+                dictionary["common_upload_variable"].astype(str).str.strip().str.lower().isin({"yes", "true", "1"}),
+                "canonical_unit",
+            ],
+        ))
+        out = out[out["variable_name"].isin(required_units)].copy()
+        out["unit"] = out["variable_name"].map(required_units)
+        validate_completed_mrv(out, dictionary=dictionary)
     return out
 
 
@@ -942,15 +959,24 @@ def write_measurements_to_db(
     *,
     dataset_name: str = "Imported dataset",
     source_filename: str | None = None,
+    case_id: str | None = None,
+    dataset_id: str | None = None,
+    schema_version: str | None = None,
+    reference_scenario_code: str | None = None,
+    factor_set_id: str | None = None,
 ):
     session = SessionLocal()
     try:
         import_run = ImportRun(
             dataset_name=dataset_name,
+            case_id=case_id,
+            dataset_id=dataset_id,
+            schema_version=schema_version,
+            factor_set_id=factor_set_id,
             source_filename=source_filename,
             import_timestamp=utc_now_naive(),
             status="importing",
-            reference_scenario_code=(
+            reference_scenario_code=reference_scenario_code or (
                 "BASE" if "BASE" in set(df["scenario_code"].astype(str)) else None
             ),
             scenario_count=0,
@@ -1026,13 +1052,50 @@ if not boot_ok:
 
 def import_completed_mrv(result, *, dpp_workbook_bytes: bytes | None = None):
     """Persist a validated completion result and refresh every KPI output."""
-    completed = normalize_measurements_upload(result.software_upload)
+    if not result.can_commit:
+        raise ValueError("MRV commit blocked: resolve metadata, structural, and production QA blockers first.")
+    parsed = result.parsed_workbook
+    metadata = parsed.metadata
+    completed = normalize_measurements_upload(
+        result.software_upload, dictionary=parsed.variable_dictionary
+    )
     written, imported_codes, import_run_id = write_measurements_to_db(
         completed,
         replace_uploaded_scenarios=True,
-        dataset_name="Completed MRV import",
+        dataset_name=str(metadata.get("dataset_name")),
         source_filename=getattr(result, "source_filename", None),
+        case_id=str(metadata.get("case_id")),
+        dataset_id=str(metadata.get("dataset_id")),
+        schema_version=str(metadata.get("template_schema_version")),
+        reference_scenario_code=str(metadata.get("default_reference_scenario")),
+        factor_set_id=str(metadata.get("default_emission_factor_set_id") or "") or None,
     )
+    factor_session = SessionLocal()
+    try:
+        for row in parsed.factor_register.itertuples():
+            if str(getattr(row, "approval_status", "")).strip().lower() != "approved":
+                continue
+            existing = factor_session.query(EmissionFactor).filter_by(code=str(row.factor_code)).first()
+            values = {
+                "name": str(row.factor_code),
+                "activity_type": str(getattr(row, "scope", "") or row.factor_code),
+                "unit": str(row.unit), "value": float(row.value),
+                "valid_from": pd.to_datetime(getattr(row, "valid_from", None), errors="coerce"),
+                "valid_to": pd.to_datetime(getattr(row, "valid_to", None), errors="coerce"),
+                "source": str(getattr(row, "source", "")),
+                "analytical_role": str(getattr(row, "analytical_role", "")),
+                "factor_set_id": str(row.factor_set_id),
+            }
+            values["valid_from"] = None if pd.isna(values["valid_from"]) else values["valid_from"].to_pydatetime()
+            values["valid_to"] = None if pd.isna(values["valid_to"]) else values["valid_to"].to_pydatetime()
+            if existing is None:
+                factor_session.add(EmissionFactor(code=str(row.factor_code), **values))
+            else:
+                for key, value in values.items():
+                    setattr(existing, key, value)
+        factor_session.commit()
+    finally:
+        factor_session.close()
     dpp_outcome = None
     if dpp_workbook_bytes is not None:
         dpp_session = SessionLocal()

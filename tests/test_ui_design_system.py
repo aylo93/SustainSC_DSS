@@ -56,4 +56,4 @@ def test_every_application_table_uses_downloadable_component():
     assert "st.dataframe(" not in dashboard
     assert "st.dataframe(" not in completion
     assert dashboard.count("render_downloadable_table(") == 18
-    assert completion.count("render_downloadable_table(") == 6
+    assert completion.count("render_downloadable_table(") == 8

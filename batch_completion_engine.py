@@ -17,15 +17,6 @@ from scenario_completion_engine import ScenarioCompletionEngine, CompletionResul
 from sustainsc.mrv_schema_v2 import ParsedMRVWorkbook, parse_mrv_workbook
 from sustainsc.mrv_validation import validate_completed_mrv
 
-BATCH_INPUT_SHEETS = {
-    "scenarios": "01_SCENARIOS",
-    "direct": "02_DIRECT_MRV_INPUT",
-    "native": "03_NATIVE_OUTPUTS",
-    "assumptions": "04_APPROVED_ASSUMPTIONS",
-    "reference": "05_REFERENCE_BASE",
-    "expected": "11_EXPECTED_CH7_MRV",
-}
-
 @dataclass
 class BatchCompletionResult:
     scenario_results: dict[str, CompletionResult]
@@ -35,6 +26,9 @@ class BatchCompletionResult:
     comparison_report: pd.DataFrame
     parsed_workbook: ParsedMRVWorkbook | None = None
     source_filename: str | None = None
+    structural_summary: dict[str, object] | None = None
+    evidence_outcomes: pd.DataFrame | None = None
+    failure_diagnostics: pd.DataFrame | None = None
 
     @property
     def production_qa_report(self) -> pd.DataFrame:
@@ -49,6 +43,25 @@ class BatchCompletionResult:
         if self.qa_report.empty:
             return False
         return bool(((self.qa_report["severity"] == "Critical") & (self.qa_report["status"] == "FAIL")).any())
+
+    @property
+    def metadata_resolved(self) -> bool:
+        if not self.parsed_workbook:
+            return False
+        metadata = self.parsed_workbook.metadata
+        return all(
+            str(metadata.get(field, "")).strip() not in {"", "legacy-unresolved"}
+            for field in ("case_id", "dataset_id")
+        )
+
+    @property
+    def can_commit(self) -> bool:
+        return bool(
+            self.metadata_resolved
+            and self.structural_summary
+            and self.structural_summary.get("complete")
+            and not self.has_critical_failures
+        )
 
     def export_combined_csv(self, path: str | Path, *, force: bool = False) -> Path:
         if self.has_critical_failures and not force:
@@ -72,12 +85,6 @@ class BatchCompletionResult:
 class BatchScenarioCompletionEngine:
     def __init__(self, config_dir: str | Path, *, strict_approval: bool = True) -> None:
         self.engine = ScenarioCompletionEngine(config_dir, strict_approval=strict_approval)
-
-    @staticmethod
-    def _read_sheet(path: Path, sheet: str) -> pd.DataFrame:
-        frame = pd.read_excel(path, sheet_name=sheet, header=3)
-        frame.columns = [str(c).strip() for c in frame.columns]
-        return frame.dropna(how="all").copy()
 
     def complete_batch_from_excel(
         self,
@@ -232,6 +239,74 @@ class BatchScenarioCompletionEngine:
                 })
                 qa_all = pd.concat([qa_all, strict_qa], ignore_index=True)
 
+        common = parsed.variable_dictionary[
+            parsed.variable_dictionary["common_upload_variable"].astype(str).str.strip().str.lower().isin({"yes", "true", "1"})
+        ]
+        required_names = set(common["variable_name"].astype(str))
+        duplicate_count = int(upload_all[["scenario_code", "variable_name"]].duplicated().sum())
+        null_count = int(upload_all["value"].isna().sum())
+        finite_count = int(pd.to_numeric(upload_all["value"], errors="coerce").map(lambda value: pd.notna(value) and abs(float(value)) != float("inf")).sum())
+        unknown_count = int((~upload_all["variable_name"].astype(str).isin(required_names)).sum()) if not upload_all.empty else 0
+        expected_rows = len(scenarios) * len(required_names)
+        structural_summary = {
+            "scenario_count": len(scenarios), "required_variable_count": len(required_names),
+            "final_row_count": len(upload_all), "expected_row_count": expected_rows,
+            "duplicate_pairs": duplicate_count, "null_values": null_count,
+            "non_finite_values": len(upload_all) - finite_count, "unknown_variables": unknown_count,
+            "rule_level_total": len(review_all),
+        }
+        structural_summary["complete"] = bool(
+            expected_rows > 0 and len(upload_all) == expected_rows and duplicate_count == 0
+            and null_count == 0 and finite_count == len(upload_all) and unknown_count == 0
+            and len(review_all) == len(upload_all)
+        )
+
+        evidence_rows = []
+        for scenario_code, scenario_result in results.items():
+            selected = set(
+                scenario_result.completion_review.loc[
+                    scenario_result.completion_review["rule_level"] == "L1", "variable_name"
+                ].astype(str)
+            )
+            rejected = {
+                str(row.variable_name): str(row.reason)
+                for row in scenario_result.rejected_inputs.itertuples()
+                if row.input_type == "direct"
+            }
+            source = direct[direct["scenario_code"].astype(str) == scenario_code]
+            for row in source.itertuples():
+                variable = str(row.variable_name)
+                evidence_rows.append({
+                    "scenario_code": scenario_code, "variable_name": variable,
+                    "evidence_type": getattr(row, "evidence_type", ""),
+                    "normalized_evidence_class": getattr(row, "normalized_evidence_class", ""),
+                    "outcome": "selected_as_L1" if variable in selected else rejected.get(variable, "superseded_or_audit_only"),
+                })
+        evidence_outcomes = pd.DataFrame(evidence_rows)
+
+        review_lookup = review_all.set_index(["scenario_code", "variable_name"]) if not review_all.empty else pd.DataFrame()
+        diagnostic_rows = []
+        failures = qa_all[(qa_all["status"].isin(["FAIL", "WARN"]))] if not qa_all.empty else qa_all
+        for number, row in enumerate(failures.itertuples(), start=1):
+            key = (str(row.scenario_code), str(row.affected_variable))
+            review = review_lookup.loc[key] if not review_all.empty and key in review_lookup.index else {}
+            diagnostic_rows.append({
+                "failure_id": f"MRV-{number:04d}",
+                "qa_domain": "production_qa",
+                "check_id": row.check_id, "scenario_code": row.scenario_code,
+                "variable_name": row.affected_variable,
+                "rule_level": review.get("rule_level", "") if hasattr(review, "get") else "",
+                "rule_id": review.get("rule_id", "") if hasattr(review, "get") else "",
+                "severity": row.severity,
+                "blocking": row.severity == "Critical" and row.status == "FAIL",
+                "actual_value": review.get("completed_value", None) if hasattr(review, "get") else None,
+                "expected_value": None,
+                "unit": review.get("unit", "") if hasattr(review, "get") else "",
+                "source_system": review.get("source_module", "") if hasattr(review, "get") else "",
+                "message": row.message, "required_action": row.required_action,
+            })
+        failure_diagnostics = pd.DataFrame(diagnostic_rows)
+
         return BatchCompletionResult(
             scenario_results=results,
             completion_review=review_all,
@@ -240,4 +315,7 @@ class BatchScenarioCompletionEngine:
             comparison_report=comparison,
             parsed_workbook=parsed,
             source_filename=workbook_path.name,
+            structural_summary=structural_summary,
+            evidence_outcomes=evidence_outcomes,
+            failure_diagnostics=failure_diagnostics,
         )
