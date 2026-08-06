@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Callable, Optional
@@ -48,18 +49,28 @@ def render_scenario_completion_page(
         )
         return
 
-    engine = BatchScenarioCompletionEngine(config_dir)
-    with NamedTemporaryFile(suffix=".xlsx", delete=False) as temp:
-        temp.write(uploaded.getbuffer())
-        temp_path = Path(temp.name)
-
-    try:
-        result = engine.complete_batch_from_excel(temp_path)
-    except Exception as exc:
-        st.error(f"The completion run could not be executed: {exc}")
-        return
-    finally:
-        temp_path.unlink(missing_ok=True)
+    payload = uploaded.getvalue()
+    checksum = hashlib.sha256(payload).hexdigest()
+    parser_key = f"{checksum}:schema-2.0:parser-2:completion-2"
+    if st.session_state.get("mrv_workbook_key") != parser_key:
+        for key in (
+            "mrv_completion_result", "mrv_commit_result", "kpi_result",
+            "mcda_result", "dpp_import_summary", "last_import_run_id",
+        ):
+            st.session_state.pop(key, None)
+        st.session_state["mrv_workbook_key"] = parser_key
+        engine = BatchScenarioCompletionEngine(config_dir)
+        with NamedTemporaryFile(suffix=".xlsx", delete=False) as temp:
+            temp.write(payload)
+            temp_path = Path(temp.name)
+        try:
+            st.session_state["mrv_completion_result"] = engine.complete_batch_from_excel(temp_path)
+        except Exception as exc:
+            st.error(f"The completion run could not be executed: {exc}")
+            return
+        finally:
+            temp_path.unlink(missing_ok=True)
+    result = st.session_state["mrv_completion_result"]
 
     parsed = result.parsed_workbook
     if parsed and parsed.schema.migration_required:
@@ -107,6 +118,13 @@ def render_scenario_completion_page(
         st.success("MRV completion structure: Complete")
     else:
         st.error("MRV completion structure: Incomplete")
+    render_data_status_panel({
+        "Structural completion status": "Complete" if structure.get("complete") else "Incomplete",
+        "Production QA status": "Passed" if not result.has_critical_failures else "Blocked",
+        "DPP status": "PRE_DPP_PROVISIONAL" if result.completion_review["provisional"].any() else "POST_DPP_VALIDATED",
+        "Regression comparison status": "Matched" if regression_count == 0 else f"{regression_count} differences",
+        "Eligibility for KPI calculation": "Eligible" if result.can_commit else "Blocked",
+    })
 
     with st.expander("Import diagnostics", expanded=False):
         diagnostics = {

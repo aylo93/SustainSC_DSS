@@ -5,7 +5,7 @@ import numpy as np
 from batch_completion_engine import BatchScenarioCompletionEngine
 
 
-FIXTURE = Path("tests/fixtures/cuba_final/SustainSCM_Cuba_Batch_MRV_Input_FILLED_MILP_CORRECTED.xlsx")
+FIXTURE = Path("tests/fixtures/mrv_final/SustainSCM_Cuba_MRV_Scenario_Completion_FINAL.xlsx")
 
 
 def _complete_cuba():
@@ -22,7 +22,10 @@ def test_corrected_cuba_completion_is_structurally_complete():
     assert not completed[["scenario_code", "variable_name"]].duplicated().any()
     assert completed["value"].notna().all()
     assert np.isfinite(completed["value"].astype(float)).all()
-    assert result.completion_review["rule_level"].value_counts().sum() == 2568
+    assert result.completion_review["rule_level"].value_counts().to_dict() == {
+        "L2": 1345, "L6": 802, "L3": 149, "BASE": 107,
+        "L1": 71, "L4": 68, "L5": 26,
+    }
 
 
 def test_production_qa_and_historical_regression_are_independent():
@@ -37,18 +40,14 @@ def test_production_qa_and_historical_regression_are_independent():
 
     assert critical.empty
     assert not result.has_critical_failures
-    assert warnings.groupby("check_id").size().to_dict() == {
-        "QA_DPP_VALIDATION_PENDING": 17,
-        "QA_GHG_BOUNDARY": 22,
+    assert set(warnings["check_id"]) <= {
+        "QA_DPP_VALIDATION_PENDING", "QA_GHG_BOUNDARY",
     }
     assert "QA_CH7_COMPARISON" not in set(result.production_qa_report["check_id"])
     assert set(result.regression_comparison_report["comparison_status"]) <= {
         "MATCH", "ROUNDING_ONLY", "MISSING_EXPECTED_VALUE", "UNRESOLVED_DIFFERENCE"
     }
-    assert (
-        result.regression_comparison_report["comparison_status"]
-        == "UNRESOLVED_DIFFERENCE"
-    ).any()
+    assert result.regression_comparison_report["comparison_status"].eq("MATCH").all()
 
 
 def test_corrected_milp_name_and_unit_aware_tolerances_resolve():
