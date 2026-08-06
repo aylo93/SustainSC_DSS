@@ -23,7 +23,7 @@ def render_scenario_completion_page(
     on_commit: Optional[Callable[[BatchCompletionResult], None]] = None,
 ) -> None:
     render_section_header(
-        "MRV causal scenario completion",
+        "MRV Scenario Workbook v2",
         "Auditable L1–L6 completion and conflict validation before KPI calculation.",
     )
     render_workflow_progress(
@@ -37,14 +37,14 @@ def render_scenario_completion_page(
     )
 
     uploaded = st.file_uploader(
-        "Upload the SustainSCM MRV batch workbook",
+        "Upload the SustainSCM MRV measurement-completion workbook",
         type=["xlsx"],
         key="mrv_completion_workbook",
     )
     if uploaded is None:
         st.info(
-            "Required sheets: 01_SCENARIOS, 02_DIRECT_MRV_INPUT, 03_NATIVE_OUTPUTS, "
-            "04_APPROVED_ASSUMPTIONS, 05_REFERENCE_BASE and 11_EXPECTED_CH7_MRV."
+            "Native v2 workbooks declare template_schema_version in 18_CASE_METADATA. "
+            "Recognized legacy workbooks are handled only through the compatibility adapter."
         )
         return
 
@@ -61,6 +61,7 @@ def render_scenario_completion_page(
     finally:
         temp_path.unlink(missing_ok=True)
 
+    parsed = result.parsed_workbook
     fail_count = int(((result.qa_report["severity"] == "Critical") & (result.qa_report["status"] == "FAIL")).sum())
     warn_count = int((result.qa_report["status"] == "WARN").sum())
     regression_count = int(
@@ -73,7 +74,14 @@ def render_scenario_completion_page(
     level_counts = result.completion_review["rule_level"].value_counts().to_dict()
     render_data_status_panel(
         {
+            "Schema": parsed.schema.version if parsed else "unknown",
+            "Case ID": parsed.metadata.get("case_id", "") if parsed else "",
+            "Dataset ID": parsed.metadata.get("dataset_id", "") if parsed else "",
             "Scenarios": len(result.scenario_results),
+            "Common variables": int(parsed.variable_dictionary["common_upload_variable"].astype(str).str.lower().isin({"yes", "true", "1"}).sum()) if parsed else 0,
+            "Direct evidence": len(parsed.direct_inputs) if parsed else 0,
+            "Native outputs": len(parsed.native_outputs) if parsed else 0,
+            "Assumptions": len(parsed.assumptions) if parsed else 0,
             "Critical failures": fail_count,
             "Warnings": warn_count,
             "Regression differences": regression_count,

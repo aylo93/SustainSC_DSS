@@ -102,6 +102,7 @@ class ScenarioCompletionEngine:
         self,
         config_dir: str | Path,
         *,
+        config_frames: Mapping[str, pd.DataFrame] | None = None,
         engine_version: str = "1.0.0",
         rule_version: str = "1.0.0",
         strict_approval: bool = True,
@@ -113,11 +114,12 @@ class ScenarioCompletionEngine:
         self.strict_approval = strict_approval
         self.numerical_tolerance = float(numerical_tolerance)
 
-        self.dictionary = self._read_config("mrv_dictionary.csv")
-        self.scope = self._read_config("strategy_scope.csv")
-        self.overrides = self._read_config("variable_overrides.csv")
-        self.rules = self._read_config("mrv_rules.csv")
-        self.bridges = self._read_config("bridge_rules.csv")
+        supplied = config_frames or {}
+        self.dictionary = _clean_frame(supplied.get("dictionary", self._read_config("mrv_dictionary.csv")))
+        self.scope = _clean_frame(supplied.get("scope", self._read_config("strategy_scope.csv")))
+        self.overrides = _clean_frame(supplied.get("overrides", self._read_config("variable_overrides.csv")))
+        self.rules = _clean_frame(supplied.get("rules", self._read_config("mrv_rules.csv")))
+        self.bridges = _clean_frame(supplied.get("bridges", self._read_config("bridge_rules.csv")))
 
         self._validate_config()
         self.dictionary = self.dictionary.set_index("variable_name", drop=False)
