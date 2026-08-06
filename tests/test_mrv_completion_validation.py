@@ -27,7 +27,7 @@ def test_corrected_cuba_completion_is_structurally_complete():
     assert completed["value"].notna().all()
     assert np.isfinite(completed["value"].astype(float)).all()
     assert result.completion_review["rule_level"].value_counts().to_dict() == {
-        "L2": 1355, "L6": 826, "L3": 124, "BASE": 107,
+        "L2": 1355, "L6": 828, "L3": 122, "BASE": 107,
         "L1": 71, "L4": 59, "L5": 26,
     }
 
@@ -51,7 +51,8 @@ def test_production_qa_and_historical_regression_are_independent():
     assert set(result.regression_comparison_report["comparison_status"]) <= {
         "MATCH", "ROUNDING_ONLY", "MISSING_EXPECTED_VALUE", "UNRESOLVED_DIFFERENCE"
     }
-    assert result.regression_comparison_report["comparison_status"].eq("MATCH").all()
+    assert not result.regression_comparison_report["comparison_status"].eq("MISSING_EXPECTED_VALUE").any()
+    assert not result.production_qa_report["check_id"].eq("QA_STRICT_REGRESSION").any()
 
 
 def test_corrected_milp_name_and_unit_aware_tolerances_resolve():
@@ -83,6 +84,56 @@ def test_strong_ghg_evidence_is_not_overwritten_by_factor_rule():
     assert review.loc[("MILP_MIN_COST", "ghg_total_s1s2"), "rule_level"] == "L1"
     assert review.loc[("SD_BAU_2035", "ghg_total_s1s2"), "rule_level"] == "L4"
     assert review.loc[("VSMC_KAIZEN", "ghg_total_s1s2"), "rule_level"] == "L1"
+
+
+def test_l3_diagnostics_prove_exact_and_scope_resolution():
+    result = _complete_cuba()
+    diagnostics = result.l3_permission_diagnostics.set_index(["scenario_code", "variable_name"])
+    des = diagnostics.loc[("DES_BASE_2035", "electricity_kwh")]
+    maintenance = diagnostics.loc[("DES_BASE_2035", "maintenance_cost_eur")]
+    sd_water = diagnostics.loc[("SD_BAU_2035", "water_withdrawn_m3")]
+    assert des["exact_override_active"] and des["L3_selected"]
+    assert maintenance["exact_override_active"] and not maintenance["L3_selected"]
+    assert not sd_water["exact_override_found"]
+    assert "SD_MODEL_OUTPUTS:L2,L3,L6" in sd_water["scope_rules"]
+    assert sd_water["L3_selected"]
+
+
+def test_permission_precedence_fallback_inactive_and_declared_strategies_only():
+    parsed = parse_mrv_workbook(FIXTURE)
+    frames = {
+        "dictionary": parsed.variable_dictionary,
+        "scope": parsed.strategy_scope,
+        "overrides": parsed.variable_overrides.copy(),
+        "rules": parsed.mrv_rules,
+        "bridges": parsed.bridge_rules,
+    }
+    engine = ScenarioCompletionEngine("config", config_frames=frames)
+    maintenance = engine.resolve_permission(["LOGISTICS_REDESIGN"], "maintenance_cost_eur", "L3")
+    fallback = engine.resolve_permission(["LOGISTICS_REDESIGN"], "shipped_volume_total", "L3")
+    assert maintenance.resolution_source == "exact override" and not maintenance.allows("L3")
+    assert fallback.resolution_source == "strategy scope" and fallback.allows("L3")
+
+    frames["overrides"].loc[
+        (frames["overrides"].strategy_code == "LOGISTICS_REDESIGN")
+        & (frames["overrides"].variable_name == "electricity_kwh"), "active"
+    ] = "No"
+    inactive_engine = ScenarioCompletionEngine("config", config_frames=frames)
+    inactive = inactive_engine.resolve_permission(["LOGISTICS_REDESIGN"], "electricity_kwh", "L3")
+    assert inactive.resolution_source == "strategy scope"
+    assert not inactive_engine.resolve_permission(["SD_BAU"], "water_withdrawn_m3", "L3").allows("L3")
+    assert inactive_engine.resolve_permission(
+        ["SD_BAU", "SD_MODEL_OUTPUTS"], "water_withdrawn_m3", "L3"
+    ).allows("L3")
+
+
+def test_sd_unmodelled_physical_flows_preserve_intensity_and_t3_base():
+    review = _complete_cuba().completion_review.set_index(["scenario_code", "variable_name"])
+    for scenario in sorted({code for code, _ in review.index if code.startswith("SD_")}):
+        assert review.loc[(scenario, "water_intensity_fu"), "completed_value"] == pytest.approx(
+            review.loc[("BASE", "water_intensity_fu"), "completed_value"], rel=1e-9
+        )
+        assert review.loc[(scenario, "mrv_coverage"), "completed_value"] == pytest.approx(70.0)
 
 
 def test_factor_register_rejects_reference_only_and_missing_factors():

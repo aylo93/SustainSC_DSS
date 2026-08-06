@@ -79,6 +79,8 @@ class CompletionResult:
     software_upload: pd.DataFrame
     qa_report: pd.DataFrame
     rejected_inputs: pd.DataFrame
+    l3_permission_diagnostics: pd.DataFrame
+    rule_execution_trace: pd.DataFrame
 
     @property
     def has_critical_failures(self) -> bool:
@@ -128,6 +130,8 @@ class ScenarioCompletionEngine:
         self._validate_config()
         self.dictionary = self.dictionary.set_index("variable_name", drop=False)
         self._rule_order = self._topological_rule_order()
+        self._permission_cache: dict[tuple[tuple[str, ...], str, str | None], Permission] = {}
+        self._permission_details_cache: dict[tuple[tuple[str, ...], str], dict[str, Any]] = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -204,6 +208,8 @@ class ScenarioCompletionEngine:
 
         qa: list[dict[str, Any]] = []
         rejected: list[dict[str, Any]] = []
+        l3_diagnostics: list[dict[str, Any]] = []
+        rule_trace: list[dict[str, Any]] = []
         variable_issues: dict[str, list[tuple[str, str]]] = {}
 
         def issue(
@@ -472,45 +478,71 @@ class ScenarioCompletionEngine:
             )
 
         # L3 baseline-intensity scaling ----------------------------------
-        if _yes(scenario.get("allow_baseline_scaling")):
-            driver = _text(scenario.get("scaling_driver_variable"))
-            base_driver = _float_or_none(base_values.get(driver))
-            scenario_driver = _float_or_none(state.get(driver, {}).get("value"))
+        scaling_enabled = _yes(scenario.get("allow_baseline_scaling"))
+        driver = _text(scenario.get("scaling_driver_variable"))
+        base_driver = _float_or_none(base_values.get(driver))
+        scenario_driver = _float_or_none(state.get(driver, {}).get("value"))
+        ratio = (
+            scenario_driver / base_driver
+            if scaling_enabled and base_driver not in (None, 0) and scenario_driver is not None
+            else None
+        )
+        if scaling_enabled:
             if base_driver in (None, 0) or scenario_driver is None:
                 issue("QA_SCALING_DRIVER", "Critical", "FAIL", "Baseline scaling was enabled but the scaling driver is unavailable or zero.", variable=driver)
-            else:
-                ratio = scenario_driver / base_driver
-                for variable in common_variables:
-                    meta = self.dictionary.loc[variable]
-                    # Scaling applies to activity-dependent primary quantities,
-                    # never to percentages, indices, identities, aliases,
-                    # order/service counters, or capital/benefit assumptions.
-                    if state[variable]["rule_level"] != "L6":
-                        continue
-                    permission = self.resolve_permission(selected_strategies, variable, "L3")
-                    explicitly_configured = permission.resolution_source == "exact override"
-                    dictionary_eligible = _is_activity_dependent_primary(meta)
-                    if (
-                        not permission.blocks_change
-                        and permission.allows("L3")
-                        and (explicitly_configured or dictionary_eligible)
-                    ):
-                        state[variable].update(
-                            value=float(base_values[variable]) * ratio,
-                            rule_level="L3",
-                            rule_id=f"BASE_SCALE_BY_{driver}",
-                            selected_strategy=permission.strategy_code,
-                            source_module="Baseline scaling",
-                            source_reference=driver,
-                            provenance=(
-                                f"L3 scaling: BASE numerator={float(base_values[variable]):.12g}; "
-                                f"BASE driver={base_driver:.12g}; scenario driver={scenario_driver:.12g}; "
-                                f"ratio={ratio:.12g}; result={float(base_values[variable]) * ratio:.12g}; "
-                                f"permission_source={permission.resolution_source}; strategy={permission.strategy_code}."
-                            ),
-                        )
         else:
             issue("QA_SCALING_SETTING", "Information", "PASS", "Baseline scaling is disabled.")
+
+        for variable in common_variables:
+            meta = self.dictionary.loc[variable]
+            permission = self.resolve_permission(selected_strategies, variable, "L3")
+            details = self.permission_details(selected_strategies, variable)
+            explicitly_configured = permission.resolution_source == "exact override"
+            dictionary_eligible = _is_activity_dependent_primary(meta)
+            physical_activity_quantity = _is_physical_activity_quantity(meta)
+            stronger_evidence = state[variable]["rule_level"] != "L6"
+            eligible = bool(
+                scaling_enabled and ratio is not None and not stronger_evidence
+                and not permission.blocks_change and permission.allows("L3")
+                and (explicitly_configured or dictionary_eligible or physical_activity_quantity)
+            )
+            reason = (
+                "selected" if eligible else
+                "baseline scaling disabled" if not scaling_enabled else
+                "invalid or zero scaling driver" if ratio is None else
+                f"stronger evidence {state[variable]['rule_level']}" if stronger_evidence else
+                "L3 not permitted by exact override or strategy scope"
+                if not permission.allows("L3") or permission.blocks_change else
+                "not an explicitly configured or physical activity quantity"
+            )
+            if eligible:
+                result_value = float(base_values[variable]) * float(ratio)
+                state[variable].update(
+                    value=result_value,
+                    rule_level="L3",
+                    rule_id="BASE_INTENSITY_SCALING",
+                    selected_strategy=permission.strategy_code,
+                    source_module="Baseline scaling",
+                    source_reference=driver,
+                    provenance=(
+                        f"L3 scaling: BASE numerator={float(base_values[variable]):.12g}; "
+                        f"BASE driver={base_driver:.12g}; scenario driver={scenario_driver:.12g}; "
+                        f"ratio={ratio:.12g}; result={result_value:.12g}; "
+                        f"permission_source={permission.resolution_source}; strategy={permission.strategy_code}."
+                    ),
+                )
+            l3_diagnostics.append({
+                "scenario_code": scenario_code, "variable_name": variable,
+                "variable_group": _text(meta.get("variable_group")),
+                "declared_strategies": ",".join(selected_strategies),
+                **details,
+                "final_permitted_rules": ",".join(sorted(_expand_rule_expression(permission.permitted_rules))),
+                "dictionary_scaling_eligibility": dictionary_eligible,
+                "physical_activity_quantity": physical_activity_quantity,
+                "scaling_enabled": scaling_enabled, "driver_variable": driver,
+                "driver_ratio": ratio, "L3_eligible": eligible,
+                "L3_selected": eligible, "selection_reason": reason,
+            })
 
         # Configured L3 identities (notably provisional coverage-preserving
         # volume rules) apply independently of general resource scaling.
@@ -555,13 +587,21 @@ class ScenarioCompletionEngine:
                 continue
             if target not in state or target not in rules_by_target.index:
                 continue
-            # Stronger explicit evidence is never silently overwritten.
-            if state[target]["rule_level"] in {"L1", "L4", "L5"}:
-                continue
             rule = rules_by_target.loc[target]
             if isinstance(rule, pd.DataFrame):
                 rule = rule.iloc[0]
             if _text(rule.get("rule_level")) != "L2":
+                continue
+            sources = _rule_sources(rule)
+            if state[target]["rule_level"] in {"L1", "L4", "L5"}:
+                rule_trace.append({
+                    "scenario_code": scenario_code, "rule_id": _text(rule.get("rule_id")),
+                    "target_variable": target, "execution_order": len(rule_trace) + 1,
+                    "source_variables": ",".join(sources), "source_values": "",
+                    "factor_codes": "", "calculated_value": state[target]["value"],
+                    "preserved_strong_evidence": True, "execution_status": "PRESERVED",
+                    "message": f"Preserved {state[target]['rule_level']} evidence.",
+                })
                 continue
             # Documented model-equation evidence is already an L2 result. It
             # takes precedence over a configured fallback identity whose note
@@ -575,6 +615,14 @@ class ScenarioCompletionEngine:
                 value = self._evaluate_mrv_rule(rule, state, base_values, scenario=scenario)
             except Exception as exc:
                 issue("QA_MRV_RULE_ERROR", "Critical", "FAIL", f"MRV rule {_text(rule['rule_id'])} failed: {exc}", variable=target)
+                rule_trace.append({
+                    "scenario_code": scenario_code, "rule_id": _text(rule.get("rule_id")),
+                    "target_variable": target, "execution_order": len(rule_trace) + 1,
+                    "source_variables": ",".join(sources), "source_values": "",
+                    "factor_codes": "", "calculated_value": None,
+                    "preserved_strong_evidence": False, "execution_status": "FAILED",
+                    "message": str(exc),
+                })
                 continue
             provenance = _text(rule.get("formula_description")) or "MRV identity recalculation."
             if _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS":
@@ -594,6 +642,19 @@ class ScenarioCompletionEngine:
                 source_reference=";".join(_rule_sources(rule)),
                 provenance=provenance,
             )
+            factor_codes = ""
+            if _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS":
+                config = json.loads(_text(rule.get("parameter")))
+                factor_codes = f"{config['electricity_factor']},{config['diesel_factor']}"
+            rule_trace.append({
+                "scenario_code": scenario_code, "rule_id": _text(rule.get("rule_id")),
+                "target_variable": target, "execution_order": len(rule_trace) + 1,
+                "source_variables": ",".join(sources),
+                "source_values": ",".join(f"{name}={state[name]['value']}" for name in sources if name in state),
+                "factor_codes": factor_codes, "calculated_value": value,
+                "preserved_strong_evidence": False, "execution_status": "EXECUTED",
+                "message": "Rule executed after final primary-value resolution.",
+            })
 
         # A direct customer-acceptance index remains authoritative, but its
         # consistency with the canonical equal-weight formula is auditable.
@@ -621,6 +682,61 @@ class ScenarioCompletionEngine:
                         ),
                         variable="customer_acceptance_index",
                     )
+
+        # Blocking stale-value checks -----------------------------------
+        for diagnostic in l3_diagnostics:
+            variable = diagnostic["variable_name"]
+            if diagnostic["L3_eligible"] and state[variable]["rule_level"] == "L6":
+                issue(
+                    "DES_ACTIVITY_VALUE_RETAINED_AT_BASE", "Critical", "FAIL",
+                    "L3 was permitted and eligible, but the activity value retained BASE through L6.",
+                    variable=variable,
+                    action="Apply configured BASE-intensity scaling before L6 retention.",
+                )
+        energy_changed = any(
+            not math.isclose(float(state[name]["value"]), float(base_values[name]), rel_tol=0.0, abs_tol=self.numerical_tolerance)
+            for name in ("electricity_kwh", "diesel_kwh")
+            if name in state and name in base_values
+        )
+        ghg = state.get("ghg_total_s1s2", {})
+        if energy_changed and (
+            ghg.get("rule_level") == "L6"
+            or (
+                ghg.get("rule_level") not in {"L1", "L4", "L5"}
+                and math.isclose(
+                    float(ghg.get("value")), float(base_values["ghg_total_s1s2"]),
+                    rel_tol=0.0, abs_tol=self.numerical_tolerance,
+                )
+            )
+        ):
+            issue(
+                "DERIVED_GHG_STALE", "Critical", "FAIL",
+                "Energy changed but total Scope 1-2 GHG retained the reference result.",
+                variable="ghg_total_s1s2",
+                action="Execute the configured factor-dependent GHG rule after L3.",
+            )
+        intensity_dependencies = {
+            "energy_intensity_fu": ("total_energy_kwh", "output_qty_fu"),
+            "waste_generation_intensity_fu": ("waste_generated_t", "output_qty_fu"),
+            "water_intensity_fu": ("water_withdrawn_m3", "output_qty_fu"),
+            "cost_per_fu": ("operating_cost_eur", "output_qty_fu"),
+            "ghg_intensity_fu": ("ghg_total_s1s2", "output_qty_fu"),
+            "transport_ghg_intensity": ("transport_ghg_tco2e", "transport_work_tkm"),
+        }
+        for target, dependencies in intensity_dependencies.items():
+            if target not in state or any(name not in state for name in dependencies):
+                continue
+            dependency_changed = any(
+                not math.isclose(float(state[name]["value"]), float(base_values[name]), rel_tol=0.0, abs_tol=self.numerical_tolerance)
+                for name in dependencies
+            )
+            if dependency_changed and state[target]["rule_level"] == "L6":
+                issue(
+                    "DERIVED_INTENSITY_STALE", "Critical", "FAIL",
+                    "An intensity retained BASE provenance after its numerator or denominator changed.",
+                    variable=target,
+                    action="Recalculate the derived intensity after final primary-value resolution.",
+                )
 
         # QA bounds and cross-variable consistency -----------------------
         for variable, record in state.items():
@@ -777,9 +893,62 @@ class ScenarioCompletionEngine:
             software_upload=upload_df,
             qa_report=qa_df,
             rejected_inputs=rejected_df,
+            l3_permission_diagnostics=pd.DataFrame(l3_diagnostics),
+            rule_execution_trace=pd.DataFrame(rule_trace),
         )
 
+    def permission_details(
+        self, selected_strategies: Iterable[str], variable_name: str
+    ) -> dict[str, Any]:
+        """Return auditable exact/scope inputs without changing resolution."""
+        strategies = tuple(selected_strategies)
+        cache_key = (strategies, variable_name)
+        if cache_key in self._permission_details_cache:
+            return dict(self._permission_details_cache[cache_key])
+        group = _text(self.dictionary.loc[variable_name, "variable_group"])
+        exact_rows: list[str] = []
+        active_rows: list[str] = []
+        scope_rows: list[str] = []
+        for strategy in strategies:
+            exact = self.overrides[
+                (self.overrides["strategy_code"] == strategy)
+                & (self.overrides["variable_name"] == variable_name)
+            ]
+            for _, row in exact.iterrows():
+                rendered = f"{strategy}:{_text(row.get('permitted_rules'))}"
+                exact_rows.append(rendered)
+                if _yes(row.get("active")):
+                    active_rows.append(rendered)
+            scope = self.scope[
+                (self.scope["strategy_code"] == strategy)
+                & (self.scope["variable_group"] == group)
+            ]
+            for _, row in scope.iterrows():
+                scope_rows.append(f"{strategy}:{_text(row.get('permitted_rules'))}")
+        result = {
+            "exact_override_found": bool(exact_rows),
+            "exact_override_active": bool(active_rows),
+            "exact_override_rules": ";".join(exact_rows),
+            "scope_rules": ";".join(scope_rows),
+        }
+        self._permission_details_cache[cache_key] = result
+        return dict(result)
+
     def resolve_permission(
+        self,
+        selected_strategies: Iterable[str],
+        variable_name: str,
+        rule_level: str | None = None,
+    ) -> Permission:
+        strategies = tuple(selected_strategies)
+        cache_key = (strategies, variable_name, rule_level)
+        if cache_key not in self._permission_cache:
+            self._permission_cache[cache_key] = self._resolve_permission_uncached(
+                strategies, variable_name, rule_level
+            )
+        return self._permission_cache[cache_key]
+
+    def _resolve_permission_uncached(
         self,
         selected_strategies: Iterable[str],
         variable_name: str,
@@ -1222,6 +1391,18 @@ def _is_activity_dependent_primary(meta: Mapping[str, Any]) -> bool:
     if _text(meta.get("data_role")) != "PRIMARY_MRV":
         return False
     return _yes(meta.get("l3_scaling_eligible"))
+
+
+def _is_physical_activity_quantity(meta: Mapping[str, Any]) -> bool:
+    """Conservatively recognize scalable physical flows for scoped L3 rules.
+
+    Counts, time, currency, percentages and indices need an exact declaration;
+    physical resource/output units may use an explicit group-scope L3 permission.
+    """
+    if _text(meta.get("data_role")) != "PRIMARY_MRV":
+        return False
+    unit = _text(meta.get("canonical_unit")).lower().replace("³", "3")
+    return unit in {"fu", "kwh", "m3", "t", "tkm", "kg", "l", "tonne"}
 
 
 def _expand_rule_expression(expression: Any) -> set[str]:

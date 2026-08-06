@@ -53,10 +53,11 @@ def render_scenario_completion_page(
     payload = uploaded.getvalue()
     checksum = hashlib.sha256(payload).hexdigest()
     parser_key = (
-        f"{checksum}:schema-2.0:parser-2:completion-3:"
-        f"tolerance-{NUMERICAL_COMPARISON.version}"
+        f"{checksum}:schema-2.0:parser-2:completion-4:rules-4:"
+        f"normalization-2:ec2-guard-1:tolerance-{NUMERICAL_COMPARISON.version}"
     )
     if st.session_state.get("mrv_workbook_key") != parser_key:
+        st.cache_data.clear()
         for key in (
             "mrv_completion_result", "mrv_commit_result", "kpi_result",
             "mcda_result", "dpp_import_summary", "last_import_run_id",
@@ -69,7 +70,9 @@ def render_scenario_completion_page(
             temp.write(payload)
             temp_path = Path(temp.name)
         try:
-            st.session_state["mrv_completion_result"] = engine.complete_batch_from_excel(temp_path)
+            completed = engine.complete_batch_from_excel(temp_path)
+            completed.source_filename = uploaded.name
+            st.session_state["mrv_completion_result"] = completed
         except Exception as exc:
             st.error(f"The completion run could not be executed: {exc}")
             return
@@ -145,6 +148,11 @@ def render_scenario_completion_page(
                 bridge_status = "inactive — native index retained for audit"
         diagnostics = {
             "Detected workbook family": parsed.schema.schema_family if parsed else "unsupported",
+            "Uploaded filename": result.source_filename or uploaded.name,
+            "Uploaded SHA-256": result.workbook_sha256 or checksum,
+            "Uploaded file size": result.workbook_size or len(payload),
+            "Parser version": result.parser_version,
+            "Completion-engine version": result.completion_engine_version,
             "Detected schema version": parsed.schema.schema_version if parsed else "unknown",
             "Detection source": parsed.schema.detected_from if parsed else "",
             "Migration adapter used": parsed.migration_adapter or "None" if parsed else "None",

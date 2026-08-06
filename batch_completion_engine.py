@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+import hashlib
 import zipfile
 
 import pandas as pd
@@ -29,6 +30,12 @@ class BatchCompletionResult:
     structural_summary: dict[str, object] | None = None
     evidence_outcomes: pd.DataFrame | None = None
     failure_diagnostics: pd.DataFrame | None = None
+    l3_permission_diagnostics: pd.DataFrame | None = None
+    rule_execution_trace: pd.DataFrame | None = None
+    workbook_sha256: str | None = None
+    workbook_size: int | None = None
+    parser_version: str = "2"
+    completion_engine_version: str = "4"
 
     @property
     def production_qa_report(self) -> pd.DataFrame:
@@ -124,6 +131,8 @@ class BatchScenarioCompletionEngine:
         review_frames: list[pd.DataFrame] = []
         upload_frames: list[pd.DataFrame] = []
         qa_frames: list[pd.DataFrame] = []
+        l3_frames: list[pd.DataFrame] = []
+        trace_frames: list[pd.DataFrame] = []
 
         for _, scenario in scenarios.iterrows():
             scenario_code = str(scenario["scenario_code"]).strip()
@@ -140,10 +149,14 @@ class BatchScenarioCompletionEngine:
             review_frames.append(review)
             upload_frames.append(result.software_upload)
             qa_frames.append(result.qa_report)
+            l3_frames.append(result.l3_permission_diagnostics)
+            trace_frames.append(result.rule_execution_trace)
 
         review_all = pd.concat(review_frames, ignore_index=True) if review_frames else pd.DataFrame()
         upload_all = pd.concat(upload_frames, ignore_index=True) if upload_frames else pd.DataFrame(columns=UPLOAD_COLUMNS)
         qa_all = pd.concat(qa_frames, ignore_index=True) if qa_frames else pd.DataFrame()
+        l3_all = pd.concat(l3_frames, ignore_index=True) if l3_frames else pd.DataFrame()
+        trace_all = pd.concat(trace_frames, ignore_index=True) if trace_frames else pd.DataFrame()
         if scenarios.empty:
             qa_all = pd.DataFrame([{
                 "check_id": "QA_SCENARIO_CONFIGURATION", "severity": "Critical", "status": "FAIL",
@@ -320,4 +333,8 @@ class BatchScenarioCompletionEngine:
             structural_summary=structural_summary,
             evidence_outcomes=evidence_outcomes,
             failure_diagnostics=failure_diagnostics,
+            l3_permission_diagnostics=l3_all,
+            rule_execution_trace=trace_all,
+            workbook_sha256=hashlib.sha256(workbook_path.read_bytes()).hexdigest(),
+            workbook_size=workbook_path.stat().st_size,
         )

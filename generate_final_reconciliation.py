@@ -41,7 +41,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         measurements = pd.read_sql(text("""
             SELECT s.code scenario_code, m.variable_name, m.value, m.comment
             FROM sc_measurement m JOIN sc_scenario s ON s.id=m.scenario_id
-            WHERE m.import_run_id=:run AND m.variable_name IN ('ghg_total_s1s2','maintenance_cost_eur')
+            WHERE m.import_run_id=:run
         """), connection, params={"run": run_id})
 
     rules = pd.read_csv("data/kpi_normalization_rules.csv")
@@ -99,6 +99,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
             if effect == "Same":
                 scenario_light = ref.at[code, "semaforo"]
             notes = current.at[code, "notes"]
+            raw_row = raw[(raw.scenario_code == scenario) & (raw.kpi_code == code)]
             details.append({
                 "scenario": scenario, "kpi_code": code,
                 "kpi_name": current.at[code, "kpi_name"], "dimension": current.at[code, "dimension"],
@@ -111,6 +112,8 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
                 "energy_cost_per_fu_scenario": diagnostic(notes, "energy_cost_per_fu_scenario") if code == "EC2" else None,
                 "raw_EC2_score": diagnostic(notes, "raw_EC2_score") if code == "EC2" else None,
                 "guarded_EC2_score": diagnostic(notes, "guarded_EC2_score") if code == "EC2" else None,
+                "raw_ec2_value": float(raw_row.raw_value.iloc[0]) if code == "EC2" and not raw_row.empty else None,
+                "import_run_id": run_id,
             })
     detail = pd.DataFrame(details)
     summary = detail.groupby("scenario").apply(lambda g: pd.Series({
@@ -124,6 +127,17 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         "Same": (g.effect == "Same").sum(), "Mean delta (pts)": g.delta_pts.mean(),
     }), include_groups=False).reset_index()
     traffic = norm.groupby(["scenario_code", "semaforo"]).size().unstack(fill_value=0).reset_index()
+    ec2_diagnostics = detail[detail.kpi_code == "EC2"].loc[:, [
+        "scenario", "raw_ec2_value", "raw_EC2_score",
+        "energy_cost_per_fu_reference", "energy_cost_per_fu_scenario",
+        "guarded_EC2_score", "denominator_effect_flag", "effect", "import_run_id",
+    ]].rename(columns={
+        "scenario": "scenario_code",
+        "raw_EC2_score": "raw_ec2_score",
+        "energy_cost_per_fu_reference": "reference_energy_cost_per_fu",
+        "energy_cost_per_fu_scenario": "scenario_energy_cost_per_fu",
+        "guarded_EC2_score": "guarded_ec2_score",
+    })
 
     factor_ghg = measurements[measurements.comment.str.contains("MRV_R_GHG_S1S2_FACTORS", na=False)]
     base_maintenance = float(measurements[(measurements.scenario_code == reference) & (measurements.variable_name == "maintenance_cost_eur")].value.iloc[0])
@@ -137,6 +151,64 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         {"check_id": "NORMALIZED_COMPARISON_COMPLETE", "scenario_code": "", "variable_or_kpi": "normalized comparison", "expected_logic": "23 alternatives x 30 KPI", "actual_value": len(detail), "status": "PASS" if len(detail)==690 else "FAIL", "message": "Complete alternative/KPI matrix"},
         {"check_id": "KPI_COMPLETENESS", "scenario_code": "", "variable_or_kpi": "raw and normalized KPI", "expected_logic": "24 scenarios x 30 KPI", "actual_value": f"raw={len(raw)}; normalized={len(norm)}", "status": "PASS" if len(raw)==len(norm)==720 else "FAIL", "message": "Active-run KPI population"},
     ])
+    checks["provenance"] = "active import run and recalculated KPI pipeline"
+    measurement_index = measurements.set_index(["scenario_code", "variable_name"])
+    des_scenarios = sorted(set(measurements.loc[
+        (measurements.variable_name == "electricity_kwh")
+        & measurements.comment.str.contains("rule=L3", na=False)
+        & measurements.comment.str.contains("strategy=LOGISTICS_REDESIGN", na=False),
+        "scenario_code",
+    ]))
+    sd_scenarios = sorted(set(measurements.loc[
+        (measurements.variable_name == "output_qty_fu")
+        & measurements.comment.str.contains("BR_SD_DELIVERY_OUTPUT", na=False),
+        "scenario_code",
+    ]))
+
+    extra_checks: list[dict[str, object]] = []
+    def add_check(check_id: str, scenarios: list[str], item: str, ok: bool, message: str) -> None:
+        extra_checks.append({
+            "check_id": check_id, "scenario_code": ",".join(scenarios),
+            "variable_or_kpi": item, "expected_logic": message,
+            "actual_value": ok, "provenance": f"import_run_id={run_id}",
+            "status": "PASS" if ok else "FAIL", "message": message,
+        })
+
+    for variable, check_id in (
+        ("electricity_kwh", "DES_ELECTRICITY_L3"),
+        ("diesel_kwh", "DES_DIESEL_L3"),
+        ("water_withdrawn_m3", "DES_WATER_L3"),
+        ("waste_generated_t", "DES_WASTE_L3"),
+        ("operating_cost_eur", "DES_OPERATING_COST_L3"),
+    ):
+        ok = bool(des_scenarios) and all(
+            "rule=L3" in str(measurement_index.loc[(scenario, variable), "comment"])
+            for scenario in des_scenarios
+        )
+        add_check(check_id, des_scenarios, variable, ok, "Configured DES activity uses L3.")
+    maintenance_ok = bool(des_scenarios) and all(
+        "rule=L6" in str(measurement_index.loc[(scenario, "maintenance_cost_eur"), "comment"])
+        for scenario in des_scenarios
+    )
+    add_check("DES_MAINTENANCE_BASE_RETENTION", des_scenarios, "maintenance_cost_eur", maintenance_ok, "Unsupported maintenance retains BASE.")
+    ghg_ok = bool(des_scenarios) and all(
+        "MRV_R_GHG_S1S2_FACTORS" in str(measurement_index.loc[(scenario, "ghg_total_s1s2"), "comment"])
+        for scenario in des_scenarios
+    )
+    add_check("DES_FACTOR_BASED_GHG", des_scenarios, "ghg_total_s1s2", ghg_ok, "Factor GHG executes after L3.")
+    for kpi in ("E2", "E3", "E5", "E9"):
+        rows = detail[(detail.scenario.isin(des_scenarios)) & (detail.kpi_code == kpi)]
+        add_check(f"DES_{kpi}_INTENSITY_PRESERVATION", des_scenarios, kpi, len(rows) == len(des_scenarios) and rows.effect.eq("Same").all(), "Proportional scaling preserves intensity.")
+    for kpi in ("T3", "E7", "E9"):
+        rows = detail[(detail.scenario.isin(sd_scenarios)) & (detail.kpi_code == kpi)]
+        add_check(f"SD_{kpi}_BASE_COMPLETION", sd_scenarios, kpi, len(rows) == len(sd_scenarios) and rows.effect.eq("Same").all(), "Non-modelled SD intensity/coverage remains BASE-equivalent.")
+    guarded = ec2_diagnostics[ec2_diagnostics.denominator_effect_flag == True]  # noqa: E712
+    add_check(
+        "EC2_DENOMINATOR_GUARD", guarded.scenario_code.astype(str).tolist(), "EC2",
+        not guarded.empty and guarded.guarded_ec2_score.eq(50.0).all() and guarded.effect.eq("Same").all(),
+        "Denominator-only improvements are neutralized.",
+    )
+    checks = pd.concat([checks, pd.DataFrame(extra_checks)], ignore_index=True)
     outputs = {
         "dimension_indices_by_scenario.csv": dim,
         "mcda_scenario_ranking.csv": ranking,
@@ -145,6 +217,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         "normalized_comparison_by_dimension.csv": by_dimension,
         "normalized_comparison_summary.csv": summary,
         "final_reconciliation_checks.csv": checks,
+        "ec2_denominator_guard_diagnostics.csv": ec2_diagnostics,
     }
     for filename, frame in outputs.items():
         frame.to_csv(output_dir / filename, index=False)

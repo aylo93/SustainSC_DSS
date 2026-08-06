@@ -17,7 +17,15 @@ def main() -> None:
     result.export_combined_csv(args.output_dir / "ALL_SCENARIOS_COMPLETED_MRV.csv")
     result.export_scenario_csv_zip(args.output_dir / "COMPLETED_MRV_BY_SCENARIO.zip")
     result.completion_review.to_csv(args.output_dir / "COMPLETION_REVIEW.csv", index=False)
+    result.completion_review.to_csv(args.output_dir / "completion_review.csv", index=False)
     result.qa_report.to_csv(args.output_dir / "QA_REPORT.csv", index=False)
+    result.qa_report.to_csv(args.output_dir / "qa_report.csv", index=False)
+    result.l3_permission_diagnostics.to_csv(
+        args.output_dir / "l3_permission_diagnostics.csv", index=False
+    )
+    result.rule_execution_trace.to_csv(
+        args.output_dir / "rule_execution_trace.csv", index=False
+    )
     result.comparison_report.to_csv(args.output_dir / "CH7_COMPARISON.csv", index=False)
 
     critical = int(((result.qa_report.severity == "Critical") & (result.qa_report.status == "FAIL")).sum())
