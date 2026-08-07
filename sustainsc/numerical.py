@@ -4,12 +4,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
+SCORE_EFFECT_TOLERANCE = 0.1
+
 
 @dataclass(frozen=True)
 class NumericalComparisonConfig:
     score_tolerance: float = 1e-5
     value_tolerance: float = 1e-9
-    version: str = "1"
+    version: str = "2"
 
 
 NUMERICAL_COMPARISON = NumericalComparisonConfig()
@@ -31,6 +33,6 @@ def snap_to_threshold(
 def comparison_effect(delta: float | None) -> str:
     if delta is None:
         return "Missing"
-    if abs(float(delta)) <= NUMERICAL_COMPARISON.score_tolerance:
+    if abs(float(delta)) <= SCORE_EFFECT_TOLERANCE:
         return "Same"
     return "Improved" if float(delta) > 0 else "Worse"

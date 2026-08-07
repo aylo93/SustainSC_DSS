@@ -1,7 +1,7 @@
 import pandas as pd
 
 from sustainsc.normalization import normalize_value
-from sustainsc.numerical import comparison_effect, snap_to_threshold
+from sustainsc.numerical import SCORE_EFFECT_TOLERANCE, comparison_effect, snap_to_threshold
 
 
 def test_threshold_noise_is_snapped_and_effect_is_same():
@@ -18,4 +18,8 @@ def test_threshold_noise_is_snapped_and_effect_is_same():
 
 
 def test_genuine_difference_is_not_hidden():
-    assert comparison_effect(-0.001) == "Worse"
+    assert SCORE_EFFECT_TOLERANCE == 0.1
+    assert comparison_effect(0.1) == "Same"
+    assert comparison_effect(-0.1) == "Same"
+    assert comparison_effect(0.100001) == "Improved"
+    assert comparison_effect(-0.100001) == "Worse"
