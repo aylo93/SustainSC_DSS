@@ -53,10 +53,11 @@ def render_scenario_completion_page(
     payload = uploaded.getvalue()
     checksum = hashlib.sha256(payload).hexdigest()
     parser_key = (
-        f"{checksum}:schema-2.0:parser-2:completion-3:"
-        f"tolerance-{NUMERICAL_COMPARISON.version}"
+        f"{checksum}:schema-2.0:parser-2:completion-4:rules-4:"
+        f"normalization-2:ec2-guard-1:tolerance-{NUMERICAL_COMPARISON.version}"
     )
     if st.session_state.get("mrv_workbook_key") != parser_key:
+        st.cache_data.clear()
         for key in (
             "mrv_completion_result", "mrv_commit_result", "kpi_result",
             "mcda_result", "dpp_import_summary", "last_import_run_id",
@@ -69,7 +70,9 @@ def render_scenario_completion_page(
             temp.write(payload)
             temp_path = Path(temp.name)
         try:
-            st.session_state["mrv_completion_result"] = engine.complete_batch_from_excel(temp_path)
+            completed = engine.complete_batch_from_excel(temp_path)
+            completed.source_filename = uploaded.name
+            st.session_state["mrv_completion_result"] = completed
         except Exception as exc:
             st.error(f"The completion run could not be executed: {exc}")
             return
@@ -132,8 +135,24 @@ def render_scenario_completion_page(
     })
 
     with st.expander("Import diagnostics", expanded=False):
+        review_provenance = result.completion_review["provenance"].fillna("").astype(str)
+        exact_l3 = int(review_provenance.str.contains("permission_source=exact override", regex=False).sum())
+        scoped_l3 = int(review_provenance.str.contains("permission_source=strategy scope", regex=False).sum())
+        factor_rows = int(result.completion_review["rule_id"].eq("MRV_R_GHG_S1S2_FACTORS").sum())
+        bridge_status = "not configured"
+        if parsed is not None and not parsed.bridge_rules.empty:
+            sd_bridge = parsed.bridge_rules[
+                parsed.bridge_rules["bridge_rule_id"].astype(str).eq("BR_SD_MRV_COVERAGE")
+            ]
+            if not sd_bridge.empty and str(sd_bridge.iloc[0]["rule_status"]).upper() != "ACTIVE":
+                bridge_status = "inactive — native index retained for audit"
         diagnostics = {
             "Detected workbook family": parsed.schema.schema_family if parsed else "unsupported",
+            "Uploaded filename": result.source_filename or uploaded.name,
+            "Uploaded SHA-256": result.workbook_sha256 or checksum,
+            "Uploaded file size": result.workbook_size or len(payload),
+            "Parser version": result.parser_version,
+            "Completion-engine version": result.completion_engine_version,
             "Detected schema version": parsed.schema.schema_version if parsed else "unknown",
             "Detection source": parsed.schema.detected_from if parsed else "",
             "Migration adapter used": parsed.migration_adapter or "None" if parsed else "None",
@@ -147,6 +166,11 @@ def render_scenario_completion_page(
             "Assumption count": len(parsed.assumptions) if parsed else 0,
             "Production QA failures": fail_count,
             "Regression differences": regression_count,
+            "L3 permission source — exact override": exact_l3,
+            "L3 permission source — strategy scope": scoped_l3,
+            "Factor-based GHG status": f"executed for {factor_rows} scenarios" if factor_rows else "direct evidence preserved / configuration missing",
+            "SD MRV bridge status": bridge_status,
+            "EC2 denominator guard": "applied during KPI normalization when corroboration fails",
         }
         render_data_status_panel(diagnostics)
         if result.evidence_outcomes is not None and not result.evidence_outcomes.empty:

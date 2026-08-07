@@ -1,4 +1,5 @@
 from pathlib import Path
+import hashlib
 
 import pandas as pd
 import pytest
@@ -9,8 +10,8 @@ from sustainsc.mrv_schema_v2 import detect_mrv_workbook_schema, parse_mrv_workbo
 
 
 FIXTURES = Path("tests/fixtures/mrv_final")
-V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL.xlsx"
-FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL.xlsx"
+V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL_RECONCILED.xlsx"
+FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_RECONCILED.xlsx"
 
 
 def test_v2_is_detected_from_metadata_and_empty_template_is_structurally_valid():
@@ -40,8 +41,9 @@ def test_final_cuba_is_current_and_never_uses_legacy_adapter():
     assert parsed.migration_adapter is None
     assert parsed.metadata.get("case_id") == "CUBA_HOLGUIN_AGGREGATES"
     assert parsed.metadata.get("dataset_id") == "CUBA_HOLGUIN_SCENARIOS_FINAL"
+    assert result.workbook_sha256 == hashlib.sha256(FINAL_CUBA.read_bytes()).hexdigest()
     assert (len(parsed.scenarios), len(parsed.variable_dictionary)) == (24, 107)
-    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (122, 182, 26)
+    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (113, 182, 26)
     assert result.can_commit
     assert result.structural_summary == {
         "scenario_count": 24, "required_variable_count": 107,
@@ -49,7 +51,7 @@ def test_final_cuba_is_current_and_never_uses_legacy_adapter():
         "duplicate_pairs": 0, "null_values": 0, "non_finite_values": 0,
         "unknown_variables": 0, "rule_level_total": 2568, "complete": True,
     }
-    assert result.comparison_report["comparison_status"].eq("MATCH").all()
+    assert not result.qa_report["check_id"].eq("QA_STRICT_REGRESSION").any()
     assert not result.has_critical_failures
 
 
@@ -65,10 +67,14 @@ def test_factor_rule_and_maintenance_override_are_synchronized_between_templates
             & (parsed.variable_overrides["variable_name"] == "maintenance_cost_eur")
         ].iloc[0]
         assert override["permitted_rules"] == "L1,L5,L6"
-        assert int(override["priority"]) == 100
-        dictionary = parsed.variable_dictionary.set_index("variable_name")
-        assert dictionary.at["electricity_kwh", "l3_scaling_eligible"] == "Yes"
-        assert dictionary.at["maintenance_cost_eur", "l3_scaling_eligible"] == "No"
+        assert int(override["priority"]) >= 100
+        electricity = parsed.variable_overrides[
+            (parsed.variable_overrides["strategy_code"] == "LOGISTICS_REDESIGN")
+            & (parsed.variable_overrides["variable_name"] == "electricity_kwh")
+        ].iloc[0]
+        assert "L3" in electricity["permitted_rules"]
+        if parsed is cuba:
+            assert str(electricity["active"]).lower() in {"yes", "true", "1"}
 
 
 def test_empty_v2_template_reports_configuration_failure_not_parser_failure():

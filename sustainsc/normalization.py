@@ -16,12 +16,62 @@ import pandas as pd
 from sqlalchemy.orm import Session
 
 from .config import SessionLocal
-from .models import KPIResult, KPINormalizedResult, KPI, Scenario
+from .models import KPIResult, KPINormalizedResult, KPI, Measurement, Scenario
 from .dataset_scope import get_import_run_scenario_ids, resolve_import_run_id
 from .numerical import NUMERICAL_COMPARISON, snap_to_threshold
 
 
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
+
+
+def guard_denominator_only_improvement(
+    raw_score: float | None,
+    reference_score: float | None,
+    scenario_energy_cost_per_fu: float | None,
+    reference_energy_cost_per_fu: float | None,
+) -> tuple[float | None, bool]:
+    """Neutralize a ratio improvement not corroborated by energy cost per FU."""
+    if None in (
+        raw_score,
+        reference_score,
+        scenario_energy_cost_per_fu,
+        reference_energy_cost_per_fu,
+    ):
+        return raw_score, False
+    share_looks_better = (
+        float(raw_score) > float(reference_score) + NUMERICAL_COMPARISON.score_tolerance
+    )
+    energy_cost_really_improved = (
+        float(scenario_energy_cost_per_fu)
+        < float(reference_energy_cost_per_fu) - NUMERICAL_COMPARISON.value_tolerance
+    )
+    if share_looks_better and not energy_cost_really_improved:
+        return float(reference_score), True
+    return raw_score, False
+
+
+def _energy_cost_per_fu(
+    session: Session, scenario_id: int | None, import_run_id: int
+) -> float | None:
+    if scenario_id is None:
+        return None
+    rows = session.query(Measurement.variable_name, Measurement.value).filter(
+        Measurement.scenario_id == scenario_id,
+        Measurement.import_run_id == import_run_id,
+        Measurement.variable_name.in_((
+            "electricity_cost_eur", "fuel_cost_eur", "energy_cost_total", "output_qty_fu"
+        )),
+    ).all()
+    values: dict[str, float] = {}
+    for variable, value in rows:
+        values[str(variable)] = values.get(str(variable), 0.0) + float(value)
+    output = values.get("output_qty_fu")
+    if output in (None, 0):
+        return None
+    energy_cost = values.get("energy_cost_total")
+    if energy_cost is None:
+        energy_cost = values.get("electricity_cost_eur", 0.0) + values.get("fuel_cost_eur", 0.0)
+    return energy_cost / output
 
 
 def load_normalization_rules() -> pd.DataFrame:
@@ -385,6 +435,41 @@ def run_normalization(
                     baseline_value=baseline_value,
                 )
 
+                denominator_effect_flag = False
+                raw_normalized_value = normalized_value
+                scenario_energy_cost_per_fu = None
+                reference_energy_cost_per_fu = None
+                if str(kpi_code).strip().upper() == "EC2" and base_scenario_id is not None:
+                    reference_score, _ = normalize_value(
+                        raw_value=baseline_value,
+                        rule=rule,
+                        baseline_value=baseline_value,
+                    )
+                    scenario_energy_cost_per_fu = _energy_cost_per_fu(
+                        session, result.scenario_id, import_run_id
+                    )
+                    reference_energy_cost_per_fu = _energy_cost_per_fu(
+                        session, base_scenario_id, import_run_id
+                    )
+                    normalized_value, denominator_effect_flag = guard_denominator_only_improvement(
+                        normalized_value,
+                        reference_score,
+                        scenario_energy_cost_per_fu,
+                        reference_energy_cost_per_fu,
+                    )
+                    if normalized_value is not None:
+                        green = float(rule.get("green_threshold", 80.0))
+                        amber = float(rule.get("amber_threshold", 50.0))
+                        normalized_value = snap_to_threshold(
+                            normalized_value, (amber, green),
+                            NUMERICAL_COMPARISON.score_tolerance,
+                        )
+                        semaforo = (
+                            "Green" if normalized_value >= green
+                            else "Amber" if normalized_value >= amber
+                            else "Red"
+                        )
+
                 session.add(
                     KPINormalizedResult(
                         kpi_id=result.kpi_id,
@@ -401,7 +486,10 @@ def run_normalization(
                         notes=(
                             f"Normalized using {rule.get('norm_method')} for context {context_id}; "
                             f"BASE={base_scenario.code if base_scenario else None}; "
-                            f"centered_relative=True"
+                            f"centered_relative=True; denominator_effect_flag={denominator_effect_flag}; "
+                            f"energy_cost_per_fu_reference={reference_energy_cost_per_fu}; "
+                            f"energy_cost_per_fu_scenario={scenario_energy_cost_per_fu}; "
+                            f"raw_EC2_score={raw_normalized_value}; guarded_EC2_score={normalized_value}"
                         ),
                     )
                 )
