@@ -53,7 +53,7 @@ def render_scenario_completion_page(
     payload = uploaded.getvalue()
     checksum = hashlib.sha256(payload).hexdigest()
     parser_key = (
-        f"{checksum}:schema-2.0:parser-2:completion-4:rules-4:"
+        f"{checksum}:schema-2.0:parser-2:completion-5:rules-5:transport-boundary-1:"
         f"normalization-2:ec2-guard-1:tolerance-{NUMERICAL_COMPARISON.version}"
     )
     if st.session_state.get("mrv_workbook_key") != parser_key:
@@ -173,6 +173,32 @@ def render_scenario_completion_page(
             "EC2 denominator guard": "applied during KPI normalization when corroboration fails",
         }
         render_data_status_panel(diagnostics)
+        if parsed is not None:
+            transport_factors = parsed.factor_register[
+                parsed.factor_register["analytical_role"].astype(str).str.contains(
+                    "transport-scope", case=False, na=False
+                )
+            ]
+            reference_code = str(parsed.metadata.get("default_reference_scenario", ""))
+            reference_rows = result.completion_review[
+                result.completion_review["scenario_code"].eq(reference_code)
+            ].set_index("variable_name")
+            factor = transport_factors.iloc[0] if len(transport_factors) == 1 else None
+            transport_qa = result.qa_report[
+                result.qa_report["check_id"].eq("TRANSPORT_GHG_DOUBLE_COUNT_RISK")
+            ]
+            render_data_status_panel({
+                "Transport GHG boundary": "outbound road transport",
+                "Direct DES Vehicle CO2": "used" if result.completion_review["rule_id"].eq("BR_DES_TRANSPORT_GHG").any() else "not used",
+                "Transport factor set": factor["factor_set_id"] if factor is not None else "not configured",
+                "Transport factor code": factor["factor_code"] if factor is not None else "not configured",
+                "Transport factor value": factor["value"] if factor is not None else "not configured",
+                "Transport factor unit": factor["unit"] if factor is not None else "not configured",
+                "E7 numerator": reference_rows.at["transport_ghg_tco2e", "completed_value"] if not reference_rows.empty else "unavailable",
+                "E7 output denominator": reference_rows.at["output_qty_fu", "completed_value"] if not reference_rows.empty else "unavailable",
+                "E7 result (kgCO2e/FU)": reference_rows.at["transport_ghg_intensity_fu", "completed_value"] if not reference_rows.empty else "unavailable",
+                "Double-count status": "PASS" if not transport_qa.status.eq("FAIL").any() else "FAIL",
+            })
         if result.evidence_outcomes is not None and not result.evidence_outcomes.empty:
             render_downloadable_table(
                 result.evidence_outcomes.groupby("outcome", as_index=False).size(),

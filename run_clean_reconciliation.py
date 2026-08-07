@@ -12,7 +12,7 @@ from load_example_data import load_kpis
 from sustainsc.config import Base, SessionLocal, engine
 from sustainsc.dataset_scope import activate_import_run, assert_scenario_integrity, utc_now_naive
 from sustainsc.kpi_engine import run_full_pipeline
-from sustainsc.models import ImportRun, ImportRunScenario, Measurement, Scenario
+from sustainsc.models import EmissionFactor, ImportRun, ImportRunScenario, Measurement, Scenario
 
 
 def _commit_completion(result) -> int:
@@ -21,6 +21,19 @@ def _commit_completion(result) -> int:
     metadata = result.parsed_workbook.metadata
     with SessionLocal() as session:
         load_kpis(session)
+        session.query(EmissionFactor).delete()
+        for factor in result.parsed_workbook.factor_register.itertuples(index=False):
+            if str(getattr(factor, "approval_status", "")).strip().lower() != "approved":
+                continue
+            session.add(EmissionFactor(
+                code=str(factor.factor_code), name=str(factor.factor_code),
+                activity_type=str(getattr(factor, "factor_type", "emission")),
+                unit=str(factor.unit), value=float(factor.value),
+                valid_from=pd.to_datetime(factor.valid_from, errors="coerce").to_pydatetime(),
+                valid_to=pd.to_datetime(factor.valid_to, errors="coerce").to_pydatetime(),
+                source=str(factor.source), analytical_role=str(factor.analytical_role),
+                factor_set_id=str(factor.factor_set_id),
+            ))
         run = ImportRun(
             dataset_name=str(metadata.get("dataset_name")),
             case_id=str(metadata.get("case_id")),
