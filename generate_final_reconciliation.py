@@ -43,6 +43,12 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
             FROM sc_measurement m JOIN sc_scenario s ON s.id=m.scenario_id
             WHERE m.import_run_id=:run
         """), connection, params={"run": run_id})
+        factors = pd.read_sql(text("""
+            SELECT factor_set_id, code factor_code, value factor_value, unit factor_unit,
+                   analytical_role, source
+            FROM sc_emission_factor
+            WHERE lower(coalesce(analytical_role,'')) LIKE '%transport-scope%'
+        """), connection)
 
     rules = pd.read_csv("data/kpi_normalization_rules.csv")
     rules.columns = rules.columns.str.strip().str.lower()
@@ -139,6 +145,50 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         "guarded_EC2_score": "guarded_ec2_score",
     })
 
+    measurement_values = measurements.pivot(index="scenario_code", columns="variable_name", values="value")
+    measurement_comments = measurements.pivot(index="scenario_code", columns="variable_name", values="comment")
+    transport_factor = factors.iloc[0] if len(factors) == 1 else pd.Series(dtype=object)
+    transport_rows = []
+    for scenario_code in sorted(measurement_values.index.astype(str)):
+        transport_comment = str(measurement_comments.at[scenario_code, "transport_ghg_tco2e"])
+        level_match = re.search(r"rule=(BASE|L[1-6])", transport_comment)
+        rule_match = re.search(r"rule_id=([^;]+)", transport_comment)
+        bridge_match = re.search(r"(BR_[A-Z0-9_]+)", transport_comment)
+        completion_rule = rule_match.group(1) if rule_match else ""
+        bridge_rule = bridge_match.group(1) if bridge_match else ""
+        configured_factor_code = str(transport_factor.get("factor_code", ""))
+        boundary_ok = (
+            (bool(bridge_rule) or (level_match and level_match.group(1) in {"BASE", "L1"})
+             or (configured_factor_code and configured_factor_code in transport_comment))
+            and "EF_DIESEL" not in transport_comment
+        )
+        scope_comment = str(measurement_comments.at[scenario_code, "ghg_total_s1s2"])
+        double_count_ok = (
+            "transport_ghg_tco2e" not in scope_comment
+            or ("separately" in scope_comment.lower() and "not added" in scope_comment.lower())
+        )
+        transport_rows.append({
+            "scenario_code": scenario_code,
+            "output_qty_fu": measurement_values.at[scenario_code, "output_qty_fu"],
+            "transport_work_tkm": measurement_values.at[scenario_code, "transport_work_tkm"],
+            "direct_transport_ghg": measurement_values.at[scenario_code, "transport_ghg_tco2e"] if level_match and level_match.group(1) == "L1" else None,
+            "direct_source": "DES / AnyLogistix Vehicle CO2" if bridge_rule else "",
+            "bridge_rule": bridge_rule,
+            "factor_set_id": transport_factor.get("factor_set_id", ""),
+            "factor_code": transport_factor.get("factor_code", ""),
+            "factor_value": transport_factor.get("factor_value", None),
+            "factor_unit": transport_factor.get("factor_unit", ""),
+            "completed_transport_ghg_tco2e": measurement_values.at[scenario_code, "transport_ghg_tco2e"],
+            "completion_level": level_match.group(1) if level_match else "",
+            "completion_rule": completion_rule,
+            "transport_ghg_intensity_fu": measurement_values.at[scenario_code, "transport_ghg_intensity_fu"],
+            "boundary_status": "PASS" if boundary_ok else "FAIL",
+            "double_count_status": "PASS" if double_count_ok else "FAIL",
+            "qa_status": "PASS" if boundary_ok and double_count_ok else "FAIL",
+            "message": transport_comment,
+        })
+    transport_diagnostics = pd.DataFrame(transport_rows)
+
     factor_ghg = measurements[measurements.comment.str.contains("MRV_R_GHG_S1S2_FACTORS", na=False)]
     base_maintenance = float(measurements[(measurements.scenario_code == reference) & (measurements.variable_name == "maintenance_cost_eur")].value.iloc[0])
     retained_maintenance = measurements[(measurements.scenario_code != reference) & (measurements.variable_name == "maintenance_cost_eur") & measurements.comment.str.contains("rule=L6", na=False)]
@@ -208,6 +258,33 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         not guarded.empty and guarded.guarded_ec2_score.eq(50.0).all() and guarded.effect.eq("Same").all(),
         "Denominator-only improvements are neutralized.",
     )
+    reference_transport = transport_diagnostics[
+        transport_diagnostics.scenario_code.eq(reference)
+    ].iloc[0]
+    factor_ok = len(factors) == 1 and transport_factor.factor_unit == "tCO2e/tkm"
+    add_check("E7_BASE_BOUNDARY", [reference], "E7", reference_transport.qa_status == "PASS", "Reference E7 uses the outbound-road transport boundary.")
+    des_boundary = transport_diagnostics[transport_diagnostics.bridge_rule.ne("")].copy()
+    for year in (2025, 2030, 2035):
+        candidates = des_boundary[des_boundary.scenario_code.str.contains(str(year), regex=False)]
+        add_check(f"E7_DES_{year}_COMPARABILITY", candidates.scenario_code.tolist(), "E7", not candidates.empty and candidates.qa_status.eq("PASS").all(), "Direct bridged Vehicle CO2 uses the same E7 boundary as the reference.")
+    factor_completed = transport_diagnostics[
+        transport_diagnostics.message.str.contains(str(transport_factor.get("factor_code", "__missing__")), regex=False)
+    ]
+    same_as_base = factor_completed[
+        (factor_completed.transport_work_tkm - reference_transport.transport_work_tkm).abs() <= 1e-6
+    ]
+    proportional = factor_completed[
+        (factor_completed.transport_ghg_intensity_fu - reference_transport.transport_ghg_intensity_fu).abs() <= 1e-6
+    ]
+    changed = factor_completed.drop(proportional.index)
+    add_check("E7_SOCIAL_BASE_RETENTION", same_as_base.scenario_code.tolist(), "E7", not same_as_base.empty and same_as_base.qa_status.eq("PASS").all(), "Factor completion retains reference E7 when transport work is unchanged.")
+    add_check("E7_SD_PROPORTIONAL_COMPLETION", proportional.scenario_code.tolist(), "E7", not proportional.empty and proportional.qa_status.eq("PASS").all(), "Proportional transport work and output preserve E7.")
+    add_check("E7_MILP_FACTOR_COMPLETION", changed.scenario_code.tolist(), "E7", not changed.empty and changed.qa_status.eq("PASS").all(), "Changed transport work is completed through the approved factor.")
+    add_check("E7_VSMC_FACTOR_COMPLETION", changed.scenario_code.tolist(), "E7", not changed.empty and changed.qa_status.eq("PASS").all(), "Transport-work improvements flow through the approved factor and E7 alias.")
+    no_double_count = transport_diagnostics.double_count_status.eq("PASS").all()
+    add_check("E1_UNCHANGED_BY_E7_PATCH", [], "E1/E2", no_double_count, "E7 completion has no dependency into production Scope 1-2 GHG.")
+    add_check("TRANSPORT_GHG_NOT_ADDED_TO_S1S2", [], "ghg_total_s1s2", no_double_count, "Transport GHG is not added to Scope 1-2 GHG.")
+    add_check("TRANSPORT_FACTOR_APPROVED", [], "transport factor", factor_ok, "Exactly one approved transport-scope factor has the required tCO2e/tkm unit.")
     checks = pd.concat([checks, pd.DataFrame(extra_checks)], ignore_index=True)
     outputs = {
         "dimension_indices_by_scenario.csv": dim,
@@ -218,6 +295,7 @@ def export_active_results(output_dir: Path) -> dict[str, int]:
         "normalized_comparison_summary.csv": summary,
         "final_reconciliation_checks.csv": checks,
         "ec2_denominator_guard_diagnostics.csv": ec2_diagnostics,
+        "transport_ghg_boundary_diagnostics.csv": transport_diagnostics,
     }
     for filename, frame in outputs.items():
         frame.to_csv(output_dir / filename, index=False)

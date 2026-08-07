@@ -107,8 +107,8 @@ class ScenarioCompletionEngine:
         config_dir: str | Path,
         *,
         config_frames: Mapping[str, pd.DataFrame] | None = None,
-        engine_version: str = "1.0.0",
-        rule_version: str = "1.0.0",
+        engine_version: str = "1.1.0",
+        rule_version: str = "1.1.0",
         strict_approval: bool = True,
         numerical_tolerance: float = 1e-6,
     ) -> None:
@@ -255,6 +255,7 @@ class ScenarioCompletionEngine:
         reference = self._prepare_reference(reference, reference_code)
         base_values = dict(zip(reference["variable_name"], reference["value"]))
         base_units = dict(zip(reference["variable_name"], reference["unit"]))
+        base_comments = dict(zip(reference["variable_name"], reference["comment"]))
         common_variables = self.dictionary[
             self.dictionary["common_upload_variable"].map(_yes)
         ]["variable_name"].tolist()
@@ -293,7 +294,10 @@ class ScenarioCompletionEngine:
                 "source_reference": reference_code,
                 "direct_input": None,
                 "native_input": None,
-                "provenance": f"Reference value retained from {reference_code}.",
+                "provenance": (
+                    f"Reference value retained from {reference_code}. "
+                    f"{_text(base_comments.get(variable))}"
+                ).strip(),
             }
 
         # Direct/common-MRV evidence --------------------------------------
@@ -389,6 +393,17 @@ class ScenarioCompletionEngine:
                 continue
             rule_id = _text(row.get("bridge_rule_id"))
             target = _text(row.get("proposed_target_mrv"))
+            if (
+                rule_id == "BR_DES_TRANSPORT_GHG"
+                and _text(row.get("model_family")).upper() != "DES"
+            ):
+                issue(
+                    "INVALID_TRANSPORT_GHG_SOURCE", "Critical", "FAIL",
+                    "A non-DES native output attempted to use the DES Vehicle-CO2 bridge.",
+                    variable=native_variable,
+                    action="Disable the placeholder or provide explicitly approved boundary-equivalent evidence.",
+                )
+                continue
             bridge = self._find_bridge(rule_id=rule_id, native_variable=native_variable, target_variable=target)
             if bridge is None:
                 issue("QA_MISSING_BRIDGE", "Critical", "FAIL", "No active bridge rule was found for the native output.", variable=native_variable, action="Select or configure a documented bridge rule.")
@@ -503,7 +518,8 @@ class ScenarioCompletionEngine:
             stronger_evidence = state[variable]["rule_level"] != "L6"
             eligible = bool(
                 scaling_enabled and ratio is not None and not stronger_evidence
-                and not permission.blocks_change and permission.allows("L3")
+                and not permission.blocks_change
+                and (permission.allows("L3") or (not explicitly_configured and physical_activity_quantity))
                 and (explicitly_configured or dictionary_eligible or physical_activity_quantity)
             )
             reason = (
@@ -512,7 +528,8 @@ class ScenarioCompletionEngine:
                 "invalid or zero scaling driver" if ratio is None else
                 f"stronger evidence {state[variable]['rule_level']}" if stronger_evidence else
                 "L3 not permitted by exact override or strategy scope"
-                if not permission.allows("L3") or permission.blocks_change else
+                if (not permission.allows("L3") and (explicitly_configured or not physical_activity_quantity))
+                or permission.blocks_change else
                 "not an explicitly configured or physical activity quantity"
             )
             if eligible:
@@ -611,6 +628,12 @@ class ScenarioCompletionEngine:
                 and state[target].get("rule_id") == "DERIVED_FROM_MODEL_OUTPUT"
             ):
                 continue
+            if (
+                _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS"
+                and state[target]["rule_level"] == "L6"
+                and all(state[source]["rule_level"] in {"BASE", "L6"} for source in sources)
+            ):
+                continue
             try:
                 value = self._evaluate_mrv_rule(rule, state, base_values, scenario=scenario)
             except Exception as exc:
@@ -633,6 +656,13 @@ class ScenarioCompletionEngine:
                     f"electricity_kwh={state['electricity_kwh']['value']:.12g}; diesel_kwh={state['diesel_kwh']['value']:.12g}; "
                     f"result={value:.12g}."
                 )
+            elif _text(rule.get("operation")).upper() == "MULTIPLY_FACTOR":
+                config = json.loads(_text(rule.get("parameter")))
+                provenance = (
+                    f"{provenance} factor_set_id={_text(scenario.get('emission_factor_set_id')) or self.default_factor_set_id}; "
+                    f"factor_code={config['factor_code']}; source={state[sources[0]]['value']:.12g}; "
+                    f"result={value:.12g}."
+                )
             state[target].update(
                 value=value,
                 rule_level="L2",
@@ -646,6 +676,9 @@ class ScenarioCompletionEngine:
             if _text(rule.get("operation")).upper() == "GHG_FROM_ENERGY_FACTORS":
                 config = json.loads(_text(rule.get("parameter")))
                 factor_codes = f"{config['electricity_factor']},{config['diesel_factor']}"
+            elif _text(rule.get("operation")).upper() == "MULTIPLY_FACTOR":
+                config = json.loads(_text(rule.get("parameter")))
+                factor_codes = _text(config.get("factor_code"))
             rule_trace.append({
                 "scenario_code": scenario_code, "rule_id": _text(rule.get("rule_id")),
                 "target_variable": target, "execution_order": len(rule_trace) + 1,
@@ -813,15 +846,51 @@ class ScenarioCompletionEngine:
                 action="Execute an approved factor-dependent L2 rule after final energy resolution.",
             )
 
-        if state.get("ghg_total_s1s2", {}).get("rule_level") in {"L1", "L4"} and state.get("transport_ghg_tco2e", {}).get("rule_level") in {"L1", "L4"}:
-            issue(
-                "QA_GHG_BOUNDARY",
-                "Warning",
-                "WARN",
-                "Both total Scope 1+2 GHG and transport GHG changed. Confirm whether transport is already included in the selected GHG boundary to avoid double counting.",
-                variable="ghg_total_s1s2",
-                action="Document the emissions boundary before KPI calculation.",
-            )
+        transport = state.get("transport_ghg_tco2e", {})
+        transport_rule_ids = set(
+            self.rules.loc[
+                (self.rules["target_variable"].astype(str).str.strip() == "transport_ghg_tco2e")
+                & (self.rules["operation"].astype(str).str.strip().str.upper() == "MULTIPLY_FACTOR"),
+                "rule_id",
+            ].astype(str)
+        )
+        transport_provenance = _text(transport.get("provenance")).lower()
+        boundary_ok = (
+            transport.get("rule_level") == "BASE"
+            or transport.get("rule_id") in transport_rule_ids
+            or transport.get("rule_id") == "BR_DES_TRANSPORT_GHG"
+        ) and not any(token in transport_provenance for token in ("ef_diesel", "scope 1 diesel"))
+        issue(
+            "TRANSPORT_GHG_BOUNDARY_MISMATCH",
+            "Critical",
+            "PASS" if boundary_ok else "FAIL",
+            (
+                "Transport GHG uses the approved outbound-road transport boundary."
+                if boundary_ok else
+                "Transport GHG does not use an approved transport-work factor or DES vehicle-CO2 bridge."
+            ),
+            variable="transport_ghg_tco2e",
+            action="Use transport_work_tkm × the approved tCO2e/tkm factor, or genuine DES Vehicle CO2 evidence.",
+        )
+        active_rules = self.rules[
+            self.rules.get("rule_status", pd.Series("ACTIVE", index=self.rules.index)).astype(str).str.upper().eq("ACTIVE")
+        ]
+        double_count_rules = active_rules[
+            (active_rules["target_variable"].astype(str).str.strip() == "ghg_total_s1s2")
+            & active_rules.apply(lambda row: "transport_ghg_tco2e" in _rule_sources(row), axis=1)
+        ]
+        issue(
+            "TRANSPORT_GHG_DOUBLE_COUNT_RISK",
+            "Critical",
+            "PASS" if double_count_rules.empty else "FAIL",
+            (
+                "Scope 1+2 GHG is independent of the outbound transport-GHG numerator."
+                if double_count_rules.empty else
+                "An active Scope 1+2 rule includes transport GHG and may double count E7 emissions."
+            ),
+            variable="ghg_total_s1s2",
+            action="Remove transport_ghg_tco2e from active Scope 1+2 calculation rules.",
+        )
 
         # Build outputs ---------------------------------------------------
         review_rows: list[dict[str, Any]] = []
@@ -1220,24 +1289,18 @@ class ScenarioCompletionEngine:
                 raise ValueError(f"Source variable {source!r} is unavailable.")
             values.append(value)
         parameter = _float_or_none(rule.get("parameter"))
-        if operation == "GHG_FROM_ENERGY_FACTORS":
+        factor_dispatch = {
+            "GHG_FROM_ENERGY_FACTORS": self._ghg_from_energy_factors,
+            "MULTIPLY_FACTOR": self._multiply_factor,
+        }
+        if operation in factor_dispatch:
             try:
                 config = json.loads(_text(rule.get("parameter")))
             except (TypeError, json.JSONDecodeError) as exc:
-                raise ValueError("GHG_FROM_ENERGY_FACTORS requires a valid JSON parameter object") from exc
+                raise ValueError(f"{operation} requires a valid JSON parameter object") from exc
             if not isinstance(config, dict):
-                raise ValueError("GHG_FROM_ENERGY_FACTORS parameter must be a JSON object")
-            scenario_values = scenario if scenario is not None else {}
-            factor_set_id = _text(scenario_values.get("emission_factor_set_id")) or self.default_factor_set_id
-            electricity_code = _text(config.get("electricity_factor"))
-            diesel_code = _text(config.get("diesel_factor"))
-            divisor = _float_or_none(config.get("output_divisor"))
-            if not factor_set_id or not electricity_code or not diesel_code or divisor in (None, 0):
-                raise ValueError("Factor set, electricity factor, diesel factor, and nonzero output divisor are required")
-            timestamp = pd.to_datetime(scenario_values.get("evaluation_timestamp"), errors="coerce")
-            electricity_factor = self._resolve_analytical_factor(factor_set_id, electricity_code, timestamp)
-            diesel_factor = self._resolve_analytical_factor(factor_set_id, diesel_code, timestamp)
-            return (values[0] * electricity_factor + values[1] * diesel_factor) / divisor
+                raise ValueError(f"{operation} parameter must be a JSON object")
+            return factor_dispatch[operation](values, config, {} if scenario is None else scenario)
         if operation == "ALIAS":
             return values[0]
         if operation == "SUM":
@@ -1274,8 +1337,45 @@ class ScenarioCompletionEngine:
             return _safe_divide(values[0] - values[1], values[1]) * 100.0
         raise ValueError(f"Unsupported MRV operation: {operation}")
 
+    def _ghg_from_energy_factors(
+        self, values: list[float], config: Mapping[str, Any], scenario: Mapping[str, Any]
+    ) -> float:
+        factor_set_id = _text(scenario.get("emission_factor_set_id")) or self.default_factor_set_id
+        electricity_code = _text(config.get("electricity_factor"))
+        diesel_code = _text(config.get("diesel_factor"))
+        divisor = _float_or_none(config.get("output_divisor"))
+        if not factor_set_id or not electricity_code or not diesel_code or divisor in (None, 0):
+            raise ValueError("Factor set, electricity factor, diesel factor, and nonzero output divisor are required")
+        timestamp = pd.to_datetime(scenario.get("evaluation_timestamp"), errors="coerce")
+        electricity_factor = self._resolve_analytical_factor(
+            factor_set_id, electricity_code, timestamp,
+            expected_unit="kgCO2e/kWh", required_role="active analytical",
+        )
+        diesel_factor = self._resolve_analytical_factor(
+            factor_set_id, diesel_code, timestamp,
+            expected_unit="kgCO2e/kWh", required_role="active analytical",
+        )
+        return (values[0] * electricity_factor + values[1] * diesel_factor) / float(divisor)
+
+    def _multiply_factor(
+        self, values: list[float], config: Mapping[str, Any], scenario: Mapping[str, Any]
+    ) -> float:
+        factor_set_id = _text(scenario.get("emission_factor_set_id")) or self.default_factor_set_id
+        factor_code = _text(config.get("factor_code"))
+        if not factor_set_id or not factor_code:
+            raise ValueError("MULTIPLY_FACTOR requires factor_set_id and factor_code")
+        timestamp = pd.to_datetime(scenario.get("evaluation_timestamp"), errors="coerce")
+        factor = self._resolve_analytical_factor(
+            factor_set_id, factor_code, timestamp,
+            expected_unit="tCO2e/tkm", required_role="transport-scope",
+            required_scope="transport",
+        )
+        return values[0] * factor
+
     def _resolve_analytical_factor(
-        self, factor_set_id: str, factor_code: str, timestamp: pd.Timestamp
+        self, factor_set_id: str, factor_code: str, timestamp: pd.Timestamp,
+        *, expected_unit: str = "kgCO2e/kWh", required_role: str = "active analytical",
+        required_scope: str | None = None,
     ) -> float:
         if self.factor_register.empty:
             raise ValueError(f"Factor register is unavailable for {factor_code}")
@@ -1289,10 +1389,12 @@ class ScenarioCompletionEngine:
         if _text(factor.get("approval_status")).lower() != "approved":
             raise ValueError(f"Factor {factor_code} is not approved")
         role = _text(factor.get("analytical_role")).lower()
-        if "active analytical" not in role:
+        if required_role.lower() not in role:
             raise ValueError(f"Factor {factor_code} is not authorized for analytical calculation")
-        if _text(factor.get("unit")) != "kgCO2e/kWh":
-            raise ValueError(f"Factor {factor_code} must use kgCO2e/kWh")
+        if _text(factor.get("unit")) != expected_unit:
+            raise ValueError(f"Factor {factor_code} must use {expected_unit}")
+        if required_scope and required_scope.lower() not in _text(factor.get("scope")).lower():
+            raise ValueError(f"Factor {factor_code} does not have the required {required_scope} scope")
         if pd.isna(timestamp):
             raise ValueError("Scenario timestamp is required for factor validity validation")
         valid_from = pd.to_datetime(factor.get("valid_from"), errors="coerce")

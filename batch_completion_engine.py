@@ -35,7 +35,7 @@ class BatchCompletionResult:
     workbook_sha256: str | None = None
     workbook_size: int | None = None
     parser_version: str = "2"
-    completion_engine_version: str = "4"
+    completion_engine_version: str = "5"
 
     @property
     def production_qa_report(self) -> pd.DataFrame:

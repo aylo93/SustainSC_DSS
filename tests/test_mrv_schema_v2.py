@@ -10,8 +10,8 @@ from sustainsc.mrv_schema_v2 import detect_mrv_workbook_schema, parse_mrv_workbo
 
 
 FIXTURES = Path("tests/fixtures/mrv_final")
-V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL_RECONCILED.xlsx"
-FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_RECONCILED.xlsx"
+V2 = FIXTURES / "SustainSCM_MRV_Causal_Completion_Template_FINAL_BOUNDARY_RECONCILED.xlsx"
+FINAL_CUBA = FIXTURES / "SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_BOUNDARY_RECONCILED.xlsx"
 
 
 def test_v2_is_detected_from_metadata_and_empty_template_is_structurally_valid():
@@ -43,7 +43,7 @@ def test_final_cuba_is_current_and_never_uses_legacy_adapter():
     assert parsed.metadata.get("dataset_id") == "CUBA_HOLGUIN_SCENARIOS_FINAL"
     assert result.workbook_sha256 == hashlib.sha256(FINAL_CUBA.read_bytes()).hexdigest()
     assert (len(parsed.scenarios), len(parsed.variable_dictionary)) == (24, 107)
-    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (113, 182, 26)
+    assert (len(parsed.direct_inputs), len(parsed.native_outputs), len(parsed.assumptions)) == (112, 182, 26)
     assert result.can_commit
     assert result.structural_summary == {
         "scenario_count": 24, "required_variable_count": 107,
@@ -75,6 +75,17 @@ def test_factor_rule_and_maintenance_override_are_synchronized_between_templates
         assert "L3" in electricity["permitted_rules"]
         if parsed is cuba:
             assert str(electricity["active"]).lower() in {"yes", "true", "1"}
+
+    cuba_transport = cuba.mrv_rules[cuba.mrv_rules.rule_id.eq("CUBA_R060")].iloc[0]
+    generic_transport = generic.mrv_rules[
+        generic.mrv_rules.rule_id.eq("MRV_R_TRANSPORT_GHG_TKM")
+    ].iloc[0]
+    assert cuba_transport.operation == generic_transport.operation == "MULTIPLY_FACTOR"
+    assert cuba_transport.rule_status == "ACTIVE"
+    assert generic_transport.rule_status == "CONFIG_REQUIRED"
+    factor = cuba.factor_register[cuba.factor_register.factor_code.eq("TRANSPORT_GHG_PER_TKM")].iloc[0]
+    assert factor.value == pytest.approx(1.6492893067870172e-05)
+    assert factor.unit == "tCO2e/tkm"
 
 
 def test_empty_v2_template_reports_configuration_failure_not_parser_failure():
@@ -109,3 +120,5 @@ def test_normal_user_interface_hides_internal_version_label():
     assert '"MRV Scenario Workbook v2"' not in source
     assert '"MRV Scenario Workbook"' in source
     assert '"Import diagnostics"' in source
+    assert "completion-5:rules-5:transport-boundary-1" in source
+    assert "checksum" in source and "normalization-2" in source

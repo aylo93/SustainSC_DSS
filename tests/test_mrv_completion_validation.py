@@ -9,7 +9,7 @@ from scenario_completion_engine import ScenarioCompletionEngine
 from sustainsc.mrv_schema_v2 import parse_mrv_workbook
 
 
-FIXTURE = Path("tests/fixtures/mrv_final/SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_RECONCILED.xlsx")
+FIXTURE = Path("tests/fixtures/mrv_final/SustainSCM_Cuba_MRV_Scenario_Completion_FINAL_BOUNDARY_RECONCILED.xlsx")
 
 
 def _complete_cuba():
@@ -27,8 +27,8 @@ def test_corrected_cuba_completion_is_structurally_complete():
     assert completed["value"].notna().all()
     assert np.isfinite(completed["value"].astype(float)).all()
     assert result.completion_review["rule_level"].value_counts().to_dict() == {
-        "L2": 1355, "L6": 828, "L3": 122, "BASE": 107,
-        "L1": 71, "L4": 59, "L5": 26,
+        "L2": 1355, "L6": 811, "L3": 140, "BASE": 107,
+        "L1": 71, "L4": 58, "L5": 26,
     }
 
 
@@ -45,7 +45,7 @@ def test_production_qa_and_historical_regression_are_independent():
     assert critical.empty
     assert not result.has_critical_failures
     assert set(warnings["check_id"]) <= {
-        "QA_DPP_VALIDATION_PENDING", "QA_GHG_BOUNDARY",
+        "QA_DPP_VALIDATION_PENDING",
     }
     assert "QA_CH7_COMPARISON" not in set(result.production_qa_report["check_id"])
     assert set(result.regression_comparison_report["comparison_status"]) <= {
@@ -156,3 +156,57 @@ def test_factor_register_rejects_reference_only_and_missing_factors():
         engine._resolve_analytical_factor("CUBA_CASE_FINAL", "EF_GRID_LOCATION_REFERENCE", timestamp)
     with pytest.raises(ValueError, match="found 0"):
         engine._resolve_analytical_factor("CUBA_CASE_FINAL", "MISSING", timestamp)
+
+
+def test_transport_multiply_factor_dispatch_and_unit_contract():
+    parsed = parse_mrv_workbook(FIXTURE)
+    engine = ScenarioCompletionEngine(
+        "config", config_frames={
+            "dictionary": parsed.variable_dictionary, "scope": parsed.strategy_scope,
+            "overrides": parsed.variable_overrides, "rules": parsed.mrv_rules,
+            "bridges": parsed.bridge_rules, "factor_register": parsed.factor_register,
+            "default_factor_set_id": "CUBA_CASE_FINAL",
+        },
+    )
+    rule = parsed.mrv_rules[parsed.mrv_rules.rule_id.eq("CUBA_R060")].iloc[0]
+    state = {"transport_work_tkm": {"value": 44_928_000.0}}
+    scenario = {"emission_factor_set_id": "CUBA_CASE_FINAL", "evaluation_timestamp": "2025-12-31"}
+    assert engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario) == pytest.approx(
+        740.992699753271
+    )
+    malformed = rule.copy()
+    malformed["parameter"] = "not-json"
+    with pytest.raises(ValueError, match="valid JSON"):
+        engine._evaluate_mrv_rule(malformed, state, {}, scenario=scenario)
+    wrong_unit = parsed.factor_register.copy()
+    wrong_unit.loc[wrong_unit.factor_code.eq("TRANSPORT_GHG_PER_TKM"), "unit"] = "kgCO2e/tkm"
+    engine.factor_register = wrong_unit
+    with pytest.raises(ValueError, match="must use tCO2e/tkm"):
+        engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario)
+
+
+def test_e7_boundary_precedence_placeholders_and_intensity_recalculation():
+    result = _complete_cuba()
+    review = result.completion_review.set_index(["scenario_code", "variable_name"])
+    parsed = result.parsed_workbook
+    base = review.loc[("BASE", "transport_ghg_tco2e")]
+    des = review.loc[("DES_BASE_2025", "transport_ghg_tco2e")]
+    social = review.loc[("SOCIAL_PUSH", "transport_ghg_tco2e")]
+    vsm = review.loc[("VSMC_KAIZEN", "transport_ghg_tco2e")]
+    assert base.completed_value == pytest.approx(740.992699753271)
+    assert "TRANSPORT_GHG_PER_TKM" in base.provenance and "EF_DIESEL" not in base.provenance
+    assert des.completed_value == pytest.approx(607.64) and des.rule_id == "BR_DES_TRANSPORT_GHG"
+    assert social.completed_value == pytest.approx(base.completed_value) and social.rule_id == "CUBA_R060"
+    assert vsm.completed_value == pytest.approx(666.893429777944) and vsm.rule_id == "CUBA_R060"
+    assert review.loc[("VSMC_KAIZEN", "transport_ghg_intensity_fu"), "completed_value"] == pytest.approx(2.2053354159323546)
+    legacy = parsed.native_outputs[
+        parsed.native_outputs.native_variable.astype(str).eq("transport_ghg_total_tco2e")
+        & parsed.native_outputs.scenario_code.isin(["BASE", "SOCIAL_PUSH"])
+    ]
+    assert len(legacy) == 2 and legacy.use_in_completion.astype(str).str.lower().eq("no").all()
+    assert not parsed.direct_inputs[
+        parsed.direct_inputs.scenario_code.eq("VSMC_KAIZEN")
+        & parsed.direct_inputs.variable_name.eq("transport_ghg_tco2e")
+    ].any(axis=None)
+    transport_qa = result.qa_report[result.qa_report.check_id.str.startswith("TRANSPORT_GHG_")]
+    assert not transport_qa.status.eq("FAIL").any()
