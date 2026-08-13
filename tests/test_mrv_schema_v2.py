@@ -6,6 +6,7 @@ import pytest
 
 from batch_completion_engine import BatchScenarioCompletionEngine
 from scenario_completion_engine import UPLOAD_COLUMNS, _expand_rule_expression
+from scenario_completion_page import _has_completion_rule_levels
 from sustainsc.mrv_schema_v2 import detect_mrv_workbook_schema, parse_mrv_workbook
 
 
@@ -122,3 +123,23 @@ def test_normal_user_interface_hides_internal_version_label():
     assert '"Import diagnostics"' in source
     assert "completion-5:rules-5:transport-boundary-1" in source
     assert "checksum" in source and "normalization-2" in source
+
+
+@pytest.mark.parametrize("review", [
+    pd.DataFrame(),
+    pd.DataFrame({"scenario_code": ["TEST"]}),
+])
+def test_completion_page_rejects_review_without_rule_levels(review):
+    result = type("Result", (), {"completion_review": review})()
+
+    assert not _has_completion_rule_levels(result)
+
+
+def test_completion_page_accepts_review_with_rule_levels():
+    result = type(
+        "Result",
+        (),
+        {"completion_review": pd.DataFrame({"rule_level": ["L1"]})},
+    )()
+
+    assert _has_completion_rule_levels(result)

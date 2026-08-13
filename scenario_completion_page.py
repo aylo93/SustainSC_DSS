@@ -19,6 +19,11 @@ from sustainsc.ui import (
 )
 
 
+def _has_completion_rule_levels(result: BatchCompletionResult) -> bool:
+    review = result.completion_review
+    return review is not None and not review.empty and "rule_level" in review.columns
+
+
 def render_scenario_completion_page(
     *,
     config_dir: str | Path,
@@ -79,6 +84,10 @@ def render_scenario_completion_page(
         finally:
             temp_path.unlink(missing_ok=True)
     result = st.session_state["mrv_completion_result"]
+
+    if not _has_completion_rule_levels(result):
+        st.warning("No batch-enabled scenarios found.")
+        return
 
     parsed = result.parsed_workbook
     if parsed and parsed.schema.migration_required:
