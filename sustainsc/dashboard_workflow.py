@@ -64,8 +64,6 @@ def assess_analysis_readiness(
         problems.append("The normalized KPI dataset is empty.")
     if missing_dimensions:
         problems.append("Missing dimensions: " + ", ".join(missing_dimensions) + ".")
-    if len(present_scenarios) < 2:
-        problems.append("At least two scenarios are required.")
     if reference_scenario not in present_scenarios:
         problems.append(f"Reference scenario {reference_scenario} is missing.")
     if missing_scenarios:

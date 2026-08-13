@@ -64,6 +64,20 @@ def test_complete_data_is_ready_and_filters_can_be_cleared():
     assert not readiness.message
 
 
+def test_single_complete_scenario_is_ready_for_composite_indices():
+    frame = complete_dashboard_frame()
+    frame = frame[frame["scenario_code"] == "BASE"]
+
+    readiness = assess_analysis_readiness(
+        frame,
+        all_scenarios=["BASE"],
+        reference_scenario="BASE",
+    )
+
+    assert readiness.ready
+    assert not readiness.message
+
+
 def test_incomplete_data_returns_actionable_readiness_message():
     frame = complete_dashboard_frame()
     frame = frame[
@@ -77,7 +91,8 @@ def test_incomplete_data_returns_actionable_readiness_message():
     assert not readiness.ready
     assert readiness.missing_dimensions == ("social",)
     assert readiness.missing_scenarios == ("SC-1",)
-    assert "At least two scenarios" in readiness.message
+    assert "Missing dimensions: social." in readiness.message
+    assert "Missing scenarios: SC-1." in readiness.message
 
 
 def test_dashboard_has_single_import_page_and_dpp_after_analytics():
