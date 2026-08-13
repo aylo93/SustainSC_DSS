@@ -109,3 +109,12 @@ def test_dashboard_has_single_import_page_and_dpp_after_analytics():
     assert source.rfind("render_dpp_section()") > source.find(
         "Integrated sustainability and decision analysis"
     )
+
+
+def test_single_scenario_mcda_shows_note_before_building_the_matrix():
+    source = Path("kpi_dashboard.py").read_text(encoding="utf-8")
+    guard = source.index("if not mcda_candidates:")
+    note = source.index("MCDA ranking is not available for a single scenario")
+    matrix = source.index("mcda_input = build_mcda_input(")
+
+    assert guard < note < matrix

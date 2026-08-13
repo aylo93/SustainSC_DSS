@@ -1811,10 +1811,19 @@ else:
         "Normalized scores are already benefit-oriented."
     )
 
-    default_mcda = [s for s in scenario_options if s != reference_scenario]
+    mcda_candidates = [s for s in scenario_options if s != reference_scenario]
+    if not mcda_candidates:
+        st.info(
+            "MCDA ranking is not available for a single scenario. "
+            "Import at least one additional scenario to perform this comparative analysis."
+        )
+        render_dpp_section()
+        st.stop()
+
+    default_mcda = mcda_candidates
     mcda_scenarios = st.multiselect(
         "Scenarios for MCDA ranking",
-        options=[s for s in scenario_options if s != reference_scenario],
+        options=mcda_candidates,
         default=[s for s in default_mcda if s in scenario_options],
         key="mcda_scenarios"
     )
