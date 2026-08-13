@@ -8,6 +8,23 @@ import pandas as pd
 
 REQUIRED_DIMENSIONS = {"environmental", "economic", "social", "technological"}
 
+TRAFFIC_LIGHT_SWATCHES = {
+    "Green": "🟩 Green",
+    "Amber": "🟧 Amber",
+    "Red": "🟥 Red",
+    "Need BASE": "🟦 Need BASE",
+    "Missing": "⬜ Missing",
+}
+
+
+def format_traffic_light_status(value: object) -> str:
+    """Add a renderer-independent color swatch to a traffic-light label."""
+
+    if value is None or pd.isna(value):
+        return ""
+    label = str(value).strip()
+    return TRAFFIC_LIGHT_SWATCHES.get(label, label)
+
 
 def format_reference_value(
     reference_value: float | None,

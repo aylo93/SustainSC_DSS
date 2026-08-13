@@ -6,6 +6,7 @@ import pandas as pd
 
 from sustainsc.dashboard_workflow import (
     assess_analysis_readiness,
+    format_traffic_light_status,
     has_restrictive_filters,
 )
 
@@ -40,6 +41,15 @@ def test_restrictive_filters_are_order_independent():
         all_flows,
         all_flows,
     )
+
+
+def test_traffic_light_status_has_renderer_independent_color_swatch():
+    assert format_traffic_light_status("Green") == "🟩 Green"
+    assert format_traffic_light_status("Amber") == "🟧 Amber"
+    assert format_traffic_light_status("Red") == "🟥 Red"
+    assert format_traffic_light_status("Need BASE") == "🟦 Need BASE"
+    assert format_traffic_light_status("Missing") == "⬜ Missing"
+    assert format_traffic_light_status(None) == ""
 
 
 def test_filtered_table_does_not_mutate_full_dataset():

@@ -68,6 +68,7 @@ from sustainsc.mrv_validation import (
 )
 from sustainsc.dashboard_workflow import (
     assess_analysis_readiness,
+    format_traffic_light_status,
     format_reference_value,
     has_restrictive_filters,
 )
@@ -165,20 +166,6 @@ def bootstrap_everything():
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
-
-def color_semaforo(val):
-    if val == "Green":
-        return "background-color: #d4edda; color: black"
-    if val == "Amber":
-        return "background-color: #fff3cd; color: black"
-    if val == "Red":
-        return "background-color: #f8d7da; color: black"
-    if val == "Need BASE":
-        return "background-color: #d1ecf1; color: black"
-    if val == "Missing":
-        return "background-color: #e2e3e5; color: black"
-    return ""
-
 
 def _default_base_index(options):
     if not options:
@@ -1457,12 +1444,14 @@ display_table_df["baseline_value"] = display_table_df.apply(
     ),
     axis=1,
 )
-styled_main = display_table_df.style.map(color_semaforo, subset=["semaforo"])
+display_table_df["semaforo"] = display_table_df["semaforo"].map(
+    format_traffic_light_status
+)
 render_downloadable_table(
     filtered_table_df[show_cols],
     filename=f"{sel_scenario}_detailed_kpis.csv",
     key="download_detailed_kpis",
-    display_data=styled_main,
+    display_data=display_table_df,
 )
 st.caption(f"Rows shown: {len(filtered_table_df)} KPI base items.")
 
