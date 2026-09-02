@@ -43,5 +43,9 @@ def test_home_page_places_case_examples_in_the_right_column() -> None:
     assert 'st.columns([1.55, 1], gap="large")' in source
     assert "with case_examples:" in source
     assert "render_case_study_examples()" in source
+    assert '"### Ready-to-run case studies"' in source
+    assert "Completed result workbooks from the two research cases" in source
+    assert '"MRV results"' in source
+    assert '"DPP results"' in source
     assert 'key=f"download_{case.slug}_mrv_case_study"' in source
     assert 'key=f"download_{case.slug}_dpp_case_study"' in source

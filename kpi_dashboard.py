@@ -111,13 +111,14 @@ COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN
 
 def render_case_study_examples() -> None:
     """Render compact, runnable examples beside the guided import workflow."""
-    st.markdown("### Case study examples")
+    st.markdown("### Ready-to-run case studies")
     st.caption(
-        "Download both workbooks for a case. Upload DPP first, then MRV, and review "
-        "the completed indicators before committing the dataset."
+        "Completed result workbooks from the two research cases. Download both files "
+        "for one case, upload DPP first and MRV second, then review the indicators."
     )
     for case in CASE_STUDIES:
         with st.container(border=True):
+            st.caption("READY-TO-RUN RESEARCH CASE")
             st.markdown(f"#### {case.flag} {case.title}")
             st.caption(f"🏭 {case.industry} · {case.location}")
             st.write(case.description)
@@ -125,7 +126,7 @@ def render_case_study_examples() -> None:
             st.caption(case.dpp_summary)
             mrv_column, dpp_column = st.columns(2)
             mrv_column.download_button(
-                "Download MRV",
+                "MRV results",
                 data=load_template_bytes(case.mrv_workbook),
                 file_name=case.mrv_workbook.filename,
                 mime=XLSX_MIME_TYPE,
@@ -133,7 +134,7 @@ def render_case_study_examples() -> None:
                 help=f"Download the completed MRV example for {case.title}.",
             )
             dpp_column.download_button(
-                "Download DPP",
+                "DPP results",
                 data=load_template_bytes(case.dpp_workbook),
                 file_name=case.dpp_workbook.filename,
                 mime=XLSX_MIME_TYPE,
