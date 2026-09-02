@@ -14,10 +14,16 @@ st.set_page_config(
     page_title="ASCA · SustainSCM DSS",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 apply_design_system()
 
+st.link_button(
+    "Back to SustainSCM home",
+    "/",
+    icon="⬅️",
+    width="content",
+)
 render_page_header(
     "AI Scenario Agent (ASCA)",
     "Configure and screen synthetic scenarios using the bounded metamodels from "

@@ -41,11 +41,14 @@ def test_case_study_assets_are_runnable_and_paired() -> None:
 def test_home_page_uses_compact_tabs_without_a_duplicate_agent_card() -> None:
     source = Path("kpi_dashboard.py").read_text(encoding="utf-8")
     assert "render_starting_options()" in source
-    assert '["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case"]' in source
+    assert (
+        '["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case", '
+        '"🤖 AI Scenario Agent"]'
+    ) in source
     assert "render_case_study_option(CASE_STUDIES[0])" in source
     assert "render_case_study_option(CASE_STUDIES[1])" in source
-    assert "render_ai_agent_entry" not in source
-    assert "Open AI Scenario Agent" not in source
+    assert "render_ai_agent_option()" in source
+    assert "Open AI Scenario Agent" in source
     assert '"MRV results"' in source
     assert '"DPP results"' in source
     assert 'key=f"download_{case.slug}_mrv_case_study"' in source

@@ -141,15 +141,42 @@ def render_case_study_option(case) -> None:
             )
 
 
+def render_ai_agent_option() -> None:
+    """Render the ASCA entry with the same compact visual language as the cases."""
+    with st.container(border=True):
+        overview, action = st.columns([1.55, 1], gap="large")
+        with overview:
+            st.caption("ROMANIAN EXPERIMENTS · BOUNDED AI AGENT")
+            st.markdown("#### 🤖 AI Scenario Agent (ASCA)")
+            st.write(
+                "Describe an industrial configuration in plain language. ASCA maps "
+                "it to a Romanian archetype, checks the applicability domain and "
+                "screens only eligible MILP, DES and System Dynamics metamodels."
+            )
+        with action:
+            st.markdown("**8 archetypes · 17 routed outputs**")
+            st.caption(
+                "Includes domain safeguards, output-specific validation and "
+                "downloadable reproducibility traces."
+            )
+            st.page_link(
+                "pages/90_AI_Scenario_Agent.py",
+                label="Open AI Scenario Agent",
+                icon="🤖",
+                help="Open the ASCA workspace based on the Romanian experiments.",
+                width="stretch",
+            )
+
+
 def render_starting_options() -> None:
     """Present mutually exclusive start paths without creating tall empty columns."""
     st.markdown("### Choose how to start")
     st.caption(
-        "Upload your own study or reproduce one of the completed research cases. "
-        "The Romanian AI Scenario Agent remains available from the left navigation."
+        "Upload your own study, reproduce a completed research case or explore a "
+        "bounded synthetic scenario with the Romanian AI agent."
     )
-    own_data, cuba_case, romania_case = st.tabs(
-        ["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case"]
+    own_data, cuba_case, romania_case, ai_agent = st.tabs(
+        ["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case", "🤖 AI Scenario Agent"]
     )
     with own_data:
         with st.container(border=True):
@@ -173,6 +200,8 @@ def render_starting_options() -> None:
         render_case_study_option(CASE_STUDIES[0])
     with romania_case:
         render_case_study_option(CASE_STUDIES[1])
+    with ai_agent:
+        render_ai_agent_option()
 
 
 # -----------------------------------------------------------------------------
@@ -1077,7 +1106,11 @@ def write_measurements_to_db(
 # App UI
 # -----------------------------------------------------------------------------
 
-st.set_page_config(page_title="SustainSCM DSS - KPI Dashboard", layout="wide")
+st.set_page_config(
+    page_title="SustainSCM DSS - KPI Dashboard",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 apply_design_system()
 
 boot_ok, boot_msg = bootstrap_everything()

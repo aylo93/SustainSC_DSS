@@ -75,6 +75,7 @@ def test_asca_assets_and_home_navigation_are_complete() -> None:
     )
     dashboard = (ROOT / "kpi_dashboard.py").read_text(encoding="utf-8")
     page = (ROOT / "pages" / "90_AI_Scenario_Agent.py").read_text(encoding="utf-8")
+    config = (ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
 
     assert len(registry) == 17
     assert validation["study_acceptance"].value_counts().to_dict() == {
@@ -83,9 +84,11 @@ def test_asca_assets_and_home_navigation_are_complete() -> None:
         "FULL_MODEL_REQUIRED": 2,
     }
     assert "render_starting_options()" in dashboard
-    assert "Open AI Scenario Agent" not in dashboard
+    assert "Open AI Scenario Agent" in dashboard
     assert (ROOT / "pages" / "90_AI_Scenario_Agent.py").is_file()
     assert "render_asca_page" in page
+    assert "Back to SustainSCM home" in page
+    assert "showSidebarNavigation = false" in config
 
 
 def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
