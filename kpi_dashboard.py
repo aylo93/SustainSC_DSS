@@ -89,7 +89,6 @@ from sustainsc.ui import (
     apply_design_system,
     render_data_status_panel,
     render_downloadable_table,
-    render_empty_state,
     render_filter_summary,
     render_page_header,
     render_section_header,
@@ -109,45 +108,16 @@ from scenario_completion_page import render_scenario_completion_page
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
 
 
-def render_ai_agent_entry() -> None:
-    """Offer a focused route into the Romanian experiment agent."""
+def render_case_study_option(case) -> None:
+    """Render one compact case-study option inside the start selector."""
     with st.container(border=True):
-        st.caption("ROMANIAN EXPERIMENTS · BOUNDED AI AGENT")
-        st.markdown("#### 🤖 Explore scenarios with ASCA")
-        st.write(
-            "Turn an industrial description into a traceable synthetic configuration, "
-            "check its applicability domain and screen only the validated Romanian "
-            "MILP, DES and System Dynamics metamodel outputs."
-        )
-        st.markdown("**17 routed outputs · 3 in-domain POC examples · reproducibility trace**")
-        st.caption(
-            "Scientific safeguards remain active: unsupported and out-of-domain "
-            "predictions are routed to the parent model."
-        )
-        st.page_link(
-            "pages/90_AI_Scenario_Agent.py",
-            label="Open AI Scenario Agent",
-            icon="🤖",
-            help="Open the ASCA workspace based on the Romanian experiments.",
-            width="stretch",
-        )
-
-
-def render_case_study_examples() -> None:
-    """Render the agent and runnable research examples beside the import workflow."""
-    st.markdown("### Explore SustainSCM")
-    st.caption(
-        "Use the Romanian AI experiment agent or reproduce the completed research "
-        "cases with their ready-to-run MRV and DPP workbooks."
-    )
-    render_ai_agent_entry()
-    st.markdown("#### Completed case studies")
-    for case in CASE_STUDIES:
-        with st.container(border=True):
+        overview, downloads = st.columns([1.55, 1], gap="large")
+        with overview:
             st.caption("READY-TO-RUN RESEARCH CASE")
             st.markdown(f"#### {case.flag} {case.title}")
             st.caption(f"🏭 {case.industry} · {case.location}")
             st.write(case.description)
+        with downloads:
             st.markdown(f"**{case.scenario_summary}**")
             st.caption(case.dpp_summary)
             mrv_column, dpp_column = st.columns(2)
@@ -158,6 +128,7 @@ def render_case_study_examples() -> None:
                 mime=XLSX_MIME_TYPE,
                 key=f"download_{case.slug}_mrv_case_study",
                 help=f"Download the completed MRV example for {case.title}.",
+                width="stretch",
             )
             dpp_column.download_button(
                 "DPP results",
@@ -166,7 +137,42 @@ def render_case_study_examples() -> None:
                 mime=XLSX_MIME_TYPE,
                 key=f"download_{case.slug}_dpp_case_study",
                 help=f"Download the filled DPP and traceability example for {case.title}.",
+                width="stretch",
             )
+
+
+def render_starting_options() -> None:
+    """Present mutually exclusive start paths without creating tall empty columns."""
+    st.markdown("### Choose how to start")
+    st.caption(
+        "Upload your own study or reproduce one of the completed research cases. "
+        "The Romanian AI Scenario Agent remains available from the left navigation."
+    )
+    own_data, cuba_case, romania_case = st.tabs(
+        ["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case"]
+    )
+    with own_data:
+        with st.container(border=True):
+            guidance, order = st.columns([1.55, 1], gap="large")
+            with guidance:
+                st.caption("START WITH YOUR OWN DATA")
+                st.markdown("#### Upload a new analytical study")
+                st.write(
+                    "Use the guided import below to validate evidence, complete "
+                    "missing MRV variables and calculate decision-support indicators."
+                )
+            with order:
+                st.markdown("**Recommended import order**")
+                st.write("1. DPP and traceability workbook — optional")
+                st.write("2. MRV scenario workbook — required")
+                st.caption(
+                    "Blank templates and validation feedback are provided beside "
+                    "each upload step."
+                )
+    with cuba_case:
+        render_case_study_option(CASE_STUDIES[0])
+    with romania_case:
+        render_case_study_option(CASE_STUDIES[1])
 
 
 # -----------------------------------------------------------------------------
@@ -1184,22 +1190,13 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
             "Explore DPP": "pending",
         }
     )
-    import_overview, exploration_panel = st.columns([1.55, 1], gap="large")
-    with import_overview:
-        st.caption("START WITH YOUR OWN DATA")
-        render_empty_state(
-            "Load an MRV scenario workbook",
-            "Upload the scientific input template to validate evidence, complete "
-            "missing variables and calculate decision-support indicators.",
-        )
-        render_section_header(
-            "Guided data import",
-            "Step 1 — optional DPP and traceability workbook. "
-            "Step 2 — MRV scenario workbook validation. "
-            "Step 3 — review and commit.",
-        )
-    with exploration_panel:
-        render_case_study_examples()
+    render_starting_options()
+    render_section_header(
+        "Guided data import",
+        "Step 1 — optional DPP and traceability workbook. "
+        "Step 2 — MRV scenario workbook validation. "
+        "Step 3 — review and commit.",
+    )
     render_section_header(
         "DPP & Traceability Data",
         "Upload one Excel workbook containing product batches and their event histories. "

@@ -82,10 +82,9 @@ def test_asca_assets_and_home_navigation_are_complete() -> None:
         "CONDITIONAL": 5,
         "FULL_MODEL_REQUIRED": 2,
     }
-    assert 'st.columns([1.55, 1], gap="large")' in dashboard
-    assert "with exploration_panel:" in dashboard
-    assert '"pages/90_AI_Scenario_Agent.py"' in dashboard
-    assert "Open AI Scenario Agent" in dashboard
+    assert "render_starting_options()" in dashboard
+    assert "Open AI Scenario Agent" not in dashboard
+    assert (ROOT / "pages" / "90_AI_Scenario_Agent.py").is_file()
     assert "render_asca_page" in page
 
 

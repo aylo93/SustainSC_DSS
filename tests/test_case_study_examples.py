@@ -38,13 +38,14 @@ def test_case_study_assets_are_runnable_and_paired() -> None:
         assert expected["reference"] in result.scenario_results
 
 
-def test_home_page_places_case_examples_in_the_right_column() -> None:
+def test_home_page_uses_compact_tabs_without_a_duplicate_agent_card() -> None:
     source = Path("kpi_dashboard.py").read_text(encoding="utf-8")
-    assert 'st.columns([1.55, 1], gap="large")' in source
-    assert "with exploration_panel:" in source
-    assert "render_case_study_examples()" in source
-    assert '"### Explore SustainSCM"' in source
-    assert '"#### Completed case studies"' in source
+    assert "render_starting_options()" in source
+    assert '["📤 My data", "🇨🇺 Cuba case", "🇷🇴 Romania case"]' in source
+    assert "render_case_study_option(CASE_STUDIES[0])" in source
+    assert "render_case_study_option(CASE_STUDIES[1])" in source
+    assert "render_ai_agent_entry" not in source
+    assert "Open AI Scenario Agent" not in source
     assert '"MRV results"' in source
     assert '"DPP results"' in source
     assert 'key=f"download_{case.slug}_mrv_case_study"' in source
