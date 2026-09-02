@@ -1,0 +1,168 @@
+{
+  "case_id": "POC2_CABLE_DIGITAL",
+  "description": "Medium-sized cable-assembly manufacturer with limited digital maturity, traceability gaps and stable demand variability.",
+  "suggestion": {
+    "description": "Medium-sized cable-assembly manufacturer with limited digital maturity, traceability gaps and stable demand variability.",
+    "archetype": "RO-A2",
+    "archetype_name": "Electrical/electromechanical and cable-assembly manufacturer",
+    "archetype_similarity": 0.1463528953744249,
+    "size_class": "medium",
+    "strategy": "DIGITAL",
+    "strategy_similarity": 0.12458682166895768,
+    "lambda_intensity": 0.5,
+    "intensity_label": "MODERATE",
+    "parameters": {
+      "demand_load": 1.0,
+      "demand_cv": 0.1125,
+      "oee": 0.7250000000000001,
+      "distance_mult": 1.125,
+      "resource_mult": 1.0,
+      "renewable_share": 0.375,
+      "zC": 0.5,
+      "zD": 0.425,
+      "zS": 0.675
+    },
+    "trace": [
+      "ARCH_SEMANTIC:RO-A2:0.146",
+      "STRATEGY_SEMANTIC:DIGITAL:0.125",
+      "SIZE_EXPLICIT_MEDIUM",
+      "LAMBDA_MODERATE_050",
+      "QL_DIGITAL_LOW:zD=0.425",
+      "QL_DEMAND_VAR_LOW:demand_cv=0.1125"
+    ]
+  },
+  "scenario": {
+    "scenario_id": "ASCA-RO-A2-DIGITAL-L050-6B47D3",
+    "archetype": "RO-A2",
+    "archetype_name": "Electrical/electromechanical and cable-assembly manufacturer",
+    "size_class": "medium",
+    "strategy": "DIGITAL",
+    "lambda_intensity": 0.5,
+    "demand_load": 1.0,
+    "demand_cv": 0.1125,
+    "oee": 0.7250000000000001,
+    "distance_mult": 1.125,
+    "resource_mult": 1.0,
+    "renewable_share": 0.375,
+    "zC": 0.5,
+    "zD": 0.425,
+    "zS": 0.675,
+    "priority_strategy": "INTEGRATED"
+  },
+  "domain": {
+    "status": "INSIDE_VALIDATED_DOMAIN",
+    "violations": [],
+    "notes": []
+  },
+  "environment": {
+    "current_python": "3.13.5",
+    "trained_python": "3.13.5",
+    "current_sklearn": "1.8.0",
+    "trained_sklearn": "1.8.0",
+    "sklearn_exact_match": true
+  },
+  "routes": [
+    {
+      "module": "MILP",
+      "target": "milp_total_cost",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_total_co2_t",
+      "validation_status": "FULL_MODEL_REQUIRED",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_energy_kwh",
+      "validation_status": "CONDITIONAL",
+      "route": "SURROGATE_EXPLORATORY"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_transport_work_tkm",
+      "validation_status": "FULL_MODEL_REQUIRED",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_capacity_util",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "DES",
+      "target": "des_throughput_rate_mean",
+      "validation_status": "CONDITIONAL",
+      "route": "SURROGATE_EXPLORATORY"
+    },
+    {
+      "module": "DES",
+      "target": "des_service_pct_mean",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "DES",
+      "target": "des_mean_lead_time_mean",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "DES",
+      "target": "des_mean_wait_mean",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "DES",
+      "target": "des_logistics_cost_mean",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "DES",
+      "target": "des_transport_co2_t_mean",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "SD",
+      "target": "sd_ghg_2030_t",
+      "validation_status": "CONDITIONAL",
+      "route": "SURROGATE_EXPLORATORY"
+    },
+    {
+      "module": "SD",
+      "target": "sd_ghg_2035_t",
+      "validation_status": "CONDITIONAL",
+      "route": "SURROGATE_EXPLORATORY"
+    },
+    {
+      "module": "SD",
+      "target": "sd_cum_ghg_t",
+      "validation_status": "CONDITIONAL",
+      "route": "SURROGATE_EXPLORATORY"
+    },
+    {
+      "module": "SD",
+      "target": "sd_cum_output",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "SD",
+      "target": "sd_oee_2035",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    },
+    {
+      "module": "SD",
+      "target": "sd_digital_2035",
+      "validation_status": "PASS",
+      "route": "SURROGATE_SCREENING"
+    }
+  ]
+}

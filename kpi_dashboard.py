@@ -109,13 +109,39 @@ from scenario_completion_page import render_scenario_completion_page
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
 
 
+def render_ai_agent_entry() -> None:
+    """Offer a focused route into the Romanian experiment agent."""
+    with st.container(border=True):
+        st.caption("ROMANIAN EXPERIMENTS · BOUNDED AI AGENT")
+        st.markdown("#### 🤖 Explore scenarios with ASCA")
+        st.write(
+            "Turn an industrial description into a traceable synthetic configuration, "
+            "check its applicability domain and screen only the validated Romanian "
+            "MILP, DES and System Dynamics metamodel outputs."
+        )
+        st.markdown("**17 routed outputs · 3 in-domain POC examples · reproducibility trace**")
+        st.caption(
+            "Scientific safeguards remain active: unsupported and out-of-domain "
+            "predictions are routed to the parent model."
+        )
+        st.page_link(
+            "pages/90_AI_Scenario_Agent.py",
+            label="Open AI Scenario Agent",
+            icon="🤖",
+            help="Open the ASCA workspace based on the Romanian experiments.",
+            width="stretch",
+        )
+
+
 def render_case_study_examples() -> None:
-    """Render compact, runnable examples beside the guided import workflow."""
-    st.markdown("### Ready-to-run case studies")
+    """Render the agent and runnable research examples beside the import workflow."""
+    st.markdown("### Explore SustainSCM")
     st.caption(
-        "Completed result workbooks from the two research cases. Download both files "
-        "for one case, upload DPP first and MRV second, then review the indicators."
+        "Use the Romanian AI experiment agent or reproduce the completed research "
+        "cases with their ready-to-run MRV and DPP workbooks."
     )
+    render_ai_agent_entry()
+    st.markdown("#### Completed case studies")
     for case in CASE_STUDIES:
         with st.container(border=True):
             st.caption("READY-TO-RUN RESEARCH CASE")
@@ -1158,8 +1184,9 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
             "Explore DPP": "pending",
         }
     )
-    import_overview, case_examples = st.columns([1.55, 1], gap="large")
+    import_overview, exploration_panel = st.columns([1.55, 1], gap="large")
     with import_overview:
+        st.caption("START WITH YOUR OWN DATA")
         render_empty_state(
             "Load an MRV scenario workbook",
             "Upload the scientific input template to validate evidence, complete "
@@ -1171,7 +1198,7 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
             "Step 2 — MRV scenario workbook validation. "
             "Step 3 — review and commit.",
         )
-    with case_examples:
+    with exploration_panel:
         render_case_study_examples()
     render_section_header(
         "DPP & Traceability Data",

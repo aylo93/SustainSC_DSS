@@ -1,0 +1,148 @@
+{
+  "case_id": "POC4_BOUNDARY_CONTROL",
+  "description": "Negative control derived from POC1; OEE set exactly to formal upper boundary 0.90.",
+  "scenario": {
+    "scenario_id": "ASCA-RO-A1-ENERGY-L050-15B796",
+    "archetype": "RO-A1",
+    "archetype_name": "Automotive component supplier",
+    "size_class": "medium",
+    "strategy": "ENERGY",
+    "lambda_intensity": 0.5,
+    "demand_load": 1.0,
+    "demand_cv": 0.175,
+    "oee": 0.9,
+    "distance_mult": 1.3125,
+    "resource_mult": 1.0,
+    "renewable_share": 0.15000000000000002,
+    "zC": 0.5,
+    "zD": 0.6,
+    "zS": 0.675,
+    "priority_strategy": "INTEGRATED"
+  },
+  "domain": {
+    "status": "OUTSIDE_FINITE_TRAINING_ENVELOPE",
+    "violations": [
+      {
+        "feature": "oee",
+        "value": 0.9,
+        "min": 0.5785876369459212,
+        "max": 0.8884282664931179,
+        "domain": "finite_archetype_training_envelope"
+      },
+      {
+        "feature": "VSM_OEE",
+        "value": 90.0,
+        "min": 57.85876369459212,
+        "max": 88.84282664931179,
+        "domain": "finite_archetype_training_envelope"
+      }
+    ],
+    "notes": [
+      "No surrogate accuracy claim is permitted outside the validated applicability domain."
+    ]
+  },
+  "routes": [
+    {
+      "module": "MILP",
+      "target": "milp_total_cost",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_total_co2_t",
+      "validation_status": "FULL_MODEL_REQUIRED",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_energy_kwh",
+      "validation_status": "CONDITIONAL",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_transport_work_tkm",
+      "validation_status": "FULL_MODEL_REQUIRED",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "MILP",
+      "target": "milp_capacity_util",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_throughput_rate_mean",
+      "validation_status": "CONDITIONAL",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_service_pct_mean",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_mean_lead_time_mean",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_mean_wait_mean",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_logistics_cost_mean",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "DES",
+      "target": "des_transport_co2_t_mean",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_ghg_2030_t",
+      "validation_status": "CONDITIONAL",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_ghg_2035_t",
+      "validation_status": "CONDITIONAL",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_cum_ghg_t",
+      "validation_status": "CONDITIONAL",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_cum_output",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_oee_2035",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    },
+    {
+      "module": "SD",
+      "target": "sd_digital_2035",
+      "validation_status": "PASS",
+      "route": "PARENT_MODEL_REQUIRED"
+    }
+  ]
+}

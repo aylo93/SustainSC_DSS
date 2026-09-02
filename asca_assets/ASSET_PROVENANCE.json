@@ -1,0 +1,9 @@
+{
+  "source_package": "SustainSCM_Romanian_Metamodel_Package.zip",
+  "source_date": "2026-08-15",
+  "scientific_sections": ["8.13", "8.14", "8.15"],
+  "development_n": 136,
+  "holdout_n": 32,
+  "surrogate_outputs": 17,
+  "note": "Copied without retraining for the bounded ASCA proof-of-concept integration."
+}
