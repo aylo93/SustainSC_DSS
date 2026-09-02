@@ -52,6 +52,7 @@ from sustainsc.dpp_import import (
 )
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.factor_registry import upsert_approved_emission_factors
+from sustainsc.template_downloads import DPP_TEMPLATE, XLSX_MIME_TYPE, load_template_bytes
 from sustainsc.models import (
     Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult,
     ImportRun, ImportRunScenario,
@@ -1137,6 +1138,14 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
         "DPP & Traceability Data",
         "Upload one Excel workbook containing product batches and their event histories. "
         "Accepted format: XLSX. Required sheets: 01_PRODUCT_BATCHES, 02_TRACEABILITY_EVENTS.",
+    )
+    st.download_button(
+        "Download DPP & Traceability template",
+        data=load_template_bytes(DPP_TEMPLATE),
+        file_name=DPP_TEMPLATE.filename,
+        mime=XLSX_MIME_TYPE,
+        key="download_dpp_traceability_template",
+        help="Download this workbook, complete the batch and event blocks, and upload it below.",
     )
     dpp_workbook = st.file_uploader(
         "DPP & Traceability workbook",

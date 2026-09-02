@@ -11,6 +11,7 @@ import streamlit as st
 
 from batch_completion_engine import BatchCompletionResult, BatchScenarioCompletionEngine
 from sustainsc.numerical import NUMERICAL_COMPARISON
+from sustainsc.template_downloads import MRV_TEMPLATE, XLSX_MIME_TYPE, load_template_bytes
 from sustainsc.ui import (
     render_data_status_panel,
     render_downloadable_table,
@@ -38,6 +39,14 @@ def render_scenario_completion_page(
         }
     )
 
+    st.download_button(
+        "Download MRV input template",
+        data=load_template_bytes(MRV_TEMPLATE),
+        file_name=MRV_TEMPLATE.filename,
+        mime=XLSX_MIME_TYPE,
+        key="download_mrv_input_template",
+        help="Download this workbook, complete its input blocks, and upload it below.",
+    )
     uploaded = st.file_uploader(
         "Upload the SustainSCM MRV measurement-completion workbook",
         type=["xlsx"],
