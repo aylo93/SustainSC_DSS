@@ -51,9 +51,10 @@ from sustainsc.dpp_import import (
     read_dpp_workbook,
 )
 from sustainsc.kpi_engine import run_full_pipeline
+from sustainsc.factor_registry import upsert_approved_emission_factors
 from sustainsc.models import (
     Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult,
-    ImportRun, ImportRunScenario, EmissionFactor,
+    ImportRun, ImportRunScenario,
 )
 from sustainsc.dataset_scope import (
     activate_import_run,
@@ -1038,27 +1039,7 @@ def import_completed_mrv(result, *, dpp_workbook_bytes: bytes | None = None):
     )
     factor_session = SessionLocal()
     try:
-        for row in parsed.factor_register.itertuples():
-            if str(getattr(row, "approval_status", "")).strip().lower() != "approved":
-                continue
-            existing = factor_session.query(EmissionFactor).filter_by(code=str(row.factor_code)).first()
-            values = {
-                "name": str(row.factor_code),
-                "activity_type": str(getattr(row, "scope", "") or row.factor_code),
-                "unit": str(row.unit), "value": float(row.value),
-                "valid_from": pd.to_datetime(getattr(row, "valid_from", None), errors="coerce"),
-                "valid_to": pd.to_datetime(getattr(row, "valid_to", None), errors="coerce"),
-                "source": str(getattr(row, "source", "")),
-                "analytical_role": str(getattr(row, "analytical_role", "")),
-                "factor_set_id": str(row.factor_set_id),
-            }
-            values["valid_from"] = None if pd.isna(values["valid_from"]) else values["valid_from"].to_pydatetime()
-            values["valid_to"] = None if pd.isna(values["valid_to"]) else values["valid_to"].to_pydatetime()
-            if existing is None:
-                factor_session.add(EmissionFactor(code=str(row.factor_code), **values))
-            else:
-                for key, value in values.items():
-                    setattr(existing, key, value)
+        upsert_approved_emission_factors(factor_session, parsed.factor_register)
         factor_session.commit()
     finally:
         factor_session.close()

@@ -53,7 +53,7 @@ def render_scenario_completion_page(
     payload = uploaded.getvalue()
     checksum = hashlib.sha256(payload).hexdigest()
     parser_key = (
-        f"{checksum}:schema-2.0:parser-2:completion-5:rules-5:transport-boundary-1:"
+        f"{checksum}:schema-2.0:parser-2:completion-6:rules-6:transport-factor-auth-2:"
         f"normalization-2:ec2-guard-1:tolerance-{NUMERICAL_COMPARISON.version}"
     )
     if st.session_state.get("mrv_workbook_key") != parser_key:
@@ -78,7 +78,10 @@ def render_scenario_completion_page(
             return
         finally:
             temp_path.unlink(missing_ok=True)
-    result = st.session_state["mrv_completion_result"]
+    result = st.session_state.get("mrv_completion_result")
+    if result is None:
+        st.error("The workbook completion result is unavailable. Upload the workbook again.")
+        return
 
     parsed = result.parsed_workbook
     if parsed and parsed.schema.migration_required:

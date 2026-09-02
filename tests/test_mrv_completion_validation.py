@@ -190,6 +190,14 @@ def test_transport_multiply_factor_dispatch_and_unit_contract():
     with pytest.raises(ValueError, match="not authorized"):
         engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario)
     engine.factor_register = active_analytical
+    wrong_type = active_analytical.copy()
+    wrong_type.loc[
+        wrong_type.factor_code.eq("TRANSPORT_GHG_PER_TKM"), "factor_type"
+    ] = "REFERENCE"
+    engine.factor_register = wrong_type
+    with pytest.raises(ValueError, match="must use factor type EMISSION"):
+        engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario)
+    engine.factor_register = active_analytical
     malformed = rule.copy()
     malformed["parameter"] = "not-json"
     with pytest.raises(ValueError, match="valid JSON"):
