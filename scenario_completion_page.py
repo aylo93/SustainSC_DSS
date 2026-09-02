@@ -183,10 +183,13 @@ def render_scenario_completion_page(
         }
         render_data_status_panel(diagnostics)
         if parsed is not None:
+            factor_roles = parsed.factor_register["analytical_role"].astype(str)
+            factor_scopes = parsed.factor_register["scope"].astype(str)
             transport_factors = parsed.factor_register[
-                parsed.factor_register["analytical_role"].astype(str).str.contains(
-                    "transport-scope", case=False, na=False
+                factor_roles.str.contains(
+                    "transport-scope|active analytical", case=False, na=False, regex=True
                 )
+                & factor_scopes.str.contains("transport", case=False, na=False)
             ]
             reference_code = str(parsed.metadata.get("default_reference_scenario", ""))
             reference_rows = result.completion_review[
