@@ -115,15 +115,17 @@ def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
     next(
         button
         for button in app.button
-        if button.label == "Validate domain and run eligible metamodels"
+        if button.label == "3 · Validate domain and run eligible metamodels"
     ).click()
     app.run(timeout=60)
     metrics = {metric.label: metric.value for metric in app.metric}
     assert not app.exception
-    assert metrics["PASS predictions"] == "10"
-    assert metrics["Conditional predictions"] == "5"
-    assert metrics["Parent-model routes"] == "2"
+    assert metrics["Validated screening"] == "10"
+    assert metrics["Exploratory"] == "5"
+    assert metrics["Parent model required"] == "2"
     assert [item.label for item in app.get("download_button")] == [
         "Download ASCA trace (JSON)",
         "Download metamodel screening (CSV)",
+        "Download BASE comparison (CSV)",
+        "Download interpretation (JSON)",
     ]
