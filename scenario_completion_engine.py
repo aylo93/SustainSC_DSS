@@ -1375,41 +1375,144 @@ class ScenarioCompletionEngine:
 
     def _resolve_analytical_factor(
         self, factor_set_id: str, factor_code: str, timestamp: pd.Timestamp,
-        *, expected_unit: str = "kgCO2e/kWh",
+        *, expected_factor_type: str = "EMISSION",
+        expected_unit: str = "kgCO2e/kWh",
         required_role: str | tuple[str, ...] = "active analytical",
         required_scope: str | None = None,
     ) -> float:
-        if self.factor_register.empty:
+        diagnostic = self.diagnose_analytical_factor(
+            factor_set_id,
+            factor_code,
+            timestamp,
+            expected_factor_type=expected_factor_type,
+            expected_unit=expected_unit,
+            required_role=required_role,
+            required_scope=required_scope,
+        )
+        conditions = diagnostic["conditions"]
+        if not conditions["registry_available"]:
             raise ValueError(f"Factor register is unavailable for {factor_code}")
-        factors = self.factor_register[
-            (self.factor_register["factor_set_id"].astype(str).str.strip() == factor_set_id)
-            & (self.factor_register["factor_code"].astype(str).str.strip() == factor_code)
-        ]
-        if len(factors) != 1:
-            raise ValueError(f"Expected exactly one factor {factor_set_id}/{factor_code}; found {len(factors)}")
-        factor = factors.iloc[0]
-        if _text(factor.get("approval_status")).lower() != "approved":
+        if not conditions["exactly_one_record"]:
+            raise ValueError(
+                f"Expected exactly one factor {factor_set_id}/{factor_code}; "
+                f"found {diagnostic['matching_record_count']}"
+            )
+        if not conditions["factor_type_matches"]:
+            raise ValueError(f"Factor {factor_code} must use factor type {expected_factor_type}")
+        if not conditions["approval_status_approved"]:
             raise ValueError(f"Factor {factor_code} is not approved")
-        role = _text(factor.get("analytical_role")).lower()
-        accepted_roles = (required_role,) if isinstance(required_role, str) else required_role
-        if not any(accepted_role.lower() in role for accepted_role in accepted_roles):
+        if not conditions["analytical_role_allowed"]:
             raise ValueError(f"Factor {factor_code} is not authorized for analytical calculation")
-        if _text(factor.get("unit")) != expected_unit:
+        if not conditions["unit_matches"]:
             raise ValueError(f"Factor {factor_code} must use {expected_unit}")
-        if required_scope and required_scope.lower() not in _text(factor.get("scope")).lower():
+        if not conditions["scope_matches"]:
             raise ValueError(f"Factor {factor_code} does not have the required {required_scope} scope")
-        if pd.isna(timestamp):
+        if not conditions["evaluation_timestamp_present"]:
             raise ValueError("Scenario timestamp is required for factor validity validation")
-        valid_from = pd.to_datetime(factor.get("valid_from"), errors="coerce")
-        valid_to = pd.to_datetime(factor.get("valid_to"), errors="coerce")
-        if (not pd.isna(valid_from) and timestamp < valid_from) or (
-            not pd.isna(valid_to) and timestamp > valid_to
-        ):
+        if not conditions["valid_from_satisfied"] or not conditions["valid_to_satisfied"]:
             raise ValueError(f"Factor {factor_code} is not valid at {timestamp.date()}")
-        value = _float_or_none(factor.get("value"))
-        if value is None:
+        if not conditions["finite_value"]:
             raise ValueError(f"Factor {factor_code} has no finite value")
-        return value
+        return float(diagnostic["record"]["value"])
+
+    def diagnose_analytical_factor(
+        self,
+        factor_set_id: str,
+        factor_code: str,
+        timestamp: pd.Timestamp,
+        *,
+        expected_factor_type: str = "EMISSION",
+        expected_unit: str = "kgCO2e/kWh",
+        required_role: str | tuple[str, ...] = "active analytical",
+        required_scope: str | None = None,
+    ) -> dict[str, Any]:
+        """Return the exact record and booleans used by factor authorization."""
+        registry = self.factor_register
+        registry_available = not registry.empty
+        if registry_available:
+            set_matches = registry[
+                registry["factor_set_id"].astype(str).str.strip() == factor_set_id
+            ]
+            matches = set_matches[
+                set_matches["factor_code"].astype(str).str.strip() == factor_code
+            ]
+        else:
+            set_matches = registry
+            matches = registry
+
+        exactly_one = len(matches) == 1
+        factor = matches.iloc[0] if exactly_one else None
+        accepted_roles = (required_role,) if isinstance(required_role, str) else required_role
+        evaluation_timestamp = pd.to_datetime(timestamp, errors="coerce")
+        record = factor.to_dict() if factor is not None else None
+
+        if factor is None:
+            factor_type_matches = False
+            approval_status_approved = False
+            analytical_role_allowed = False
+            unit_matches = False
+            scope_matches = False
+            valid_from_satisfied = False
+            valid_to_satisfied = False
+            finite_value = False
+        else:
+            factor_type_matches = (
+                _text(factor.get("factor_type")).upper() == expected_factor_type.upper()
+            )
+            approval_status_approved = (
+                _text(factor.get("approval_status")).lower() == "approved"
+            )
+            role = _text(factor.get("analytical_role")).lower()
+            analytical_role_allowed = any(
+                accepted_role.lower() in role for accepted_role in accepted_roles
+            )
+            unit_matches = _text(factor.get("unit")) == expected_unit
+            scope_matches = required_scope is None or (
+                required_scope.lower() in _text(factor.get("scope")).lower()
+            )
+            valid_from = pd.to_datetime(factor.get("valid_from"), errors="coerce")
+            valid_to = pd.to_datetime(factor.get("valid_to"), errors="coerce")
+            timestamp_present = not pd.isna(evaluation_timestamp)
+            valid_from_satisfied = timestamp_present and (
+                pd.isna(valid_from) or evaluation_timestamp >= valid_from
+            )
+            valid_to_satisfied = timestamp_present and (
+                pd.isna(valid_to) or evaluation_timestamp <= valid_to
+            )
+            finite_value = _float_or_none(factor.get("value")) is not None
+
+        conditions = {
+            "registry_available": bool(registry_available),
+            "factor_set_id_matches": bool(len(set_matches) > 0),
+            "factor_code_matches_within_set": bool(len(matches) > 0),
+            "exactly_one_record": bool(exactly_one),
+            "factor_type_matches": bool(factor_type_matches),
+            "approval_status_approved": bool(approval_status_approved),
+            "analytical_role_allowed": bool(analytical_role_allowed),
+            "unit_matches": bool(unit_matches),
+            "scope_matches": bool(scope_matches),
+            "evaluation_timestamp_present": bool(not pd.isna(evaluation_timestamp)),
+            "valid_from_satisfied": bool(valid_from_satisfied),
+            "valid_to_satisfied": bool(valid_to_satisfied),
+            "finite_value": bool(finite_value),
+        }
+        return {
+            "requested": {
+                "factor_set_id": factor_set_id,
+                "factor_code": factor_code,
+                "evaluation_timestamp": evaluation_timestamp,
+            },
+            "expected": {
+                "factor_type": expected_factor_type,
+                "unit": expected_unit,
+                "accepted_analytical_roles": list(accepted_roles),
+                "required_scope": required_scope,
+            },
+            "matching_record_count": len(matches),
+            "record": record,
+            "conditions": conditions,
+            "authorized": all(conditions.values()),
+        }
 
     @staticmethod
     def _relationship_check(

@@ -121,7 +121,7 @@ def test_normal_user_interface_hides_internal_version_label():
     assert '"MRV Scenario Workbook v2"' not in source
     assert '"MRV Scenario Workbook"' in source
     assert '"Import diagnostics"' in source
-    assert "completion-5:rules-5:transport-boundary-1" in source
+    assert "completion-6:rules-6:transport-factor-auth-2" in source
     assert "checksum" in source and "normalization-2" in source
 
 
