@@ -52,6 +52,7 @@ from sustainsc.dpp_import import (
 )
 from sustainsc.kpi_engine import run_full_pipeline
 from sustainsc.factor_registry import upsert_approved_emission_factors
+from sustainsc.case_studies import CASE_STUDIES
 from sustainsc.template_downloads import DPP_TEMPLATE, XLSX_MIME_TYPE, load_template_bytes
 from sustainsc.models import (
     Measurement, Scenario, ProductBatch, KPIResult, KPINormalizedResult,
@@ -106,6 +107,39 @@ from scenario_completion_page import render_scenario_completion_page
 # -----------------------------------------------------------------------------
 
 COMPOSITE_CODES = {"ENV_INDEX", "ECO_INDEX", "SOC_INDEX", "TECH_INDEX", "SUSTAIN_INDEX"}
+
+
+def render_case_study_examples() -> None:
+    """Render compact, runnable examples beside the guided import workflow."""
+    st.markdown("### Case study examples")
+    st.caption(
+        "Download both workbooks for a case. Upload DPP first, then MRV, and review "
+        "the completed indicators before committing the dataset."
+    )
+    for case in CASE_STUDIES:
+        with st.container(border=True):
+            st.markdown(f"#### {case.flag} {case.title}")
+            st.caption(f"🏭 {case.industry} · {case.location}")
+            st.write(case.description)
+            st.markdown(f"**{case.scenario_summary}**")
+            st.caption(case.dpp_summary)
+            mrv_column, dpp_column = st.columns(2)
+            mrv_column.download_button(
+                "Download MRV",
+                data=load_template_bytes(case.mrv_workbook),
+                file_name=case.mrv_workbook.filename,
+                mime=XLSX_MIME_TYPE,
+                key=f"download_{case.slug}_mrv_case_study",
+                help=f"Download the completed MRV example for {case.title}.",
+            )
+            dpp_column.download_button(
+                "Download DPP",
+                data=load_template_bytes(case.dpp_workbook),
+                file_name=case.dpp_workbook.filename,
+                mime=XLSX_MIME_TYPE,
+                key=f"download_{case.slug}_dpp_case_study",
+                help=f"Download the filled DPP and traceability example for {case.title}.",
+            )
 
 
 # -----------------------------------------------------------------------------
@@ -1123,17 +1157,21 @@ if not _has_active_import_run() or st.session_state.get("show_import_page", Fals
             "Explore DPP": "pending",
         }
     )
-    render_empty_state(
-        "Load an MRV scenario workbook",
-        "Upload the scientific input template to validate evidence, complete "
-        "missing variables and calculate decision-support indicators.",
-    )
-    render_section_header(
-        "Guided data import",
-        "Step 1 — optional DPP and traceability workbook. "
-        "Step 2 — MRV scenario workbook validation. "
-        "Step 3 — review and commit.",
-    )
+    import_overview, case_examples = st.columns([1.55, 1], gap="large")
+    with import_overview:
+        render_empty_state(
+            "Load an MRV scenario workbook",
+            "Upload the scientific input template to validate evidence, complete "
+            "missing variables and calculate decision-support indicators.",
+        )
+        render_section_header(
+            "Guided data import",
+            "Step 1 — optional DPP and traceability workbook. "
+            "Step 2 — MRV scenario workbook validation. "
+            "Step 3 — review and commit.",
+        )
+    with case_examples:
+        render_case_study_examples()
     render_section_header(
         "DPP & Traceability Data",
         "Upload one Excel workbook containing product batches and their event histories. "
