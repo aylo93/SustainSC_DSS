@@ -88,6 +88,8 @@ def test_asca_assets_and_home_navigation_are_complete() -> None:
     assert (ROOT / "pages" / "90_AI_Scenario_Agent.py").is_file()
     assert "render_asca_page" in page
     assert "Back to SustainSCM home" in page
+    assert 'type="primary"' in page
+    assert 'icon=":material/arrow_back:"' in page
     assert "showSidebarNavigation = false" in config
 
 

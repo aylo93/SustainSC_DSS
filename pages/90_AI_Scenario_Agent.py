@@ -21,7 +21,8 @@ apply_design_system()
 st.link_button(
     "Back to SustainSCM home",
     "/",
-    icon="⬅️",
+    type="primary",
+    icon=":material/arrow_back:",
     width="content",
 )
 render_page_header(
