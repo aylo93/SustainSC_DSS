@@ -174,6 +174,22 @@ def test_transport_multiply_factor_dispatch_and_unit_contract():
     assert engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario) == pytest.approx(
         740.992699753271
     )
+    active_analytical = parsed.factor_register.copy()
+    active_analytical.loc[
+        active_analytical.factor_code.eq("TRANSPORT_GHG_PER_TKM"), "analytical_role"
+    ] = "Active analytical factor"
+    engine.factor_register = active_analytical
+    assert engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario) == pytest.approx(
+        740.992699753271
+    )
+    reference_only = active_analytical.copy()
+    reference_only.loc[
+        reference_only.factor_code.eq("TRANSPORT_GHG_PER_TKM"), "analytical_role"
+    ] = "Reference only"
+    engine.factor_register = reference_only
+    with pytest.raises(ValueError, match="not authorized"):
+        engine._evaluate_mrv_rule(rule, state, {}, scenario=scenario)
+    engine.factor_register = active_analytical
     malformed = rule.copy()
     malformed["parameter"] = "not-json"
     with pytest.raises(ValueError, match="valid JSON"):

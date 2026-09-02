@@ -1367,14 +1367,16 @@ class ScenarioCompletionEngine:
         timestamp = pd.to_datetime(scenario.get("evaluation_timestamp"), errors="coerce")
         factor = self._resolve_analytical_factor(
             factor_set_id, factor_code, timestamp,
-            expected_unit="tCO2e/tkm", required_role="transport-scope",
+            expected_unit="tCO2e/tkm",
+            required_role=("transport-scope", "active analytical"),
             required_scope="transport",
         )
         return values[0] * factor
 
     def _resolve_analytical_factor(
         self, factor_set_id: str, factor_code: str, timestamp: pd.Timestamp,
-        *, expected_unit: str = "kgCO2e/kWh", required_role: str = "active analytical",
+        *, expected_unit: str = "kgCO2e/kWh",
+        required_role: str | tuple[str, ...] = "active analytical",
         required_scope: str | None = None,
     ) -> float:
         if self.factor_register.empty:
@@ -1389,7 +1391,8 @@ class ScenarioCompletionEngine:
         if _text(factor.get("approval_status")).lower() != "approved":
             raise ValueError(f"Factor {factor_code} is not approved")
         role = _text(factor.get("analytical_role")).lower()
-        if required_role.lower() not in role:
+        accepted_roles = (required_role,) if isinstance(required_role, str) else required_role
+        if not any(accepted_role.lower() in role for accepted_role in accepted_roles):
             raise ValueError(f"Factor {factor_code} is not authorized for analytical calculation")
         if _text(factor.get("unit")) != expected_unit:
             raise ValueError(f"Factor {factor_code} must use {expected_unit}")
