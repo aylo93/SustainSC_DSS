@@ -176,7 +176,6 @@ def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
     assert metrics["Strategy being evaluated"] == "DIGITAL"
     assert "Reference WSM leader" in metrics
     assert "Reference TOPSIS leader" in metrics
-    assert "Evidence scope" in metrics
     markdown = "\n".join(item.value for item in app.markdown)
     for section in (
         "MCDA and Robustness Interpretation",
@@ -190,4 +189,5 @@ def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
         "Decision-evidence status",
     ):
         assert section in markdown
+    assert "LEVEL B · In-domain metamodel screening + reference-archetype MCDA evidence" in markdown
     assert len(app.get("plotly_chart")) >= 2
