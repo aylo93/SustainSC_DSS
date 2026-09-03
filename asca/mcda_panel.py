@@ -342,7 +342,9 @@ def render_decision_evidence(view: DecisionEvidenceView) -> None:
         "it does not calculate WSM/TOPSIS or create a new scientific result."
     )
     st.markdown("### Evidence scope")
-    st.metric("Evidence scope", f"{view.scope['level']} · {view.scope['label']}")
+    with st.container(border=True):
+        st.caption("EVIDENCE SCOPE")
+        st.markdown(f"#### {view.scope['level']} · {view.scope['label']}")
     if view.scope["level"] == "LEVEL C":
         st.warning(view.scope["explanation"])
     else:
