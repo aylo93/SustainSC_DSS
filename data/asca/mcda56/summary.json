@@ -1,0 +1,255 @@
+{
+  "n_anchors": 56,
+  "n_kpi_observations": 1680,
+  "n_nonbase_alternatives": 48,
+  "winners": [
+    {
+      "archetype": "RO-A1",
+      "archetype_name": "Automotive component supplier",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.44423861777116,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.43217605453714,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A2",
+      "archetype_name": "Electrical/electromechanical and cable-assembly manufacturer",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.66191169745177,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.58066731011466,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A3",
+      "archetype_name": "Fabricated metal products and machining SME",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.50996173548819,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.45850196943267,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A4",
+      "archetype_name": "Industrial machinery and equipment manufacturer",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.434157781714944,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.49083024600296,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A5",
+      "archetype_name": "Food-processing company",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.49415239789338,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.37506431517093,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A6",
+      "archetype_name": "Wood-products and furniture manufacturer",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.5189949326144,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.45977265483887,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A7",
+      "archetype_name": "Rubber and plastics processor",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.61072991214476,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.51647042218721,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    },
+    {
+      "archetype": "RO-A8",
+      "archetype_name": "Non-metallic mineral/construction-material producer",
+      "VSM_priority": "INTEGRATED",
+      "WSM_winner": "INTEGRATED",
+      "WSM_score": 61.45735847859217,
+      "TOPSIS_winner": "INTEGRATED",
+      "TOPSIS_score": 89.2692149362279,
+      "WSM_TOPSIS_agree": true,
+      "VSM_WSM_agree": true,
+      "VSM_TOPSIS_agree": true
+    }
+  ],
+  "robustness": [
+    {
+      "strategy": "ENERGY",
+      "method": "WSM",
+      "rank1_count": 0,
+      "top2_count": 1,
+      "mean_rank": 2.875,
+      "median_rank": 3.0,
+      "worst_rank": 3,
+      "best_rank": 2,
+      "mean_score": 56.29125354086488
+    },
+    {
+      "strategy": "ENERGY",
+      "method": "TOPSIS",
+      "rank1_count": 0,
+      "top2_count": 8,
+      "mean_rank": 2,
+      "median_rank": 2.0,
+      "worst_rank": 2,
+      "best_rank": 2,
+      "mean_score": 46.413912801220306
+    },
+    {
+      "strategy": "MAINT",
+      "method": "WSM",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 5,
+      "median_rank": 5.0,
+      "worst_rank": 5,
+      "best_rank": 5,
+      "mean_score": 54.867865555384334
+    },
+    {
+      "strategy": "MAINT",
+      "method": "TOPSIS",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 5.125,
+      "median_rank": 5.0,
+      "worst_rank": 6,
+      "best_rank": 5,
+      "mean_score": 23.173675577464227
+    },
+    {
+      "strategy": "CIRCULAR",
+      "method": "WSM",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 6,
+      "median_rank": 6.0,
+      "worst_rank": 6,
+      "best_rank": 6,
+      "mean_score": 54.239857169547555
+    },
+    {
+      "strategy": "CIRCULAR",
+      "method": "TOPSIS",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 5.875,
+      "median_rank": 6.0,
+      "worst_rank": 6,
+      "best_rank": 5,
+      "mean_score": 22.820687787540763
+    },
+    {
+      "strategy": "DIGITAL",
+      "method": "WSM",
+      "rank1_count": 0,
+      "top2_count": 7,
+      "mean_rank": 2.125,
+      "median_rank": 2.0,
+      "worst_rank": 3,
+      "best_rank": 2,
+      "mean_score": 56.44149203984772
+    },
+    {
+      "strategy": "DIGITAL",
+      "method": "TOPSIS",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 3,
+      "median_rank": 3.0,
+      "worst_rank": 3,
+      "best_rank": 3,
+      "mean_score": 42.223559351620736
+    },
+    {
+      "strategy": "SOCIAL",
+      "method": "WSM",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 4,
+      "median_rank": 4.0,
+      "worst_rank": 4,
+      "best_rank": 4,
+      "mean_score": 55.008193990779596
+    },
+    {
+      "strategy": "SOCIAL",
+      "method": "TOPSIS",
+      "rank1_count": 0,
+      "top2_count": 0,
+      "mean_rank": 4,
+      "median_rank": 4.0,
+      "worst_rank": 4,
+      "best_rank": 4,
+      "mean_score": 24.750863367081223
+    },
+    {
+      "strategy": "INTEGRATED",
+      "method": "WSM",
+      "rank1_count": 8,
+      "top2_count": 8,
+      "mean_rank": 1,
+      "median_rank": 1.0,
+      "worst_rank": 1,
+      "best_rank": 1,
+      "mean_score": 61.516438194208845
+    },
+    {
+      "strategy": "INTEGRATED",
+      "method": "TOPSIS",
+      "rank1_count": 8,
+      "top2_count": 8,
+      "mean_rank": 1,
+      "median_rank": 1.0,
+      "worst_rank": 1,
+      "best_rank": 1,
+      "mean_score": 89.44783723856405
+    }
+  ],
+  "random_weight_global": {
+    "WSM_win_pct": {
+      "CIRCULAR": 0.0,
+      "DIGITAL": 0.0,
+      "ENERGY": 0.0,
+      "INTEGRATED": 100.0,
+      "MAINT": 0.0,
+      "SOCIAL": 0.0
+    },
+    "TOPSIS_win_pct": {
+      "CIRCULAR": 0.0,
+      "DIGITAL": 0.0,
+      "ENERGY": 0.0,
+      "INTEGRATED": 100.0,
+      "MAINT": 0.0,
+      "SOCIAL": 0.0
+    }
+  }
+}

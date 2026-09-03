@@ -169,4 +169,25 @@ def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
         "Download metamodel screening (CSV)",
         "Download BASE comparison (CSV)",
         "Download interpretation (JSON)",
+        "Download decision evidence (JSON)",
+        "Download reference strategy ranking (CSV)",
     ]
+    assert metrics["Selected archetype"] == "RO-A2"
+    assert metrics["Strategy being evaluated"] == "DIGITAL"
+    assert "Reference WSM leader" in metrics
+    assert "Reference TOPSIS leader" in metrics
+    assert "Evidence scope" in metrics
+    markdown = "\n".join(item.value for item in app.markdown)
+    for section in (
+        "MCDA and Robustness Interpretation",
+        "SustainSCM Decision Evidence",
+        "Reference-Archetype MCDA Evidence",
+        "Reference Sustainability Profile",
+        "Cross-Archetype Strategy Robustness",
+        "Preference-Weight Robustness",
+        "Completion-Assumption Robustness",
+        "Diagnostic–Decision Agreement",
+        "Decision-evidence status",
+    ):
+        assert section in markdown
+    assert len(app.get("plotly_chart")) >= 2

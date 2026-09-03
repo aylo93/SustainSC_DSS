@@ -27,6 +27,13 @@ from .interpretation import (
     summarize_configuration,
     summarize_routing,
 )
+from .mcda_evidence import DEFAULT_EVIDENCE_DIR, MCDAEvidenceError
+from .mcda_panel import (
+    prepare_decision_evidence,
+    render_decision_evidence,
+    render_mcda_interpretation,
+    render_technical_mcda_sources,
+)
 
 
 EXAMPLES = {
@@ -439,6 +446,16 @@ def render_asca_page(
         st.session_state.asca_base_evaluation = base_evaluation
     comparison = compare_with_base(evaluation, base_evaluation)
 
+    decision_evidence_view = None
+    evidence_error = None
+    try:
+        decision_evidence_view = prepare_decision_evidence(
+            evaluation,
+            assets_dir=assets_dir,
+        )
+    except (MCDAEvidenceError, KeyError, ValueError, OSError) as exc:
+        evidence_error = f"{type(exc).__name__}: {exc}"
+
     _render_domain_status(evaluation)
 
     st.markdown("## ASCA Decision-Support Interpretation")
@@ -508,8 +525,23 @@ def render_asca_page(
     for message in build_key_interpretations(evaluation, comparison):
         st.markdown(f"- {message}")
 
+    if decision_evidence_view is not None:
+        render_mcda_interpretation(decision_evidence_view)
+        render_decision_evidence(decision_evidence_view)
+    else:
+        st.warning(
+            "Reference MCDA evidence is temporarily unavailable. ASCA metamodel "
+            "screening remains operational."
+        )
+        with st.expander("Technical MCDA evidence availability", expanded=False):
+            st.code(f"Expected evidence directory: {DEFAULT_EVIDENCE_DIR}\n{evidence_error}")
+
     st.markdown("#### Recommended next action")
-    st.info(build_recommended_action(evaluation))
+    st.info(
+        decision_evidence_view.recommended_action
+        if decision_evidence_view is not None
+        else build_recommended_action(evaluation)
+    )
 
     st.markdown("#### Interpretation and uncertainty")
     st.write(
@@ -564,6 +596,26 @@ def render_asca_page(
         mime="application/json",
         width="stretch",
     )
+    if decision_evidence_view is not None:
+        evidence_download, ranking_download = st.columns(2)
+        evidence_download.download_button(
+            "Download decision evidence (JSON)",
+            json.dumps(
+                decision_evidence_view.payload,
+                indent=2,
+                ensure_ascii=False,
+            ).encode(),
+            file_name=f"{scenario_id}_decision_evidence.json",
+            mime="application/json",
+            width="stretch",
+        )
+        ranking_download.download_button(
+            "Download reference strategy ranking (CSV)",
+            decision_evidence_view.ranking.to_csv(index=False).encode(),
+            file_name=f"{scenario_id}_reference_strategy_ranking.csv",
+            mime="text/csv",
+            width="stretch",
+        )
 
     with st.expander("Technical metamodel outputs — absolute values", expanded=False):
         st.warning(
@@ -611,6 +663,9 @@ def render_asca_page(
             width="stretch",
             hide_index=True,
         )
+
+    if decision_evidence_view is not None:
+        render_technical_mcda_sources(decision_evidence_view)
 
     if on_configuration is not None:
         if st.button(

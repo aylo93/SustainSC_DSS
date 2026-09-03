@@ -131,3 +131,26 @@ Reusable presentation code lives in `sustainsc/ui/`:
 The application uses a polished light theme configured in
 `.streamlit/config.toml`. A custom runtime dark-mode switch was intentionally
 not added because it would conflict with Streamlit widget theming and reruns.
+
+## MCDA56 Decision-Evidence Layer
+
+The ASCA page retrieves a compact, read-only subset of the completed Romanian
+56-anchor experiment: eight structured experimental archetypes, BASE plus six
+intervention strategies, and the common 30-KPI SustainSCM architecture. BASE is
+the within-archetype benchmark and is excluded from the competitive rankings.
+
+The evidence layer displays the stored within-archetype WSM and TOPSIS ranks,
+four dimension indices and global geometric index, cross-archetype rank
+statistics, deterministic and bounded-random weight sensitivity, completion
+sensitivity, and VSM-C/MCDA agreement. Runtime CSV files live in
+`data/asca/mcda56/`; the full raw and normalized 1,680-observation tables remain
+in the external reproducibility package and are not loaded on Streamlit reruns.
+
+ASCA does not recalculate KPIs, normalization, WSM or TOPSIS and does not modify
+the parent-model, metamodel, applicability-domain or routing results. It
+configures scenarios, checks applicability, retrieves the completed SustainSCM
+evidence and applies deterministic wording rules. The archetypes are structured
+experimental anchors, not statistical sector averages or empirical company
+observations. Social and technological completion bridges remain synthetic
+design quantities; the displayed completion-sensitivity tests bound reliance on
+those assumptions but do not turn them into observations.
