@@ -18,6 +18,18 @@ st.set_page_config(
 )
 apply_design_system()
 
+# The shared design system intentionally keeps a compact global content offset.
+# This page begins with navigation, so add page-local clearance in normal flow.
+st.markdown(
+    """
+    <style>
+    .asca-toolbar-clearance { height: 2.5rem; }
+    </style>
+    <div class="asca-toolbar-clearance" aria-hidden="true"></div>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.link_button(
     "Back to SustainSCM home",
     "/",

@@ -35,6 +35,138 @@ EXAMPLES = {
     "Construction materials / ENERGY": "Large non-metallic construction-material producer, energy-intensive, with limited renewable energy and moderate circularity maturity.",
 }
 
+ARCHETYPE_NAMES = {
+    "RO-A1": "Automotive component supplier",
+    "RO-A2": "Electrical/electromechanical and cable-assembly manufacturer",
+    "RO-A3": "Fabricated metal products and machining SME",
+    "RO-A4": "Industrial machinery and equipment manufacturer",
+    "RO-A5": "Food-processing company",
+    "RO-A6": "Wood-products and furniture manufacturer",
+    "RO-A7": "Rubber and plastics processor",
+    "RO-A8": "Non-metallic mineral/construction-material producer",
+}
+
+ARCHETYPE_LABELS = {
+    code: f"{code} — {name}" for code, name in ARCHETYPE_NAMES.items()
+}
+
+CATEGORICAL_CONTROL_HELP = {
+    "archetype": (
+        "Selects one of the eight Romanian industrial design archetypes used to "
+        "define the synthetic company structure and reference process topology. "
+        "Archetypes are experimental design anchors, not statistical sector averages."
+    ),
+    "size_class": (
+        "Selects the synthetic company-size class used by the experimental design. "
+        "Size affects the archetype reference configuration but does not change the "
+        "scientific definition of the archetype."
+    ),
+    "strategy": (
+        "Selects the sustainability intervention being evaluated. The selected "
+        "strategy defines the counterfactual intervention applied to the "
+        "configuration; it does not automatically mean that ASCA considers this "
+        "strategy optimal."
+    ),
+}
+
+EXPERIMENTAL_CONTROL_METADATA = {
+    "lambda_intensity": {
+        "label": "Intervention intensity (λ)",
+        "help": (
+            "Controls the strength of the selected sustainability intervention. "
+            "λ = 0 represents no intervention effect, while larger values represent "
+            "progressively stronger implementation within the experimental design. "
+            "This parameter changes scenario intensity; it does not represent an "
+            "observed company measurement."
+        ),
+    },
+    "demand_load": {
+        "label": "Demand load multiplier",
+        "help": (
+            "Represents demand relative to the archetype reference level. A value of "
+            "1.00 corresponds to the reference demand; values below 1 indicate lower "
+            "demand and values above 1 indicate higher demand. It regulates the "
+            "production/logistics load imposed on the synthetic company configuration."
+        ),
+    },
+    "demand_cv": {
+        "label": "Demand variability (CV)",
+        "help": (
+            "Coefficient of variation of demand used to represent operational "
+            "uncertainty. Lower values indicate more stable demand, while higher "
+            "values represent greater variability. It primarily affects operational "
+            "and DES-related pressure such as queues, waiting and service behavior."
+        ),
+    },
+    "oee": {
+        "label": "Current-state OEE",
+        "help": (
+            "Overall Equipment Effectiveness of the pre-intervention configuration. "
+            "It represents the current productive effectiveness of the system and "
+            "contributes to effective-capacity and operational-response calculations. "
+            "Higher values indicate greater baseline equipment effectiveness. Values "
+            "remain stored as fractions; for example, 0.725 = 72.5%."
+        ),
+    },
+    "distance_mult": {
+        "label": "Logistics-distance multiplier",
+        "help": (
+            "Scales the reference logistics distance of the selected archetype. A "
+            "value of 1.00 represents the archetype reference distance; values above "
+            "1 indicate a longer logistics-distance exposure and values below 1 "
+            "indicate a shorter one. It influences logistics and transport-related "
+            "model responses."
+        ),
+    },
+    "resource_mult": {
+        "label": "Resource-intensity multiplier",
+        "help": (
+            "Scales the reference resource intensity of the selected archetype. A "
+            "value of 1.00 represents the reference condition; higher values indicate "
+            "greater resource use per functional output and lower values indicate "
+            "lower resource intensity."
+        ),
+    },
+    "renewable_share": {
+        "label": "Renewable-energy share",
+        "help": (
+            "Share of energy represented as renewable in the synthetic experimental "
+            "configuration. Larger values indicate greater renewable-energy "
+            "penetration. This is a scenario/design variable and must not be "
+            "interpreted automatically as an observed company value. Values remain "
+            "stored as fractions; for example, 0.375 = 37.5%."
+        ),
+    },
+    "zC": {
+        "label": "Circularity maturity (zC)",
+        "help": (
+            "Dimensionless circularity/material-efficiency maturity variable used in "
+            "the Romanian experimental design. Lower values represent limited "
+            "circularity practices and material-recovery maturity; higher values "
+            "represent stronger circularity and recovery capability. It is a "
+            "synthetic design factor, not an independently observed KPI."
+        ),
+    },
+    "zD": {
+        "label": "Digital / MRV maturity (zD)",
+        "help": (
+            "Dimensionless digitalization, measurement, reporting and verification "
+            "(MRV), and information-integration maturity factor. Lower values "
+            "represent limited digital/MRV capability; higher values represent more "
+            "mature digital monitoring, traceability and information integration."
+        ),
+    },
+    "zS": {
+        "label": "Social / skills maturity (zS)",
+        "help": (
+            "Dimensionless workforce, skills and social-management maturity factor "
+            "used in the experimental design. Lower values represent less-developed "
+            "workforce/social capability; higher values represent stronger skills, "
+            "workforce-development and social-management maturity."
+        ),
+    },
+}
+
 
 def _init_state() -> None:
     st.session_state.setdefault("asca_suggestion", None)
@@ -224,39 +356,56 @@ def render_asca_page(
     with st.expander("2 · Review / override ASCA configuration", expanded=True):
         archetypes = [f"RO-A{i}" for i in range(1, 9)]
         archetype = st.selectbox(
-            "Archetype", archetypes, index=archetypes.index(suggestion.archetype)
+            "Archetype",
+            archetypes,
+            index=archetypes.index(suggestion.archetype),
+            format_func=lambda code: ARCHETYPE_LABELS.get(code, code),
+            help=CATEGORICAL_CONTROL_HELP["archetype"],
         )
+        st.caption(f"Selected design archetype: {ARCHETYPE_NAMES[archetype]}")
         size_class = st.selectbox(
             "Size class",
             SIZE_CLASSES,
             index=SIZE_CLASSES.index(suggestion.size_class),
+            help=CATEGORICAL_CONTROL_HELP["size_class"],
         )
         strategy = st.selectbox(
             "Strategy family",
             STRATEGIES,
             index=STRATEGIES.index(suggestion.strategy),
+            help=CATEGORICAL_CONTROL_HELP["strategy"],
+        )
+        st.markdown("#### Experimental configuration controls")
+        st.caption(
+            "These controls define a synthetic company–scenario configuration within "
+            "the Romanian metamodel design space. Hover over the help icon beside each "
+            "variable to see its definition and modelling role."
         )
         lambda_default = 0.0 if strategy == "BASE" else suggestion.lambda_intensity
+        intensity_metadata = EXPERIMENTAL_CONTROL_METADATA["lambda_intensity"]
         intensity = st.slider(
-            "Intervention intensity λ",
+            intensity_metadata["label"],
             0.0,
             1.0,
             float(lambda_default),
             0.05,
             disabled=(strategy == "BASE"),
+            help=intensity_metadata["help"],
         )
         parameters: dict[str, float] = {}
         left, right = st.columns(2)
         for index, (feature, (low, high)) in enumerate(FORMAL_BOUNDS.items()):
             host = left if index % 2 == 0 else right
+            metadata = EXPERIMENTAL_CONTROL_METADATA[feature]
             with host:
                 parameters[feature] = st.slider(
-                    feature,
+                    metadata["label"],
                     float(low),
                     float(high),
                     float(suggestion.parameters[feature]),
                     float((high - low) / 100),
                     format="%.4f",
+                    help=metadata["help"],
                 )
 
     if st.button(

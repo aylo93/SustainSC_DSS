@@ -4,9 +4,12 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from asca import ASCAEngine
+from asca.core import FORMAL_BOUNDS
+from asca.streamlit_page import ARCHETYPE_LABELS, EXPERIMENTAL_CONTROL_METADATA
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +93,7 @@ def test_asca_assets_and_home_navigation_are_complete() -> None:
     assert "Back to SustainSCM home" in page
     assert 'type="primary"' in page
     assert 'icon=":material/arrow_back:"' in page
+    assert "asca-toolbar-clearance" in page
     assert "showSidebarNavigation = false" in config
 
 
@@ -112,12 +116,49 @@ def test_asca_page_runs_the_romanian_cable_example_end_to_end() -> None:
     assert metrics["Suggested archetype"] == "RO-A2"
     assert metrics["Suggested strategy"] == "DIGITAL"
 
+    archetype_control = next(
+        control for control in app.selectbox if control.label == "Archetype"
+    )
+    assert archetype_control.value == "RO-A2"
+    assert archetype_control.options == list(ARCHETYPE_LABELS.values())
+    assert all(
+        next(control for control in app.selectbox if control.label == label).help
+        for label in ("Archetype", "Size class", "Strategy family")
+    )
+
+    sliders = {slider.label: slider for slider in app.slider}
+    suggestion = app.session_state["asca_suggestion"]
+    intensity = sliders[EXPERIMENTAL_CONTROL_METADATA["lambda_intensity"]["label"]]
+    assert intensity.help == EXPERIMENTAL_CONTROL_METADATA["lambda_intensity"]["help"]
+    assert (intensity.min, intensity.max, intensity.step, intensity.value) == (
+        0.0,
+        1.0,
+        0.05,
+        suggestion.lambda_intensity,
+    )
+    intensity.set_value(intensity.value + intensity.step)
+
+    changed_parameters = {}
+    for feature, (low, high) in FORMAL_BOUNDS.items():
+        metadata = EXPERIMENTAL_CONTROL_METADATA[feature]
+        slider = sliders[metadata["label"]]
+        assert slider.help == metadata["help"]
+        assert slider.min == float(low)
+        assert slider.max == float(high)
+        assert slider.step == pytest.approx(float((high - low) / 100))
+        assert slider.value == pytest.approx(suggestion.parameters[feature])
+        changed_parameters[feature] = slider.value + slider.step
+        slider.set_value(changed_parameters[feature])
+
     next(
         button
         for button in app.button
         if button.label == "3 · Validate domain and run eligible metamodels"
     ).click()
     app.run(timeout=60)
+    scenario_record = app.session_state["asca_evaluation"].scenario_record()
+    for feature, expected_value in changed_parameters.items():
+        assert scenario_record[feature] == pytest.approx(expected_value)
     metrics = {metric.label: metric.value for metric in app.metric}
     assert not app.exception
     assert metrics["Validated screening"] == "10"
